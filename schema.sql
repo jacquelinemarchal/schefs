@@ -10,7 +10,7 @@ CREATE TABLE users (
     school        VARCHAR(255) NOT NULL,
     major         VARCHAR(255) NOT NULL,
     grad_year     INT NOT NULL,
-    is_admin      BOOLEAN
+    is_admin      BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE events (
@@ -37,7 +37,7 @@ CREATE UNIQUE INDEX tickets_idx ON tickets(user_id, event_id);
 CREATE TABLE comments (
     cid           SERIAL PRIMARY KEY,
     user_id       INT NOT NULL REFERENCES users(uid),
-    name          VARCHAR (255) NOT NULL,
+    name          VARCHAR(255) NOT NULL,
     body          VARCHAR NOT NULL,
     time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
