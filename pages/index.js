@@ -1,5 +1,12 @@
 export default function Home() {
   return (
-      <p>Home</p>
+    <>
+    <Head>
+      <title>Home</title>
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
+
+    <NavBar />
+    </>
   );
 };
