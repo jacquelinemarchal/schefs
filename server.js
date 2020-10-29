@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const db = require('./db');
-const routers = require('./routes')
+const routers = require('./src/routes')
 
 const normalizePort = val => {
     const port = parseInt(val, 10);
