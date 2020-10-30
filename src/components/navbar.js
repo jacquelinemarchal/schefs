@@ -9,28 +9,22 @@ const NavBar = () => {
         setOpen(!isOpen);
     }
 
-    const [isScroll, setScroll] = useState(false);
+    const [isScroll, setScroll] = useState(0);
     let last_known_scroll_position = 0;
 
     useEffect(() => {
-      window.addEventListener("scroll", (e) => {
+      const onScroll = () => {
         last_known_scroll_position = window.scrollY;
-        handleScroll(last_known_scroll_position);
-      })
-    })
+        setScroll(last_known_scroll_position);
+      };
 
-    const handleScroll = (scroll_pos) => {
-      if (scroll_pos > 0){
-        setScroll(true)
-      }
-      if (scroll_pos === 0){
-        setScroll(false)
-      }
-    }
-    
+      window.addEventListener("scroll", onScroll);
+      return () => window.removeEventListener("scroll", onScroll)
+    }, [])
+
     return (
       <div>
-        <nav className={"bg-white fixed w-full top-0 " + (isScroll ? 'shadow-lg' : '')}>
+        <nav className={"bg-white fixed w-full top-0 " + (isScroll !== 0 ? 'shadow-lg' : '')}>
           <div className="items-center sm:flex sm:justify-start sm:mx-8 sm:px-0 my-4 mx-4 px-4 py-1">
             <div className="flex justify-between">
               <div>
@@ -42,8 +36,8 @@ const NavBar = () => {
               <div className="sm:hidden">
                 <button onClick={handleOpen} className="block text-black hover:text-gray-600 duration-300 focus:outline-none">
                   <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24">
-                    <path className={(isOpen ? 'block' : 'hidden')} fill-rule="evenodd" d="M18.278 16.864a1 1 0 0 1-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 0 1-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 0 1 1.414-1.414l4.829 4.828 4.828-4.828a1 1 0 1 1 1.414 1.414l-4.828 4.829 4.828 4.828z"/>
-                    <path className={(isOpen ? 'hidden' : 'block')} fill-rule="evenodd" d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"/>
+                    <path className={(isOpen ? 'block' : 'hidden')} fillRule="evenodd" d="M18.278 16.864a1 1 0 0 1-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 0 1-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 0 1 1.414-1.414l4.829 4.828 4.828-4.828a1 1 0 1 1 1.414 1.414l-4.828 4.829 4.828 4.828z"/>
+                    <path className={(isOpen ? 'hidden' : 'block')} fillRule="evenodd" d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"/>
                   </svg>
                 </button>
               </div>
