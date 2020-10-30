@@ -24,7 +24,7 @@ const NavBar = () => {
 
     return (
       <div>
-        <nav className={"bg-white fixed w-full top-0 " + (isScroll !== 0 ? 'shadow-lg' : '')}>
+        <nav className={"bg-white fixed w-full top-auto " + (isScroll !== 0 ? 'shadow-lg' : '')}>
           <div className="items-center sm:flex sm:justify-start sm:mx-8 sm:px-0 my-4 mx-4 px-4 py-1">
             <div className="flex justify-between">
               <div>
