@@ -5,7 +5,6 @@ import logo from "../assets/logo.png"
 export default function About() {
   return (
     <>
-     <NavBar />
         <div className="mx-8">
             <div className="row">
                 <div className="col-lg-7">
