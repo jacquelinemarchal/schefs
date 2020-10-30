@@ -1,5 +1,5 @@
-const ticketsRouter = require('./tickets');
+const eventsRouter = require('./events');
 
 module.exports = {
-    ticketsRouter
+    eventsRouter
 };

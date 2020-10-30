@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const db = require('./db');
+const db = require('./src/utils/db');
 const routers = require('./src/routes')
 
 const normalizePort = val => {
@@ -38,7 +38,7 @@ app.prepare().then(() => {
         ]
     }));
 
-    server.use('/api/tickets', routers.ticketsRouter);
+    server.use('/api/events', routers.eventsRouter);
 
     server.all('*', (req, res) => {
         return handle(req, res);
