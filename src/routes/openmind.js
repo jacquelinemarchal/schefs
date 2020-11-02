@@ -10,8 +10,7 @@ const router = express.Router();
  *
  * Request Parameters:
  *  query:
- *    time_from <string | Date> - if string, must be in UTC format 'YYYY-MM-DDTHH:MM:SS.SSSZ'
- *    time_to   <string | Date> - if string, must be in UTC format 'YYYY-MM-DDTHH:MM:SS.SSSZ'
+ *    last_id <int> required
  *
  * Response:
  *  200: success
@@ -26,12 +25,7 @@ const router = express.Router();
 router.get('', (req, res) => {
     // check auth and other stuff here
     
-    const values = [
-        req.query.time_from,
-        req.query.time_to
-    ];
-
-    pool.query(queries.getOpenMind, values, (q_err, q_res) => {
+    pool.query(queries.getOpenMind, [ req.query.last_id ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else
@@ -59,9 +53,8 @@ router.post('', (req, res) => {
     // check auth and other stuff here
 
     const values = [
-        req.query.user_id,
-        req.query.user_name,
-        req.query.body
+        req.body.user_id,
+        req.body.body
     ];
 
     pool.query(queries.postOpenMind, values, (q_err, q_res) => {

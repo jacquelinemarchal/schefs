@@ -1,16 +1,9 @@
 /*
- * $1: time_from <string> - in UTC format 'YYYY-MM-DDTHH:MM:SS.SSSZ'
- * $2: time_to   <string> - in UTC format 'YYYY-MM-DDTHH:MM:SS.SSSZ'
+ * $1: last_id <int>
  */
 const getOpenMind = `
     SELECT * FROM openmind
-    WHERE (
-        COALESCE($1) = '' OR
-        time_created >= $1::TIMESTAMPTZ
-    ) AND (
-        COALESCE($2) = '' OR
-        time_created <= $2::TIMESTAMPTZ
-    )
+    WHERE omid >= $1
     ORDER BY time_created ASC
 `;
 
