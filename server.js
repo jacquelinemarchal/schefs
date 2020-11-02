@@ -39,6 +39,7 @@ app.prepare().then(() => {
     }));
 
     server.use('/api/events', routers.eventsRouter);
+    server.use('/api/openmind', routers.openMindRouter);
 
     server.all('*', (req, res) => {
         return handle(req, res);

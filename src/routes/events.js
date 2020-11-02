@@ -1,6 +1,6 @@
 const express = require('express');
 const pool = require('../utils/db');
-const queries = require('../utils/queries');
+const queries = require('../utils/events_queries');
 
 const router = express.Router();
 
@@ -174,26 +174,23 @@ router.post('/:eid/tickets', async (req, res) => {
 });
 
 /*
- * DELETE /api/events/{eid}/tickets
+ * DELETE /api/events/{eid}/tickets/{uid}
  * Delete ticket associated with a specified event and user.
  *
  * Request Parameters:
  *  path:
  *    eid <int> required
- *
- * Request Body:
- *  body <object>
- *    user_id  <int> required
+ *    uid <int> required
  *
  * Response:
  *  204: success
  *  404: event and/or user and/or ticket do not exist
  *  500: other postgres error
  */
-router.delete('/:eid/tickets', (req, res) => {
+router.delete('/:eid/tickets/:uid', (req, res) => {
     // check auth and other stuff here
 
-    const values = [ req.params.eid, req.body.user_id ];
+    const values = [ req.params.eid, req.params.uid ];
     pool.query(queries.deleteTicket, values, (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + err.name });
