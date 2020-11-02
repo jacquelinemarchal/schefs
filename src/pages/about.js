@@ -1,6 +1,5 @@
-import NavBar from "../components/navbar";
+import NavBar from "../components/Banners/navbar";
 import logo from "../assets/logo.png"
-
 
 export default function About() {
   return (

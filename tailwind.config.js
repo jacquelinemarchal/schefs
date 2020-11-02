@@ -10,7 +10,12 @@ module.exports = {
   purge: [],
   theme: {
     fontFamily: fontFamily, 
-    extend: {},
+    extend: {
+        height: theme => ({
+          "screen/2": "50vh",
+          "screen/1.25": "calc(100vh / 1.25)",
+        }),
+      },
   },
   variants: {},
   plugins: [],

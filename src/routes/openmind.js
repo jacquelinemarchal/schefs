@@ -17,7 +17,6 @@ const router = express.Router();
  *    <array[object]>
  *      omid         <int>
  *      user_id      <int>
- *      user_name    <string>
  *      body         <string>
  *      time_created <Date>
  *  500: other postgres error
@@ -40,7 +39,6 @@ router.get('', (req, res) => {
  * Request Body:
  *  <object>
  *    user_id   <int> required
- *    user_name <string> required
  *    body      <string> required
  *
  * Response:

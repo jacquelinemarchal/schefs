@@ -9,12 +9,11 @@ const getOpenMind = `
 
 /*
  * $1: user_id   <int> required
- * $2: user_name <string> required
- * $3: body      <string> required
+ * $2: body      <string> required
  */
 const postOpenMind = `
-    INSERT INTO openmind(user_id, user_name, body)
-    VALUES($1, $2, $3)
+    INSERT INTO openmind(user_id, body)
+    VALUES($1, $2)
     RETURNING omid
 `;
 

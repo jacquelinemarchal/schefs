@@ -1,6 +1,6 @@
 import '../styles/globals.css';
-import NavBar from "../components/navbar";
-import Banner from "../components/banner";
+import NavBar from "../components/Banners/navbar";
+import Banner from "../components/Banners/banner";
 
 const App = ({ Component, pageProps }) => {
   
