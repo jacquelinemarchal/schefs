@@ -18,7 +18,6 @@ const router = express.Router();
  *    <array[object]>
  *      omid         <int>
  *      user_id      <int>
- *      user_name    <string>
  *      body         <string>
  *      time_created <Date>
  *  500: other postgres error
@@ -31,7 +30,7 @@ router.get('', (req, res) => {
         req.query.time_to
     ];
 
-    pool.query(queries.getOpenMind, values, (q_err, q_res) => {
+    pool.query(queries.getOpenMind, (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else
@@ -46,7 +45,6 @@ router.get('', (req, res) => {
  * Request Body:
  *  <object>
  *    user_id   <int> required
- *    user_name <string> required
  *    body      <string> required
  *
  * Response:
@@ -59,9 +57,8 @@ router.post('', (req, res) => {
     // check auth and other stuff here
 
     const values = [
-        req.query.user_id,
-        req.query.user_name,
-        req.query.body
+        req.body.user_id,
+        req.body.body
     ];
 
     pool.query(queries.postOpenMind, values, (q_err, q_res) => {

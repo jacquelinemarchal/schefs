@@ -1,5 +1,5 @@
 import React from "react";
-import BlackPillButton from "./bpillbutton"
+import BlackPillButton from "../Buttons/bpillbutton"
 
 const Banner = (props) => {
   return (

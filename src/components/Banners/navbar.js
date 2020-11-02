@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import logo from "../assets/logo.png"
+import logo from "../../assets/logo.png"
 
 const NavBar = () => {
 
@@ -47,7 +47,7 @@ const NavBar = () => {
                 <a className="text-sm block sm:font-normal font-semibold hover:text-gray-600 duration-300 sm:ml-4" href="#">Host</a>
                 <a className="text-sm block sm:font-normal font-semibold hover:text-gray-600 duration-300 sm:ml-4" href="/about">About</a>
                 <a className="text-sm block sm:font-normal font-semibold hover:text-gray-600 duration-300 sm:ml-4" href="/openmindarchive">Open Mind Archive</a>
-                <a className="text-sm block sm:font-normal font-semibold hover:text-gray-600 duration-300 sm:ml-4" href="/about">Ambassadors</a>
+                <a className="text-sm block sm:font-normal font-semibold hover:text-gray-600 duration-300 sm:ml-4" href="/about">Ambassador Program</a>
             </div>
           </div>
         </nav>

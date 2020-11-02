@@ -1,29 +1,34 @@
-import WhitePillButton from "../components/wpillbutton"
+import WhitePillButton from "../components/Buttons/wpillbutton"
 import React, { useState, useEffect } from "react";
 import axios from "axios"
 
 export default function OMA() {
     const [topic, setTopic]  = useState("");
-    const [allTopics, setAllTopic]  = useState([]); // [["stringTopic", dbId, "userName", timestamp]]
+    const [allTopics, setAllTopics]  = useState([]); // [["omid", user_id, "body", time_created]]
+    
     // constant query from backend with react... should you use useEffect?
     useEffect(() => {
         if (!allTopics.length){
-            getTopics(-1)
+            getTopics(-1) // GET everything from open mind api
         }
-        else{
-            let latestId = allTopics[allTopics.length-1].dbId;
+        const interval = setInterval(() => {
+            let latestId = allTopics[allTopics.length-1].omid;
             getTopics(latestId)
-        }
-        setTimeout(()=> {}, 1000)
+        },10000)
+
+        return()=>clearInterval(interval)
     }, [])
 
     const handleSubmit = (e) => {
         e.preventDefault();
         let sendTopic = {
-            body:topic
+            user_id: 1,
+            body:topic,
         }
-        axios.post("https://localhost:5000/api/openmind/", sendTopic)
-        .then((res)=>{})
+        axios.post("http://localhost:5000/api/openmind", sendTopic)
+        .then((res)=>{
+            console.log(sendTopic)
+        })
         .catch((err)=>{/*alert(err)*/})
     }
 
@@ -33,9 +38,9 @@ export default function OMA() {
                 query: lastId
             }
         }
-        axios.get("https://localhost:5000/api/openmind/", getRecentTopics)
+        axios.get("http://localhost:5000/api/openmind", "")
         .then((res)=>{
-            // add response to array using setAllTopic
+            setAllTopics([...allTopics, ...res.data])
         })
         .catch((err)=>{alert(err)})
     }
@@ -50,7 +55,13 @@ export default function OMA() {
                 <div className="col-span-1">            
                     <div className="grid rows-7 h-screen/1.25 pb-4 bg-gray-200">
 
-                        <div className="row-span-6 bg-gray-400"></div>
+                        <div className="row-span-6 bg-gray-400">
+                            <ul>
+                                {allTopics.map(topic=>(
+                                    <li key={topic.omid}>{topic.body}</li>
+                                ))}
+                            </ul>
+                        </div>
 
                         <form className="flex row-span-1 items-end justify-center" onSubmit={handleSubmit}>
                                 <input className="w-2/10 border-b border-black focus:outline-none" type="text" value={topic} onChange={(e) => setTopic(e.target.value)} aria-label="Add a topic"  />

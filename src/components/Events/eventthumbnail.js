@@ -1,5 +1,5 @@
 import React from "react";
-import thumb from "../../dev/images/e2.jpg"
+import thumb from "../../../dev/images/e2.jpg"
 
 const EventThumbnail = (props) => {
   return (

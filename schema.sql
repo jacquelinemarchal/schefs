@@ -51,7 +51,6 @@ CREATE TABLE comments (
 CREATE TABLE openmind (
     omid          SERIAL PRIMARY KEY,
     user_id       INT NOT NULL REFERENCES users(uid),
-    user_name     VARCHAR(255) NOT NULL,
     body          VARCHAR(255) NOT NULL,
     time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

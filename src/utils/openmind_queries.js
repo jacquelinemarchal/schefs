@@ -1,27 +1,27 @@
 /*
  * $1: time_from <string> - in UTC format 'YYYY-MM-DDTHH:MM:SS.SSSZ'
  * $2: time_to   <string> - in UTC format 'YYYY-MM-DDTHH:MM:SS.SSSZ'
- */
-const getOpenMind = `
-    SELECT * FROM openmind
-    WHERE (
+ * 
+ *     WHERE (
         COALESCE($1) = '' OR
         time_created >= $1::TIMESTAMPTZ
     ) AND (
         COALESCE($2) = '' OR
         time_created <= $2::TIMESTAMPTZ
     )
+ */
+const getOpenMind = `
+    SELECT * FROM openmind
     ORDER BY time_created ASC
 `;
 
 /*
  * $1: user_id   <int> required
- * $2: user_name <string> required
- * $3: body      <string> required
+ * $2: body      <string> required
  */
 const postOpenMind = `
-    INSERT INTO openmind(user_id, user_name, body)
-    VALUES($1, $2, $3)
+    INSERT INTO openmind(user_id, body)
+    VALUES($1, $2)
     RETURNING omid
 `;
 
