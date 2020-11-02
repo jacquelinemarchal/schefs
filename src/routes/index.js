@@ -1,5 +1,7 @@
-const ticketsRouter = require('./tickets');
+const eventsRouter = require('./events');
+const openMindRouter = require('./openmind');
 
 module.exports = {
-    ticketsRouter
+    eventsRouter,
+    openMindRouter
 };

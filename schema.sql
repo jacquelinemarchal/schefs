@@ -2,20 +2,19 @@ CREATE TABLE users (
     uid           SERIAL PRIMARY KEY,
     email         VARCHAR(255) UNIQUE NOT NULL,
     phone         VARCHAR(31),
-    password      VARCHAR(255) NOT NULL,
     first_name    VARCHAR(255) NOT NULL,
     last_name     VARCHAR(255) NOT NULL,
     img_profile   VARCHAR(255),
     bio           VARCHAR,
     school        VARCHAR(255) NOT NULL,
     major         VARCHAR(255) NOT NULL,
-    grad_year     INT NOT NULL,
-    is_admin      BOOLEAN DEFAULT FALSE
+    grad_year     INT NOT NULL
 );
 
 CREATE TABLE events (
     eid           SERIAL PRIMARY KEY,
-    host_id       INT NOT NULL REFERENCES users(uid),
+    host_name     VARCHAR(255) NOT NULL,
+    host_school   VARCHAR(255) NOT NULL,
     title         VARCHAR(63) NOT NULL,
     description   VARCHAR NOT NULL,
     requirements  VARCHAR,
@@ -34,6 +33,13 @@ CREATE TABLE tickets (
 );
 CREATE UNIQUE INDEX tickets_idx ON tickets(user_id, event_id);
 
+CREATE TABLE event_hosts (
+    user_id       INT NOT NULL REFERENCES users(uid),
+    event_id      INT NOT NULL REFERENCES events(eid),
+    PRIMARY KEY (event_id, user_id)
+);
+CREATE UNIQUE INDEX event_hosts_idx ON event_hosts(user_id, event_id);
+
 CREATE TABLE comments (
     cid           SERIAL PRIMARY KEY,
     user_id       INT NOT NULL REFERENCES users(uid),
@@ -45,6 +51,7 @@ CREATE TABLE comments (
 CREATE TABLE openmind (
     omid          SERIAL PRIMARY KEY,
     user_id       INT NOT NULL REFERENCES users(uid),
+    user_name     VARCHAR(255) NOT NULL,
     body          VARCHAR(255) NOT NULL,
     time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
