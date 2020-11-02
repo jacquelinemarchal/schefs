@@ -27,7 +27,8 @@ export default function OMA() {
         }
         axios.post("http://localhost:5000/api/openmind", sendTopic)
         .then((res)=>{
-            console.log(sendTopic)
+            setAllTopics([...allTopics, ...res.data])
+           // console.log(sendTopic)
         })
         .catch((err)=>{/*alert(err)*/})
     }
@@ -38,7 +39,7 @@ export default function OMA() {
                 query: lastId
             }
         }
-        axios.get("http://localhost:5000/api/openmind", "")
+        axios.get("http://localhost:5000/api/openmind", lastId)
         .then((res)=>{
             setAllTopics([...allTopics, ...res.data])
         })
