@@ -4,15 +4,18 @@ import Banner from "../components/Banners/banner";
 
 const App = ({ Component, pageProps }) => {
   
-  let hostBanner = {
-    left:"Host & attend small group themed conversations via Zoom on any topic. By & for college students.",
-    buttonText: "HOST AN EVENT",
-    link:"google.com",
-  }
+    let hostBanner = {
+        left:"Host & attend small group themed conversations via Zoom on any topic. By & for college students.",
+        buttonText: "HOST AN EVENT",
+        link:"google.com",
+    }
+    let scroll = {
+        scrollShadow: true
+    }
     return (
       <div>
         <Banner {...hostBanner}/>
-        <NavBar />
+        <NavBar {...scroll}/>
         <Component {...pageProps} />
       </div>
     );
