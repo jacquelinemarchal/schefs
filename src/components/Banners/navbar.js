@@ -19,7 +19,7 @@ const NavBar = (props) => {
         }, [])
         return (
             <div>
-                <nav className={"bg-white fixed w-full top-0 md:top-auto " + (isScroll !== 0 ? 'shadow-lg' : '')}>
+                <nav className={"bg-white fixed top-0 md:top-auto w-full  " + (isScroll !== 0 ? 'shadow-lg' : '')}>
                     <div className="sm:flex sm:justify-start sm:mx-8 sm:px-0 my-4 mx-4 px-4 py-1">
                         <div className="flex items-center">
                             <a href="/index">
@@ -55,7 +55,7 @@ const NavBar = (props) => {
                     </div>
                 </div>
             </nav>
-        <div className="h-10 md:h-20"></div>
+        <div className="h-8 md:h-16"></div>
       </div>
     )
 };

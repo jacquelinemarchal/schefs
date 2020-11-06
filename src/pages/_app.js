@@ -10,7 +10,7 @@ const App = ({ Component, pageProps }) => {
         link:"google.com",
     }
     let scroll = {
-        scrollShadow: true
+        scrollShadow: false
     }
     return (
       <div>

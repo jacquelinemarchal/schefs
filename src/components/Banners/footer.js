@@ -16,7 +16,7 @@ const Footer = (props) => {
                 <div className="hidden md:block"> {props.left}</div>
                 <div className="hidden md:block">{props.right}
                     <a className="underline" href="/about">{props.linkText}</a>
-                    </div>
+                </div>
             </footer>
         </div>
   )
