@@ -1,5 +1,6 @@
 import thumb from "../../../dev/images/e2.jpg"
 import prof from "../../../dev/images/p2.jpg"
+import Comment from "./comment"
 import WhitePillButton from "../Buttons/wpillbutton" //type, size (text), text, link
 
 const EventPageDetails = (props) => {
@@ -21,15 +22,29 @@ const EventPageDetails = (props) => {
                     <img src={thumb} href="/sampleevent" className="sm:w-3/4 rounded-2xl"></img>
                 </div>
                 <div className="mb-2">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
                 </div>
                 <div className="text-2xl">
                     What to Prepare
                 </div>
+                <div className="mb-4">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                </div>
+                <hr></hr>
+                <div className="my-4 text-2xl">
+                    Thoughts:
+                </div>
+                <form className="flex row-span-1 items-end justify-center" >
+                    <input className="w-full border-b border-black focus:outline-none" type="text" placeholder="Share your thought here" aria-label="Add a comment" />
+                    <WhitePillButton type="submit" text="POST" size="lg" />
+                </form>
                 <div className="">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                    <Comment time="Yesterday" name="Jacqueline Marchal" university="Columbia University" thought="Wow I’d really love to come to this event but I can’t make it. Please please please host this again some other time!!!" />
+                    <Comment time="Yesterday" name="Jacqueline Marchal" university="Columbia University" thought="Wow I’d really love to come to this event but I can’t make it. Please please please host this again some other time!!!" />
+
                 </div>
             </div>
+
             <div className="sm:col-span-2 mb-20 sm:m-0">
                 <div className="sm:fixed">
                     <div className="hidden sm:inline-block">
@@ -69,7 +84,6 @@ const EventPageDetails = (props) => {
                     </div>
                 </div>
             </div>
-
         </div>
       )
   };

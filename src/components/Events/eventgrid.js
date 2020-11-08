@@ -1,22 +1,21 @@
-import React from "react";
 import EventThumbnail from "./eventthumbnail"
 
 const EventGrid = (props) => {
-    let fakeEvent = {
-        title: "How to Code in React",
-        firstName: "Jackie",
-        university: "Columbia",
-        time: "Sunday, December 10, 10am EDT"
-    }
-  return (
-    <div className="mx-4 grid grid-cols-1 sm:grid-cols-3">
-            <EventThumbnail {...fakeEvent} />
-            <EventThumbnail {...fakeEvent} />
-            <EventThumbnail {...fakeEvent} />
-            <EventThumbnail {...fakeEvent} />
-            <EventThumbnail {...fakeEvent} />
-    </div>
+    const array = Object.entries(props)
+    return (
+        <div className="mx-4 grid grid-cols-1 sm:grid-cols-3">
+            {array.length != 0 ? array.map((p, i) => (<EventThumbnail {...p[1]} key={i} />)) : null}
+        </div>
     )
 };
+/*
 
+    let fakeEvent = {
+        title: "How to Code in React",
+        host_name: "Jackie",
+        host_school: "Columbia",
+        time_start: "Sunday, December 10, 10am EDT"
+    }
+    <EventThumbnail {...fakeEvent} />
+*/
 export default EventGrid;

@@ -47,11 +47,11 @@ const NavBar = (props) => {
                             <img className="h-6" src={logo}></img>
                         </a>
                         <div className={"sm:flex text-black "}>
-                        <a className="text-sm hover:text-gray-600 duration-300 ml-4" href="#">Host</a>
-                        <a className="text-sm hover:text-gray-600 duration-300 ml-4" href="/about">About</a>
-                        <a className="hidden sm:inline text-sm hover:text-gray-600 duration-300 ml-4" href="/openmindarchive">Open Mind Archive</a>
-                        <a className="sm:hidden text-sm hover:text-gray-600 duration-300 ml-4" href="/openmindarchive">OMA</a>
-                        <a className="hidden sm:inline text-sm hover:text-gray-600 duration-300 ml-4" href="/about">Ambassador Program</a></div>
+                        <a className="text-base hover:text-gray-600 duration-300 ml-4" href="#">Host</a>
+                        <a className="text-base hover:text-gray-600 duration-300 ml-4" href="/about">About</a>
+                        <a className="hidden sm:inline text-base hover:text-gray-600 duration-300 ml-4" href="/openmindarchive">Open Mind Archive</a>
+                        <a className="sm:hidden text-base hover:text-gray-600 duration-300 ml-4" href="/openmindarchive">OMA</a>
+                        <a className="hidden sm:inline text-base hover:text-gray-600 duration-300 ml-4" href="/about">Ambassador Program</a></div>
                     </div>
                 </div>
             </nav>
