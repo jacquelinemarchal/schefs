@@ -135,7 +135,6 @@ router.get('', (req, res) => {
  */
 router.get('/:eid', (req, res) => {
     // check auth and other stuff here
-    
     pool.query(queries.getEvent, [ req.params.eid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });

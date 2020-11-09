@@ -2,6 +2,7 @@ import thumb from "../../../dev/images/e2.jpg"
 import prof from "../../../dev/images/p2.jpg"
 import Comment from "./comment"
 import WhitePillButton from "../Buttons/wpillbutton" //type, size (text), text, link
+import {useEffect} from "react"
 
 const EventPageDetails = (props) => {
     let reserveButton = {
@@ -9,26 +10,34 @@ const EventPageDetails = (props) => {
         size:"xl",
         text:"RESERVE FOR ZOOM",
     }
+    useEffect(() => {
+        let requirements = props.requirements
+        if (!requirements){
+            requirements = "This event has no requirements."
+        }
+        
+    }, []);
+
     return (
         <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-8">
             <div className="sm:col-span-3">
                 <div className="text-5xl">
-                    Polyglot= Poly-Personalities?
+                    {props.title}
                 </div>
                 <div className="mb-2">
-                    Wednesday, September 31st @ 9:30 pm EDT
+                    {props.time_start}
                 </div>
                 <div className="mr-6 mb-4">
                     <img src={thumb} href="/sampleevent" className="sm:w-3/4 rounded-2xl"></img>
                 </div>
                 <div className="mb-2">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                    {props.description}
                 </div>
                 <div className="text-2xl">
                     What to Prepare
                 </div>
                 <div className="mb-4">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                    {props.requirements}
                 </div>
                 <hr></hr>
                 <div className="my-4 text-2xl">
@@ -71,10 +80,10 @@ const EventPageDetails = (props) => {
                         <div className="p-4 grid-rows-3">
                             <div className="row-span-1 flex">
                                 <img src={prof} className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
-                                <p className="self-center ml-4 text-3xl">Lola Lafia</p>
+                                <p className="self-center ml-4 text-3xl">{props.host_name}</p>
                             </div>
                             <div className="mb-8 row-span-1 text-center justify-center">
-                                <p>Birzeit university • 2023</p>
+                                <p>{props.host_school} • 2023</p>
                                 <p>Computer Engineering</p>
                             </div>
                             <div className="row-span-1 text-center justify-center">
