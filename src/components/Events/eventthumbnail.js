@@ -7,7 +7,7 @@ const EventThumbnail = (props) => {
         <div className="col-span-1 p-2 mb-4">
             <Link href={{
                 pathname: `events/${encodeURIComponent(props.eid)}`,
-                query: {...props},
+                query: {eid: props.eid}
             }}>
                 <div>
                     <img src={thumb} className="mb-2 rounded-2xl"></img>
@@ -20,4 +20,5 @@ const EventThumbnail = (props) => {
 };
 export default EventThumbnail;
 
-// pass something else to the router on Link tag so that /events/[id]/index.js can properly render correct page :) 
+// query: {...props},
+//pass something else to the router on Link tag so that /events/[id]/index.js can properly render correct page :) 

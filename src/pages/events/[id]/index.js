@@ -7,28 +7,28 @@ const EventPage = () => {
     const router = useRouter()
     const [eventInfo, setEventInfo] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    
-    useEffect(() => {
+
+    const fetchData = async () => {
         if (router.query.eid){
             var eid = router.query.eid
         }
         else{
             var eid = (window.location.pathname).substring(8)
         }
-        const fetchData = () => {
         let query = {
             params:{
                 eid:eid,
             }
         }
-        axios.get(`http://localhost:5000/api/events/${eid}`, query)
+        await axios.get(`http://localhost:5000/api/events/${eid}`, query)
         .then((res) => {
             setEventInfo(res.data)
             setIsLoading(false);
         })
         .catch((err) => {console.log(err)})
-        setIsLoading(true);
-        };
+    };
+
+    useEffect(() => {
         fetchData();
     }, []);
 
