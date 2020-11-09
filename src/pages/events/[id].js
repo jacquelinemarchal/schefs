@@ -44,7 +44,14 @@ const EventPage = () => {
         </>
     )
 }
+export const getStaticProps = async () => {
+    const data = await fetchData();
 
+    return {
+      props: {data,}
+    };
+  }
+  
 export default EventPage
 
 /*
