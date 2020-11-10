@@ -76,7 +76,7 @@ const EventPageDetails = (props) => {
                     <div className="text-sm my-2">
                         Hosted by:
                     </div>
-                    <div className="sm:mr-8 shadow-md sm:shadow-none mx-4 border-solid border-black border-2 rounded-2xl">
+                    <div className="sm:mr-8 shadow-md sm:shadow-none mr-4 border-solid border-black border sm:border-2 rounded-2xl">
                         <div className="p-4 grid-rows-3">
                             <div className="row-span-1 flex">
                                 <img src={prof} className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>

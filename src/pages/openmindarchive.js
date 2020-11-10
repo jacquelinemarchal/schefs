@@ -21,13 +21,13 @@ export default function OMA () {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setTopic("")
         let sendTopic = {
             user_id: 1, // ADD AUTH
             body:topic,
         }
         axios.post("http://localhost:5000/api/openmind", sendTopic)
         .then((res)=>{
+            setTopic("")
             getTopics(-1)
         })
         .catch((err)=>{alert(err)})

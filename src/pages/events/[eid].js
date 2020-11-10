@@ -1,5 +1,5 @@
 import EventPageDetails from "../../components/Events/eventpagedetails"
-import axios from 'axios';
+import db from '../../utils/db'
 
 const EventPage = ( {eventInfo} ) => {
     return (
