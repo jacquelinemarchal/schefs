@@ -7,7 +7,6 @@ const EventThumbnail = (props) => {
         <div className="col-span-1 p-2 mb-4">
             <Link href={{
                 pathname: `events/${encodeURIComponent(props.eid)}`,
-                query: {eid: props.eid}
             }}>
                 <div>
                     <img src={thumb} className="mb-2 rounded-2xl"></img>
