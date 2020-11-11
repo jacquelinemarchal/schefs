@@ -2,9 +2,15 @@ import thumb from "../../../dev/images/e2.jpg"
 import prof from "../../../dev/images/p2.jpg"
 import Comment from "./comment"
 import WhitePillButton from "../Buttons/wpillbutton" //type, size (text), text, link
-import {useEffect} from "react"
+import {useEffect, useState} from "react"
+import downloadLogo from "../../assets/bdownload.png"
+import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
+
 
 const EventPageDetails = (props) => {
+    const [inHover, setHover] = useState(downloadLogo);
+    const [copyStatus, setCopyStatus] = useState("")
+
     let reserveButton = {
         type:"submit", 
         size:"xl",
@@ -17,6 +23,15 @@ const EventPageDetails = (props) => {
         }
         
     }, []);
+
+    const copyLink = (e) => {{
+        navigator.clipboard.writeText(`schefs.us/events/${props.eid}`)}
+        setCopyStatus("Copied!")
+        setTimeout(() => {
+            setCopyStatus("");
+        },2000); 
+      };
+    
 
     return (
         <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-8">
@@ -57,7 +72,12 @@ const EventPageDetails = (props) => {
             <div className="sm:col-span-2 mb-20 sm:m-0">
                 <div className="sm:fixed">
                     <div className="hidden sm:inline-block">
-                        <WhitePillButton {...reserveButton} />
+                        <div className = "flex">
+                            <WhitePillButton {...reserveButton} />
+                            <button onMouseEnter={() => setHover(downloadHoverLogo)} onMouseLeave={() => setHover(downloadLogo)} onClick={copyLink} className="ml-2 flex space-x-2 text-gray-700 items-center h-8 w-8 bg-gray-400 rounded-full focus:outline-none">
+                                <img src={inHover} className="p-2"></img><p>{copyStatus}</p>
+                            </button>
+                        </div>
                         <div className="text-gray-500 mt-2">
                             2/7 spots available
                         </div>
