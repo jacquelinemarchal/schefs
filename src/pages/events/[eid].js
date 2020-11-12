@@ -25,16 +25,21 @@ export const getStaticProps = async (context) => {
     }
 }
 export async function getStaticPaths(){
+    const events = await new Promise((resolve, reject) => {
+        pool.query(queries.getEventsSummary, ["2020-01-01", "2020-12-31", "all" ], (err, results) => {
+            (err ? reject(err) : resolve((results.rows)))
+        })
+    })
+    const paths = events.map(e => {
+        return {
+            params: {eid: (e.eid).toString()}
+        }
+    })
     return{
-        paths: [
-            { params: { eid: '1' } },
-            { params: { eid: '2' } },
-            { params: { eid: '3' } },
-        ],
+        paths,
         fallback: false,
     }
 }
-
     /*
 
     const res = await axios.get(`http://localhost:5000/api/events/${eid}`, query)

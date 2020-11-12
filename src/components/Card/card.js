@@ -1,57 +1,15 @@
-import Footer from "../components/Banners/footer"
-import EventGrid from "../components/Events/eventgrid"
-import NavBar from "../components/Banners/navbar";
-import React, { useState, useEffect } from "react";
-import axios from "axios"
+const { default: AuthCardContent } = require("./authcardcontent")
+
 const Card = () => {
-
-    const [allEvents, setAllEvents]  = useState([]); // [[eid, host_name, host_school, time_start, title]]
-
-    useEffect(async () => {
-        getEvents()
-        return()=>console.log("cleanup function here")
-    }, [])
-
-    const getEvents = () => {
-        let query = {
-             params:{
-                  date_from:"2020-01-01",
-                  date_to:"2020-12-31",
-                  status:"all",
-                  type:"summary"
-            }
-        }
-        axios.get("http://localhost:5000/api/events", query)
-        .then((res)=>{
-            setAllEvents([...res.data])
-        })
-        .catch((err)=>{alert(err)})
-    }
 
     return (
         <>
-        <div class="fixed inset-0 transition-opacity">
+        <div className="fixed inset-0 transition-opacity">
             <div class="absolute inset-0 bg-gray-700 opacity-75"></div>
         </div>
 
         <div class="fixed mr-2 rounded-xl top-0 sm:top-auto w-5/12 h-auto bg-white justify-center right-0 z-10">
-                
-                <div className="sm:m-8 shadow-md sm:shadow-none mr-4 border-solid border-black border sm:border-2 rounded-2xl">
-                    <div className="p-4 grid-rows-3">
-                        <div className="row-span-1 flex">
-                            <p className="self-center ml-4 text-3xl">Jackie</p>
-                        </div>
-                        <div className="mb-8 row-span-1 text-center justify-center">
-                            <p>Columbia • 2023</p>
-                            <p>Computer Engineering</p>
-                        </div>
-                        <div className="row-span-1 text-center justify-center">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                        </div>                        
-                    </div>
-                </div>
-
-
+        <AuthCardContent/>
         </div>
         </>
     )
