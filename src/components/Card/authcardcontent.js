@@ -1,18 +1,28 @@
-const AuthCardContent = () => {
+import sampleCard from "../../assets/sampleCard.png"
+import LoginForm from '../Auth/loginform';
+import WhitePillButton from "../Buttons/wpillbutton";
 
+const AuthCardContent = () => {
     return (
         <>
-            <div className="sm:m-8 shadow-md sm:shadow-none mr-4 border-solid border-black border sm:border-2 rounded-2xl">
-            <div className="p-4 grid-rows-3">
-                <div className="mb-8 row-span-1 text-center justify-center">
-                    <p className="text-3xl">Jackie</p>
-                    <p>Columbia • 2023</p>
-                    <p>Computer Engineering</p>
+            <div className="grid grid-rows-2 md-shadow px-8 py-2 rounded-2xl">
+                <div className="grid row-span-1 grid-cols-2 mb-6">
+                    <div className="grid col-span-1">
+                        <p>Sign in / Sign up</p>
+                        <p className="mb-4">To attend or host events, please create a Schefs account</p>
+                        <p>You wil need a valid university email to use Schefs.</p>
+                    </div>
+                    <div className="grid col-span-1">
+                        <img className="justify-self-center mb-6 self-center h-40" src={sampleCard}></img>
+                    </div>
                 </div>
-                <div className="row-span-1 text-center justify-center">
-                    Lorem  dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                </div>                        
-            </div>
+                <div className="grid row-span-1">
+                    <LoginForm/>
+                </div>
+                <footer className="my-2 justify-between flex">
+                    <p>Don't have an account?</p>
+                    <WhitePillButton text="SIGN UP" padding="px-6"/>
+                </footer>
             </div>
         </>
     )

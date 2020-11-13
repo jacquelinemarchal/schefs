@@ -14,6 +14,7 @@ const EventPageDetails = (props) => {
     let reserveButton = {
         type:"submit", 
         size:"xl",
+        padding:"px-4",
         text:"RESERVE FOR ZOOM",
     }
     useEffect(() => {
@@ -60,7 +61,7 @@ const EventPageDetails = (props) => {
                 </div>
                 <form className="flex row-span-1 items-end justify-center" >
                     <input className="w-full border-b border-black focus:outline-none" type="text" placeholder="Share your thought here" aria-label="Add a comment" />
-                    <WhitePillButton type="submit" text="POST" size="lg" />
+                    <WhitePillButton padding="px-4" type="submit" text="POST" size="lg" />
                 </form>
                 <div className="">
                     <Comment time="Yesterday" name="Jacqueline Marchal" university="Columbia University" thought="Wow I’d really love to come to this event but I can’t make it. Please please please host this again some other time!!!" />
@@ -88,7 +89,7 @@ const EventPageDetails = (props) => {
                                 2/7 spots available
                             </div>
                             <div className="self-center">
-                                <WhitePillButton type="submit" text="RESERVE" size="xl" />
+                                <WhitePillButton padding="px-4" type="submit" text="RESERVE" size="xl" />
                             </div>
                         </footer>
                     </div>

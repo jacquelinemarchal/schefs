@@ -3,7 +3,6 @@ import EventGrid from "../components/Events/eventgrid"
 import NavBar from "../components/Banners/navbar";
 import React, { useState, useEffect } from "react";
 import axios from "axios"
-import Card from "../components/Card/card"
 
 export default function Home() {
 

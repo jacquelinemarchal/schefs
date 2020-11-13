@@ -8,11 +8,11 @@ const WhitePillButton = (props) => {
             window.location.href= props.link
         }
         return (
-            <button onClick={linkTo} type={props.type} className={"flex justify-center items-center bg-transparent focus:outline-none text-" + props.size + " text-black hover:bg-black hover:text-white border sm:border-2 border-black px-4 rounded-full"}>{props.text}</button>  
+            <button onClick={linkTo} type={props.type} className={"flex justify-center items-center bg-transparent focus:outline-none text-" + props.size + " text-black hover:bg-black hover:text-white border sm:border-2 border-black " + props.padding + " rounded-full"}>{props.text}</button>  
         )
     }
     return (
-        <button type={props.type} className={"flex justify-center items-center bg-transparent focus:outline-none text-" + props.size + " text-black hover:bg-black hover:text-white border sm:border-2 border-black px-4 rounded-full"}>{props.text}</button>  
+        <button type={props.type} className={"flex justify-center items-center bg-transparent focus:outline-none text-" + props.size + " text-black hover:bg-black hover:text-white border sm:border-2 border-black " + props.padding + " rounded-full"}>{props.text}</button>  
     )
 };
 

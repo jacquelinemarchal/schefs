@@ -3,7 +3,7 @@ import EventThumbnail from "./eventthumbnail"
 const EventGrid = (props) => {
     const array = Object.entries(props)
     return (
-        <div className="mx-4 grid grid-cols-1 sm:grid-cols-3">
+        <div className="mx-6 grid grid-cols-1 sm:grid-cols-3">
             {array.length != 0 ? array.map((p, i) => (<EventThumbnail {...p[1]} key={i} />)) : null}
         </div>
     )
