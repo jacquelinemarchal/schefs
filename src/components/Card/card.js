@@ -8,7 +8,7 @@ const Card = (props) => {
             <div onClick={props.function} className="absolute inset-0 bg-gray-700 opacity-75"></div>
         </div>
 
-        <div class="fixed mr-2 rounded-xl top-0 sm:mt-10 w-5/12 h-auto bg-white justify-center right-0 z-10">
+        <div class="fixed mr-2 rounded-xl top-0 sm:mt-10 md:w-1/3 w-5/12 h-auto bg-white justify-center right-0 z-10">
             <div className="flex justify-end">
                 <button onClick={props.function} className="focus:outline-none p-2">
                     <HighlightOff/>

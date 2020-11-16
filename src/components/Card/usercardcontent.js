@@ -1,20 +1,50 @@
-const AuthCardContent = () => {
+import { SentimentSatisfied } from "@material-ui/icons";
+import { useState } from "react"
 
+const CardContent = () => {
+    const [dropDown, setDropDown] = useState(false)
+
+    const toggleDropDown = () => {
+        setDropDown(!dropDown)
+    }
     return (
         <>
-            <div className="sm:m-8 shadow-md sm:shadow-none mr-4 border-solid border-black border sm:border-2 rounded-2xl">
-            <div className="p-4 grid-rows-3">
-                <div className="mb-8 row-span-1 text-center justify-center">
-                    <p className="text-3xl">Jackie</p>
-                    <p>Columbia • 2023</p>
-                    <p>Computer Engineering</p>
+            <div className="md-shadow px-8 py-2 rounded-2xl">
+                <div className="text-5xl leading-snug mb-2">
+                    Pedro Damasceno
                 </div>
-                <div className="row-span-1 text-center justify-center">
-                    Lorem  dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                </div>                        
-            </div>
+                <div>
+                    Columbia University
+                </div>
+                <div class="relative inline-block text-left mb-1">
+                    <div>
+                        <span className="rounded-md">
+                            <button id="gradYear" type="button" onClick={toggleDropDown} className="inline-flex justify-center w-full rounded-md mt-2 bg-white leading-5 hover:text-gray-500 focus:outline-none active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150" id="options-menu" aria-haspopup="true" aria-expanded="true">
+                            Grad Year
+                                <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+        
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class={(dropDown ? 'block' : 'hidden') + " w-40 absolute mt-1 rounded-md shadow-lg"}>
+                    <div className="rounded-md bg-white shadow-xs">
+                        <div role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                            <a className="block px-2 hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2021</a>
+                            <a className="block px-2 hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2022</a>
+                            <a className="block px-2 hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2023</a>
+                            <a className="block px-2 hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2024</a>
+                            <a className="block px-2 hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Gap Year</a>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    pedro.damasceno@columbia.edu
+                </div>
             </div>
         </>
     )
 }
-export default AuthCardContent;
+export default CardContent;
