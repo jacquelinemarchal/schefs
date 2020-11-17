@@ -3,3 +3,9 @@
 @import "tailwindcss/components";
 
 @import "tailwindcss/utilities";
+
+[contenteditable=true]:empty:before {
+    content: attr(placeholder);
+    display: block;
+    color: #aaa;
+  }
