@@ -38,7 +38,7 @@ export default function Home() {
   return (
     <>
         <div>
-            <EventGrid {...allEvents}/>
+            <EventGrid {...allEvents} gridNum="3"/>
             <Footer {...ambassador} />
         </div>
     </>

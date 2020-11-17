@@ -5,7 +5,8 @@ const Footer = (props) => {
     let hostButton = {
         size: "sm",
         text: "HOST YOUR OWN EVENT",
-        link: "/about"
+        link: "/about",
+        padding: "px-4"
     }
     return (
         <div className="h-6">

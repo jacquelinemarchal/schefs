@@ -18,15 +18,19 @@ const App = ({ Component, pageProps }) => {
     }
 
     return (
-      <div>
-        <Banner {...hostBanner}/>
-        <NavBar {...scroll}/>
-        <CardButton function={() => setOpenCard(true)}/>
-        <div className={(openCard ? 'block' : 'hidden')}>
-            <Card function={() => setOpenCard(false)}/>
+        <div>
+            <Banner {...hostBanner}/>
+            <NavBar {...scroll}/>
+            <CardButton function={() => setOpenCard(true)}/>
+
+            <div className={(openCard ? 'block' : 'hidden')}>
+                <Card function={() => setOpenCard(false)}/>
+            </div>
+            
+            <div className={(openCard ? 'overflow-hidden fixed' : '')}>
+                <Component {...pageProps} />
+            </div>
         </div>
-        <Component {...pageProps} />
-      </div>
     );
 };
 

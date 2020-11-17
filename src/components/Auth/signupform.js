@@ -23,7 +23,6 @@ const SignUpForm = () => {
                 <p className="text-red-500">{error[1]}</p>
                 <form onSubmit={formik.handleSubmit}>
                     <div className="flex flex-col">
-                        <label htmlFor="firstName"></label>
                         <input
                             id="fName"
                             name="fName"
@@ -33,8 +32,6 @@ const SignUpForm = () => {
                             value={formik.values.email}
                             placeholder="First name"
                             />
-                        <label className="outline"></label>
-                        <label htmlFor="email"></label>
                         <input
                             id="lName"
                             name="lName"
@@ -46,17 +43,16 @@ const SignUpForm = () => {
                             />
    
                         <input
-                            id="email"
-                            name="email"
-                            type="email"
+                            id="signUpEmail"
+                            name="signUpEmail"
+                            type="signUpEmail"
                             className={error[4] + " border-2 rounded-full focus:outline-none my-2 px-4 py-1"}
                             onChange={formik.handleChange}
                             value={formik.values.email}
                             placeholder="School Email*"
                             aria-describedby="emailHelp"
                             />
-                            <p id="emailHelp" class="text-center">A valid university email address is required.</p>
-
+                            <p id="emailHelp" className="text-center">A valid university email address is required.</p>
                         <input
                             id="uni"
                             name="uni"
@@ -66,11 +62,10 @@ const SignUpForm = () => {
                             value={formik.values.email}
                             placeholder="University name"
                             />
-
                         <input
-                            id="password"
-                            name="password"
-                            type="password"
+                            id="signUpPassword"
+                            name="signUpPassword"
+                            type="signUpPassword"
                             className={error[6] + " border-2 rounded-full focus:outline-none my-2 px-4 py-1"}
                             onChange={formik.handleChange}
                             value={formik.values.password}
