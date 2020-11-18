@@ -9,7 +9,6 @@ const NavBar = (props) => {
     
         useEffect(() => {
             const onScroll = () => {
-                console.log("scroll")
                 last_known_scroll_position = window.scrollY;
                 setScroll(last_known_scroll_position);
             };

@@ -18,6 +18,14 @@ const CardContent = (props) => {
         setDropDown(!dropDown)
     }
 
+    const closeCard = () => {
+        if (window.location.pathname === "/" || window.location.pathname ===  "" || window.location.pathname === "/index"){
+            props.function()
+        }
+        else {
+            window.location.href="/"
+        }
+    }
     const handleChange = e => {
       userName.current = e.target.value;
     };
@@ -25,12 +33,14 @@ const CardContent = (props) => {
     const handleBlur = () => {
       console.log(userName.current);
     };
-    let fakeEvent = {
+    let fakeEvent = [{
         title: "How to Code in React",
         host_name: "Jackie",
         host_school: "Columbia",
-        time_start: "Sunday, December 10, 10am EDT"
-    }
+        time_start: "Sunday, December 10, 10am EDT",
+        eid: "1"
+    }]
+
 
     return (
         <>
@@ -82,11 +92,11 @@ const CardContent = (props) => {
                     className="focus:outline-none"
                 />  
                 
-                <div className="">
+                <div className="hidden">
                     <div className="text-gray-500 mt-6 mb-2">
                         Your upcoming events will be displayed here… so go start reserving tickets already!
                     </div>
-                    <a onClick={props.function} className="underline cursor-pointer"> 
+                    <a onClick={closeCard} className="underline cursor-pointer"> 
                         Browse upcoming events
                     </a>
                     <div className="flex my-2 mt-10 justify-between">
@@ -96,10 +106,10 @@ const CardContent = (props) => {
                     </div>
                 </div>
 
-                <div className="mt-4 hidden">
+                <div className="mt-4">
                     My upcoming events:
                     <div className="overflow-scroll pb-2" style={{height: "40vh"}}>
-                        <EventThumbnail {...fakeEvent} gridNum="1"/>
+                        <EventThumbnail events={fakeEvent} gridNum="1"/>
                     </div>
                     <div className="w-11/12 absolute bottom-0 mb-2 flex justify-between">
                         <WhitePillButton text="MY EVENTS" link="" padding="px-4" size="sm bg-white sm:text-xs"/>

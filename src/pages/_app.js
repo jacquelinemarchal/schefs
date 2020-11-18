@@ -28,10 +28,12 @@ const App = ({ Component, pageProps }) => {
             </div>
             
             <div className={(openCard ? 'overflow-hidden fixed' : '')}>
-                <Component {...pageProps} />
+                <Component {...pageProps}/>
             </div>
         </div>
     );
 };
 
 export default App;
+
+// Pass Card State pageProps={pageProps} closeCardF={() => setOpenCard(false)}

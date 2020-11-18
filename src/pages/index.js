@@ -4,7 +4,7 @@ import NavBar from "../components/Banners/navbar";
 import React, { useState, useEffect } from "react";
 import axios from "axios"
 
-export default function Home() {
+export default function Home(props) {
 
     const [allEvents, setAllEvents]  = useState([]); // [[eid, host_name, host_school, time_start, title]]
 
@@ -35,12 +35,10 @@ export default function Home() {
         linkText:"here"
       }
 
-  return (
-    <>
-        <div>
-            <EventGrid {...allEvents} gridNum="3"/>
-            <Footer {...ambassador} />
-        </div>
-    </>
+    return (
+        <>
+        {allEvents.length ?  <EventGrid events={allEvents} gridNum="3" closeCardF={props.closeCardF} /> : null}
+        <Footer {...ambassador} />
+        </>
   );
 };

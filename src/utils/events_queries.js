@@ -78,7 +78,7 @@ const getEvent = `
                 ON u.uid = eh.user_id
             WHERE eh.event_id = e.eid
         )
-    )
+    ) AS event
     FROM events AS e
     WHERE e.eid = $1
 `;

@@ -1,12 +1,25 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import thumb from "../../../dev/images/e2.jpg"
 import Link from 'next/link'
 
 const EventThumbnail = (props) => {
+    const [path, setPath] = useState(``);
+
+    useEffect(() => {
+        if (window.location.pathname === "/" || window.location.pathname ===  "" || window.location.pathname === "/index"){
+            setPath(`events/${encodeURIComponent(props.eid)}`)
+        }
+        else {
+            setPath(`hi`)
+           // TASK: remove earlier part of URL and replace with correct /events/eid\ 
+           // Pass card state error: onClick={props.closeCardF()}
+        }
+    }, [])
+
     return (
-        <div className="col-span-1 p-2 mb-4">
+        <div className="cursor-pointer col-span-1 p-2 mb-4" >
             <Link href={{
-                pathname: `events/${encodeURIComponent(props.eid)}`,
+                pathname: path,
             }}>
                 <div>
                     <img src={thumb} className="mb-2 rounded-2xl"></img>
@@ -18,6 +31,3 @@ const EventThumbnail = (props) => {
     )
 };
 export default EventThumbnail;
-
-// query: {...props},
-//pass something else to the router on Link tag so that /events/[id]/index.js can properly render correct page :) 

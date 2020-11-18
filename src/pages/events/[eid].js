@@ -15,7 +15,7 @@ export default EventPage
 export const getStaticProps = async (context) => {
     const eventInfo = await new Promise((resolve, reject) => 
         pool.query(queries.getEvent, [ context.params.eid ], (err, results) => {
-            (err ? reject(err) : resolve((results.rows[0].json_build_object)))
+            (err ? reject(err) : resolve((results.rows[0].event)))
         })
     )
     return {
