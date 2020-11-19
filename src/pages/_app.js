@@ -26,7 +26,6 @@ const App = ({ Component, pageProps }) => {
             <div className={(openCard ? 'block' : 'hidden')}>
                 <Card function={() => setOpenCard(false)}/>
             </div>
-            
             <div className={(openCard ? 'overflow-hidden fixed' : '')}>
                 <Component {...pageProps}/>
             </div>
@@ -35,5 +34,7 @@ const App = ({ Component, pageProps }) => {
 };
 
 export default App;
-
-// Pass Card State pageProps={pageProps} closeCardF={() => setOpenCard(false)}
+/*
+            <div className={(openCard ? 'block' : 'hidden')}>
+                <Card function={() => setOpenCard(false)}/>
+            </div>*/
