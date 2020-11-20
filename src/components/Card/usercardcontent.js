@@ -4,7 +4,7 @@ import ContentEditable from 'react-contenteditable'
 import WhitePillButton from "../Buttons/wpillbutton"
 import EventThumbnail from "../Events/eventgrid"
 
-const CardContent = (props) => {
+const CardContent = () => {
     const [dropDown, setDropDown] = useState(false)
 
     // TASK: populate these hooks with correct user data from db (prob in useEffect)
@@ -20,7 +20,7 @@ const CardContent = (props) => {
 
     const closeCard = () => {
         if (window.location.pathname === "/" || window.location.pathname ===  "" || window.location.pathname === "/index"){
-            props.function()
+            //props.function()
         }
         else {
             window.location.href="/"
@@ -40,7 +40,6 @@ const CardContent = (props) => {
         time_start: "Sunday, December 10, 10am EDT",
         eid: "1"
     }]
-
 
     return (
         <>
