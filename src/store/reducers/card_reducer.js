@@ -12,15 +12,15 @@ export const initialState = {
 
 export const CardReducer = (state=initialState, action) => {
     switch (action.type) {
-        case ACTION_TYPES.OPEN_CARD:
+        case 'openCard':
             return {
                 isOpen: true,
             }
-        case ACTION_TYPES.CLOSE_CARD:
+        case 'closeCard':
             return {
                 isOpen:false,
             }
-        case ACTION_TYPES.TOGGLE_CARD:
+        case 'toggleCard':
             return {
                 isOpen:!state.isOpen
             }
