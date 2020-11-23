@@ -2,6 +2,8 @@ import WhitePillButton from "../components/Buttons/wpillbutton"
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios"
 import ContentEditable from 'react-contenteditable'
+import thumb from "../../dev/images/e2.jpg"
+import ImageUpload from 'image-upload-react'
 
 export default function EventBuilder () {
 
@@ -12,7 +14,11 @@ export default function EventBuilder () {
 
     const eventName = useRef("");
     const [charCounter, setCharCounter] = useState("0/65 characters")
-
+    const [imageSrc, setImageSrc] = useState()
+ 
+    const handleImageSelect = (e) => {
+      setImageSrc(URL.createObjectURL(e.target.files[0]))
+    }
     const onBlur = () => {
        // console.log(eventName.current);
     };
@@ -20,6 +26,7 @@ export default function EventBuilder () {
     const countChars = () => {
         var maxLength = 65;
         var strLength = eventName.current.length;
+        // TASK:convert to plain text
         console.log(eventName.current)
         if (strLength > maxLength){
             setCharCounter(`${strLength} / 65 characters`)
@@ -32,7 +39,7 @@ export default function EventBuilder () {
     }
     return (
         <>  
-            <div className="grid grid-cols-5 px-6 mx-1">
+            <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6">
                 <div className="grid col-span-3 bg-pink-300">
                     <ContentEditable
                         html={eventName.current}
@@ -42,16 +49,31 @@ export default function EventBuilder () {
                         placeholder={"My event title..."}
                         className="text-5xl leading-snug mb-2 focus:outline-none"
                     />
-                    <div className="text-gray-600">
+                    <div className="text-gray-600 pb-2">
                         {charCounter}
                     </div>
-                </div>
-                <div className="grid col-span-2 bg-red-500">
-                    <div className="flex space-x-2 h-8">
-                        <WhitePillButton type="submit" text="SET DATE &#038; SUBMIT" padding="px-6"/>
-                        <WhitePillButton type="submit" text="HELP" padding="px-6"/>
+                    <div>
+                        You’ll be able to select your event’s date on the next page
                     </div>
-
+                    <div className="mr-6 mb-4">
+                        <ImageUpload
+                            handleImageSelect={handleImageSelect}
+                            imageSrc={imageSrc}
+                            setImageSrc={setImageSrc}
+                            style={{
+                                width: 700,
+                                height: 500,
+                            }}
+                            />
+                    </div>
+                </div>
+                <div className="grid col-span-2 bg-red-500 ">
+                    <div className="sm:fixed">
+                        <div className="flex space-x-2 h-8">
+                            <WhitePillButton type="submit" text="SET DATE &#038; SUBMIT" padding="px-6"/>
+                            <WhitePillButton type="submit" text="HELP" padding="px-6"/>
+                        </div>
+                    </div>
                 </div>
 
             </div>

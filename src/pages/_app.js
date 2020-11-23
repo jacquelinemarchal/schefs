@@ -13,7 +13,7 @@ const initialState = {
 }
 
 const CardReducer = (state=initialState, action) => {
-    switch (action.type) {
+    switch (action) {
         case 'openCard':
             return {
                 isOpen: true,
@@ -32,7 +32,6 @@ const CardReducer = (state=initialState, action) => {
 }
 
 const App = ({ Component, pageProps }) => {
-   
     let hostBanner = {
         left:"Host & attend small group themed conversations via Zoom on any topic. By & for college students.",
         buttonText: "HOST AN EVENT",
@@ -42,16 +41,16 @@ const App = ({ Component, pageProps }) => {
         scrollShadow: false
     }
 
-    const [stateCardReducer, dispatchCardReducer] = useReducer(CardReducer, initialState);
+    const [stateCardReducer, dispatch] = useReducer(CardReducer, initialState);
 
     return (
-        <StateContext.Provider value = {{cardState: stateCardReducer, cardDispatch: dispatchCardReducer}}>
+        <StateContext.Provider value = {{cardState: stateCardReducer, dispatch: dispatch}}>
             <div> 
                 <Banner {...hostBanner}/>
                 <NavBar {...scroll}/>
                 <CardButton/>
                 {stateCardReducer.isOpen}{
-                    <p className="text-4xl">Hello</p>
+                    <p className="text-4xl">{stateCardReducer.isOpen}</p>
                 }
                 <div className={(stateCardReducer.isOpen ? 'block' : 'hidden')}>
                     <Card/>

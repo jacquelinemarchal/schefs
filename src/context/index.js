@@ -9,21 +9,21 @@ import * as CardReducer from '../store/reducers/card_reducer';
 
 const ContextState = () => {
     /* useReducer */
-    const [stateCardReducer, dispatchCardReducer] = useReducer(CardReducer.CardReducer, CardReducer.initialState);
+    const [stateCardReducer, dispatch] = useReducer(CardReducer.CardReducer, CardReducer.initialState);
 
     const toggleCard = () => {
-        dispatchCardReducer('toggleCard');
+        dispatch('toggleCard');
     }
     const closeCard = () => {
-        dispatchCardReducer('closeCard');
+        dispatch('closeCard');
     }
     const openCard = (stateCardReducer) => {
-        dispatchCardReducer('openCard');
+        dispatch('openCard');
     }
 
     return (
         <Context.Provider
-        value={{ cardState: stateCardReducer, cardDispatch: dispatchCardReducer }} />
+        value={{ cardState: stateCardReducer, cardDispatch: dispatch }} />
             /* Card Reducer
             toggleCard: toggleCard(),
             closeCard: closeCard(),

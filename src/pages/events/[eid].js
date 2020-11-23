@@ -1,12 +1,21 @@
 import EventPageDetails from "../../components/Events/eventpagedetails"
-//import useSWR from 'swr'
+import useSWR from 'swr'
+import axios from "axios"
 import pool from '../../utils/db'
 import queries from "../../utils/events_queries"
 
 const EventPage = ( {eventInfo} ) => {
+    const fetchTickets = () => {
+        return (axios.get(`http://localhost:5000/api/events/${eid}/tickets`, query))
+    }
+    const { data, error } = useSWR("/api/events/${eid}/tickets", fetchTickets)
+    var res = {remainingTickets: 7, reservedTickets:7}
+    if (error){
+        console.log(error)
+    }
     return (
         <>
-            <EventPageDetails {...eventInfo}/>
+            <EventPageDetails eventInfo={eventInfo} tickets={res}/>
         </>
     )
 }

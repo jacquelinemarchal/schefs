@@ -1,10 +1,12 @@
 import { SentimentSatisfied } from "@material-ui/icons";
-import { useState, useRef } from "react"
+import { useState, useRef, useContext } from "react"
+import { StateContext } from "../../pages/_app";
 import ContentEditable from 'react-contenteditable'
 import WhitePillButton from "../Buttons/wpillbutton"
 import EventThumbnail from "../Events/eventgrid"
 
 const CardContent = () => {
+    const context = useContext(StateContext)
     const [dropDown, setDropDown] = useState(false)
 
     // TASK: populate these hooks with correct user data from db (prob in useEffect)
@@ -20,7 +22,7 @@ const CardContent = () => {
 
     const closeCard = () => {
         if (window.location.pathname === "/" || window.location.pathname ===  "" || window.location.pathname === "/index"){
-            //props.function()
+            context.dispatch("closeCard")
         }
         else {
             window.location.href="/"
@@ -104,13 +106,12 @@ const CardContent = () => {
                         <WhitePillButton text="LOG OUT" link="" padding="px-4" size="sm sm:text-xs"/>
                     </div>
                 </div>
-
                 <div className="mt-4">
                     My upcoming events:
                     <div className="overflow-scroll pb-2" style={{height: "40vh"}}>
                         <EventThumbnail events={fakeEvent} gridNum="1"/>
                     </div>
-                    <div className="w-11/12 absolute bottom-0 mb-2 flex justify-between">
+                    <div className="w-11/12 absolute bottom-0 mb-2 flex sm:space-x-1 justify-between">
                         <WhitePillButton text="MY EVENTS" link="" padding="px-4" size="sm bg-white sm:text-xs"/>
                         <WhitePillButton text="HOST AN EVENT" link="" padding="px-4" size="sm bg-white sm:text-xs"/>        
                         <WhitePillButton text="LOG OUT" link="" padding="px-4" size="sm bg-white sm:text-xs"/>        
