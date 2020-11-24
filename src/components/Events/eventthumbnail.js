@@ -13,7 +13,7 @@ const EventThumbnail = (props) => {
     }
 
     return (
-        <div onClick={checkCard} className="cursor-pointer col-span-1 p-2 mb-4" >
+        <div onClick={checkCard} className={"cursor-pointer col-span-1 mb-4 " + props.style} >
             <Link href={`/events/${props.eid}`}>
                 <div>
                     <img src={thumb} className="mb-2 rounded-2xl"></img>

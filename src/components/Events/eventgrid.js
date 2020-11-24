@@ -2,8 +2,8 @@ import EventThumbnail from "./eventthumbnail"
 
 const EventGrid = (props) => {
     return (
-        <div className={"mx-6 grid grid-cols-1 sm:grid-cols-" + props.gridNum}>
-            {props.events.length != 0 ? props.events.map((p, i) => <EventThumbnail {...p} key={i} closeCardF={props.closeCardF} />) : null}
+        <div className={"grid grid-cols-1 sm:grid-cols-" + props.gridNum}>
+            {props.events.length != 0 ? props.events.map((p, i) => <EventThumbnail {...p} style={props.style} key={i} closeCardF={props.closeCardF} />) : null}
         </div>
     )
 };

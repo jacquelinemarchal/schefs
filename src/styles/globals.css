@@ -45,3 +45,12 @@
     opacity: 0;
     transition: opacity 0.2s ease;
 }
+
+@media screen and (min-width: 666px) {
+    #innerCardContainer {
+        height: "333px"
+    }
+  }
+#innerCardContainer {
+    height: "400px"
+}

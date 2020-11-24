@@ -8,17 +8,17 @@ import { useContext } from "react"
 const Card = () => {
     const cardContext = useContext(StateContext)
     return ( 
-        <div className="fixed m-2 border sm:border-2 border-black rounded-xl h-5/6 md:h-screen md:mt-10 top-0 bg-white justify-center right-0 z-20" style={{maxWidth: "500px", maxHeight: "700px"}}>
+        <div className="fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center right-0 z-20" style={{maxWidth: "435px", minHeight: "600px"}}>
             <div className="flex justify-end">
                 <button onClick={() => cardContext.dispatch("closeCard")} className="focus:outline-none p-2">
                     <HighlightOff/>
                 </button>
             </div>
             <div className="hidden">
-                <SignUpForm />
+                <CardContent/>
                 <LoginForm />
             </div>
-            <CardContent/>
+           <CardContent />
         </div>
     )
     /*

@@ -19,7 +19,7 @@ const SignUpForm = () => {
       });
 
       return (
-          <div className="md-shadow px-8 py-2 rounded-2xl">
+          <div className="md-shadow mx-10 py-6 mb-2 rounded-2xl">
                 <p className="text-red-500">{error[1]}</p>
                 <form onSubmit={formik.handleSubmit}>
                     <div className="flex flex-col">
@@ -27,9 +27,9 @@ const SignUpForm = () => {
                             id="fName"
                             name="fName"
                             type="fName"
-                            className={error[2] + " border-2 rounded-full focus:outline-none my-2 px-4 py-1"}
+                            className={error[2] + " border-2 rounded-full focus:outline-none my-2 px-8 py-1"}
                             onChange={formik.handleChange}
-                            value={formik.values.email}
+                            value={formik.values.fName}
                             placeholder="First name"
                             />
                         <input
@@ -38,7 +38,7 @@ const SignUpForm = () => {
                             type="lName"
                             className={error[3] + " border-2 rounded-full focus:outline-none my-2 px-4 py-1"}
                             onChange={formik.handleChange}
-                            value={formik.values.email}
+                            value={formik.values.lName}
                             placeholder="Last name"
                             />
    
@@ -59,16 +59,16 @@ const SignUpForm = () => {
                             type="uni"
                             className={error[5] + " border-2 rounded-full focus:outline-none my-2 px-4 py-1"}
                             onChange={formik.handleChange}
-                            value={formik.values.email}
+                            value={formik.values.uni}
                             placeholder="University name"
                             />
                         <input
                             id="signUpPassword"
                             name="signUpPassword"
-                            type="signUpPassword"
+                            type="password"
                             className={error[6] + " border-2 rounded-full focus:outline-none my-2 px-4 py-1"}
                             onChange={formik.handleChange}
-                            value={formik.values.password}
+                            value={formik.values.signUpPassword}
                             placeholder="Password"
                         />
                     <div className="mx-auto">

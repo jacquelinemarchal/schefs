@@ -37,7 +37,7 @@ export default function Home(props) {
 
     return (
         <>
-        {allEvents.length ?  <EventGrid events={allEvents} gridNum="3" closeCardF={props.closeCardF} /> : null}
+        {allEvents.length ?  <EventGrid events={allEvents} style="px-2" gridNum="3 mx-6" closeCardF={props.closeCardF} /> : null}
         <Footer {...ambassador} />
         </>
   );
