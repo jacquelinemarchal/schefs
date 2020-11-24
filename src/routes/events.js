@@ -221,4 +221,40 @@ router.delete('/:eid/tickets/:uid', (req, res) => {
     });
 });
 
+
+/*
+ * GET /api/events/{eid}/tickets
+ * Get tickets with specified database eid.
+ *
+ * Request Parameters:
+ *  path:
+ *    eid <int> required
+ *  query:
+ *    type <string> defaults to ticket count
+ * 
+ * Response:
+ *  200: successfully retrieved
+ *    <object>
+ *      eid           <int>
+ *  404: event does not exist
+ *  500: other postgres error
+ */
+router.get('/:eid/tickets', (req, res) => {
+    // check auth and other stuff here
+    // var type = "";
+    // if (!req.query.type || req.query.type === "count"){
+    //     type = queries.getReservedTicketsCount;
+    // }
+    // else{
+    //     type = queries.getReservedTickets;
+    // }
+    pool.query(queries.getReservedTicketsCount, [ req.params.eid ], (q_err, q_res) => {
+        if (q_err)
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+        else
+            res.status(200).json(q_res.rows[0]);
+    });
+});
+
+
 module.exports = router;

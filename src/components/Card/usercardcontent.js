@@ -100,17 +100,17 @@ const CardContent = () => {
                     className="focus:outline-none text-sm"
                 />  
                 
-                <div className="hidden">
-                    <div className="text-gray-500 mt-6 text-sm">
+                <div className="">
+                    <div className="text-gray-500 mt-6 text-sm hidden">
                         Your upcoming events will be displayed here… so go start reserving tickets already!
                     </div>
                     <a onClick={closeCard} className="underline text-sm cursor-pointer"> 
                         Browse upcoming events
                     </a>
                 </div>
-                <div className="mt-4 text-sm">
+                <div className="mt-4 text-sm ">
                     My upcoming events:
-                    <div id="innerCardContainer" className="overflow-scroll" style={{height: "333px"}}>
+                    <div id="innerCardContainer" className="overflow-scroll mt-2" style={{height: "333px"}}>
                         <EventThumbnail events={fakeEvent} style="mr-12" gridNum="1"/>
                     </div>
                 </div>

@@ -86,12 +86,21 @@ const getEvent = `
 /*
  * $1: eid <int>
  */
-const countReservedTickets = `
+const getReservedTicketsCount = `
     SELECT COUNT(*) FROM tickets
     WHERE event_id = $1
 `;
 
 /*
+ * $1: eid <int>
+ */
+const getReservedTickets = `
+    SELECT uid, first_name, last_name FROM users
+    LEFT JOIN tickets ON users.uid = tickets.user_id WHERE tickets.event_id = $1
+`;
+/* [{uid: 1, first_name: Jackie, last_name: Marchal}, {uid: 0, first_name: Chris, last_name: Wang}]
+ * 
+ *
  * $1: event_id <int>
  * $2: user_id  <int>
  */
@@ -114,7 +123,8 @@ module.exports = {
     getEventsSummary,
     getEventsDetailed,
     getEvent,
-    countReservedTickets,
+    getReservedTickets,
+    getReservedTicketsCount,
     reserveTicket,
     deleteTicket,
 };

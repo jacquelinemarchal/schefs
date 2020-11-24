@@ -1,6 +1,7 @@
 import thumb from "../../../dev/images/e2.jpg"
 import prof from "../../../dev/images/p2.jpg"
 import Comment from "./comment"
+import axios from "axios"
 import WhitePillButton from "../Buttons/wpillbutton" //type, size (text), text, link
 import {useEffect, useState} from "react"
 import downloadLogo from "../../assets/bdownload.png"
@@ -24,6 +25,8 @@ const EventPageDetails = (props) => {
         if (!requirements){
             requirements = "This event has no requirements."
         }
+
+        axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`).then(res => console.log(res))
         
     }, []);
 
@@ -82,13 +85,13 @@ const EventPageDetails = (props) => {
                             </button>
                         </div>
                         <div className="text-gray-500 mt-2">
-                            {props.tickets.reservedTickets} / {props.tickets.remainingTickets} spots available
+                            {7-props.reservedTickets} / 7 spots available
                         </div>
                     </div>
                     <div className="sm:hidden inline-block">
                         <footer className="left-0 px-8 fixed w-full flex justify-between bottom-0 bg-white h-16">
                             <div className="text-gray-500 self-center">
-                                {props.tickets.reservedTickets} / {props.tickets.remainingTickets} spots available
+                                {7-props.reservedTickets} / 7 spots available
                             </div>
                             <div className="self-center">
                                 <WhitePillButton padding="px-4" type="submit" text="RESERVE" size="xl" />

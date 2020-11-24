@@ -5,17 +5,17 @@ import pool from '../../utils/db'
 import queries from "../../utils/events_queries"
 
 const EventPage = ( {eventInfo} ) => {
-    const fetchTickets = () => {
-        return (axios.get(`http://localhost:5000/api/events/${eid}/tickets`, query))
-    }
-    const { data, error } = useSWR("/api/events/${eid}/tickets", fetchTickets)
-    var res = {remainingTickets: 7, reservedTickets:7}
-    if (error){
+
+ //   const fetcher = url => axios.get(url).then(res => res.data)
+
+  //  const { data, error } = useSWR(`http://localhost:5000/api/events/${eventInfo.eid}/tickets`, fetcher)
+
+   /* if (error){
         console.log(error)
-    }
+    }*/
     return (
         <>
-            <EventPageDetails eventInfo={eventInfo} tickets={res}/>
+            <EventPageDetails eventInfo={eventInfo} reservedTickets={2}/>
         </>
     )
 }
