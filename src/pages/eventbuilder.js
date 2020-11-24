@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios"
 import ContentEditable from 'react-contenteditable'
 import thumb from "../../dev/images/e2.jpg"
-import ImageUpload from 'image-upload-react'
+import ImageUploading from "react-images-uploading"
 
 export default function EventBuilder () {
 
@@ -11,14 +11,15 @@ export default function EventBuilder () {
         // get data
         return()=>(console.log("cleanup"))
     }, [])
+    const [images, setImages] = React.useState([]);
 
+
+    const onDrop = picture => {
+      setPictures([...pictures, picture]);
+    };
     const eventName = useRef("");
     const [charCounter, setCharCounter] = useState("0/65 characters")
-    const [imageSrc, setImageSrc] = useState()
- 
-    const handleImageSelect = (e) => {
-      setImageSrc(URL.createObjectURL(e.target.files[0]))
-    }
+
     const onBlur = () => {
        // console.log(eventName.current);
     };
@@ -37,6 +38,12 @@ export default function EventBuilder () {
             setCharCounter(`${strLength} / 65 characters`)
         }
     }
+
+    const onChange = (imageList, addUpdateIndex) => {
+        // data for submit
+        console.log(imageList, addUpdateIndex);
+        setImages(imageList);
+      };
     return (
         <>  
             <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6">
@@ -56,15 +63,43 @@ export default function EventBuilder () {
                         You’ll be able to select your event’s date on the next page
                     </div>
                     <div className="mr-6 mb-4">
-                        <ImageUpload
-                            handleImageSelect={handleImageSelect}
-                            imageSrc={imageSrc}
-                            setImageSrc={setImageSrc}
-                            style={{
-                                width: 700,
-                                height: 500,
-                            }}
-                            />
+                    <ImageUploading
+                        value={images}
+                        onChange={onChange}
+                        dataURLKey="data_url"
+                    >
+                        {({
+                        imageList,
+                        onImageUpload,
+                        onImageRemoveAll,
+                        onImageUpdate,
+                        onImageRemove,
+                        isDragging,
+                        dragProps,
+                        }) => (
+                        // write your building UI
+                        <div className="upload__image-wrapper">
+                            <button
+                            style={isDragging ? { color: 'red' } : undefined}
+                            onClick={onImageUpload}
+                            {...dragProps}
+                            >
+                            Click or Drop here
+                            </button>
+                            &nbsp;
+                            <button onClick={onImageRemoveAll}>Remove all images</button>
+                            {imageList.map((image, index) => (
+                            <div key={index} className="image-item">
+                                <img src={image['data_url']} alt="" width="100" />
+                                <div className="image-item__btn-wrapper">
+                                <button onClick={() => onImageUpdate(index)}>Update</button>
+                                <button onClick={() => onImageRemove(index)}>Remove</button>
+                                </div>
+                            </div>
+                            ))}
+                        </div>
+                        )}
+                    </ImageUploading>
                     </div>
                 </div>
                 <div className="grid col-span-2 bg-red-500 ">
@@ -80,3 +115,10 @@ export default function EventBuilder () {
         </>
   );
 };
+/*
+                    <ImageUploader
+                        {...props}
+                        onChange={onDrop}
+                        imgExtension={[".jpg", ".gif", ".png", ".gif"]}
+                        maxFileSize={5242880}
+                        />*/
