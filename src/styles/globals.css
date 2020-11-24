@@ -8,4 +8,40 @@
     content: attr(placeholder);
     display: block;
     color: #aaa;
-  }
+}
+
+.card-enter {
+    transform: translateX(100%);
+}
+
+.card-enter-active {
+    transform: translateX(0%);
+    transition: transform 0.5s ease;
+}
+
+.card-exit {
+    transform: translateX(0%);
+}
+
+.card-exit-active {
+    transform: translateX(100%);
+    transition: transform 0.5s ease;
+}
+
+.grey-out-enter {
+    opacity: 0;
+}
+
+.grey-out-enter-active {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+.grey-out-exit {
+    opacity: 1;
+}
+
+.grey-out-exit-active {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}

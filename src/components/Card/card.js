@@ -7,13 +7,8 @@ import { useContext } from "react"
 
 const Card = () => {
     const cardContext = useContext(StateContext)
-    return (
-        <>
-        <div onClick={() => cardContext.dispatch("closeCard")} className="fixed inset-0 transition-opacity z-10">
-            <div className="absolute inset-0 bg-gray-700 opacity-75"></div>
-        </div>
-
-        <div className="fixed m-2 rounded-xl top-0 md:mt-10 bg-white justify-center sm:right-0 z-20" style={{height: "900px"}, {width: "450px"}}>
+    return ( 
+        <div className="fixed m-2 border sm:border-2 border-black rounded-xl h-5/6 md:h-screen md:mt-10 top-0 bg-white justify-center right-0 z-20" style={{maxWidth: "500px", maxHeight: "700px"}}>
             <div className="flex justify-end">
                 <button onClick={() => cardContext.dispatch("closeCard")} className="focus:outline-none p-2">
                     <HighlightOff/>
@@ -25,7 +20,9 @@ const Card = () => {
             </div>
             <CardContent/>
         </div>
-        </>
     )
-    }
+    /*
+     * <div className="fixed m-2 rounded-xl top-0 md:mt-10 bg-white justify-center sm:right-0 z-20" style={{height: "900px"}, {width: "450px"}}>
+     */
+}
 export default Card;

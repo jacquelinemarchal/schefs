@@ -1,10 +1,11 @@
 import '../styles/globals.css';
 import NavBar from "../components/Banners/navbar";
 import Banner from "../components/Banners/banner";
-import CardButton from "../components/Card/cardbutton"
-import Card from "../components/Card/card"
-//import ContextState from "../context/index"
+import CardButton from "../components/Card/cardbutton";
+import Card from "../components/Card/card";
+import GreyOut from "../components/Card/greyout";
 import React, { useReducer } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 export const StateContext = React.createContext();
 
@@ -52,15 +53,37 @@ const App = ({ Component, pageProps }) => {
                 {stateCardReducer.isOpen}{
                     <p className="text-4xl">{stateCardReducer.isOpen}</p>
                 }
-                <div className={(stateCardReducer.isOpen ? 'block' : 'hidden')}>
-                    <Card/>
-                </div>
+
+                <CSSTransition
+                  in={stateCardReducer.isOpen}
+                  timeout={500}
+                  key="grey-out"
+                  unmountOnExit
+                  classNames="grey-out"
+                >
+                  <GreyOut />
+                </CSSTransition>
+
+                <CSSTransition
+                  in={stateCardReducer.isOpen}
+                  timeout={500}
+                  key="card"
+                  unmountOnExit
+                  classNames="card"
+                >
+                  <Card />
+                </CSSTransition>
+
                 <div className={(stateCardReducer.isOpen ? 'overflow-hidden fixed' : '')}>
                     <Component {...pageProps}/>
                 </div>
             </div>
         </StateContext.Provider>
     );
+
+    /*
+     * <div className="fixed m-2 rounded-xl top-0 md:mt-10 bg-white justify-center sm:right-0 z-20" style={{height: "900px"}, {width: "450px"}}>
+     */
 };
 
 export default App;
