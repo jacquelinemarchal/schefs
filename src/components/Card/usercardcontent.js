@@ -94,7 +94,7 @@ const CardContent = () => {
                 />  
                 
                 <div className="hidden">
-                    <div className="text-gray-500 mt-6 mb-2">
+                    <div className="text-gray-500 mt-6 ">
                         Your upcoming events will be displayed here… so go start reserving tickets already!
                     </div>
                     <a onClick={closeCard} className="underline cursor-pointer"> 
@@ -111,7 +111,7 @@ const CardContent = () => {
                     <div className="overflow-scroll pb-2" style={{height: "40vh"}}>
                         <EventThumbnail events={fakeEvent} gridNum="1"/>
                     </div>
-                    <div className="w-11/12 absolute bottom-0 mb-2 flex sm:space-x-1 justify-between">
+                    <div className="w-11/12 absolute bottom-0 mb-2 flex justify-between">
                         <WhitePillButton text="MY EVENTS" link="" padding="px-4" size="sm bg-white sm:text-xs"/>
                         <WhitePillButton text="HOST AN EVENT" link="" padding="px-4" size="sm bg-white sm:text-xs"/>        
                         <WhitePillButton text="LOG OUT" link="" padding="px-4" size="sm bg-white sm:text-xs"/>        

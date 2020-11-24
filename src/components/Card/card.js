@@ -13,7 +13,7 @@ const Card = () => {
             <div className="absolute inset-0 bg-gray-700 opacity-75"></div>
         </div>
 
-        <div className="fixed m-2 rounded-xl top-0 sm:mt-10 lg:w-4/12 h-auto bg-white justify-center sm:right-0 z-20" style={{height: "84vh"}}>
+        <div className="fixed m-2 rounded-xl top-0 md:mt-10 bg-white justify-center sm:right-0 z-20" style={{height: "900px"}, {width: "450px"}}>
             <div className="flex justify-end">
                 <button onClick={() => cardContext.dispatch("closeCard")} className="focus:outline-none p-2">
                     <HighlightOff/>
