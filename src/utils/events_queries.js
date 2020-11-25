@@ -119,7 +119,27 @@ const deleteTicket = `
     RETURNING user_id
 `;
 
+/* 
+ * $1: user_id <int>
+ * $2: name  <string>
+ * $3: body  <string>
+ * $4: event_id <int>
+ */
+const postComment = `
+    INSERT INTO COMMENTS(user_id, name, body, event_id)
+    VALUES ($1, $2, $3, $4)
+`;
+
+/* 
+ * $1: event_id <int>
+ */
+const getComments = `
+    SELECT * FROM comments
+    WHERE event_id = $1
+`;
+
 module.exports = {
+    postComment,
     getEventsSummary,
     getEventsDetailed,
     getEvent,

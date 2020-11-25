@@ -42,6 +42,7 @@ CREATE UNIQUE INDEX event_hosts_idx ON event_hosts(user_id, event_id);
 
 CREATE TABLE comments (
     cid           SERIAL PRIMARY KEY,
+    event_id      INT NOT NULL REFERENCES events(eid),
     user_id       INT NOT NULL REFERENCES users(uid),
     name          VARCHAR(255) NOT NULL,
     body          VARCHAR NOT NULL,

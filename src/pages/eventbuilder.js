@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios"
 import ContentEditable from 'react-contenteditable'
 import thumb from "../../dev/images/e2.jpg"
-import ImageUploading from "react-images-uploading"
 
 export default function EventBuilder () {
 
@@ -63,43 +62,7 @@ export default function EventBuilder () {
                         You’ll be able to select your event’s date on the next page
                     </div>
                     <div className="mr-6 mb-4">
-                    <ImageUploading
-                        value={images}
-                        onChange={onChange}
-                        dataURLKey="data_url"
-                    >
-                        {({
-                        imageList,
-                        onImageUpload,
-                        onImageRemoveAll,
-                        onImageUpdate,
-                        onImageRemove,
-                        isDragging,
-                        dragProps,
-                        }) => (
-                        // write your building UI
-                        <div className="upload__image-wrapper">
-                            <button
-                            style={isDragging ? { color: 'red' } : undefined}
-                            onClick={onImageUpload}
-                            {...dragProps}
-                            >
-                            Click or Drop here
-                            </button>
-                            &nbsp;
-                            <button onClick={onImageRemoveAll}>Remove all images</button>
-                            {imageList.map((image, index) => (
-                            <div key={index} className="image-item">
-                                <img src={image['data_url']} alt="" width="100" />
-                                <div className="image-item__btn-wrapper">
-                                <button onClick={() => onImageUpdate(index)}>Update</button>
-                                <button onClick={() => onImageRemove(index)}>Remove</button>
-                                </div>
-                            </div>
-                            ))}
-                        </div>
-                        )}
-                    </ImageUploading>
+                   
                     </div>
                 </div>
                 <div className="grid col-span-2 bg-red-500 ">
