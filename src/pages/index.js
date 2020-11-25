@@ -3,9 +3,8 @@ import EventGrid from "../components/Events/eventgrid"
 import NavBar from "../components/Banners/navbar";
 import React, { useState, useEffect } from "react";
 import axios from "axios"
-import Card from "../components/card"
 
-export default function Home() {
+export default function Home(props) {
 
     const [allEvents, setAllEvents]  = useState([]); // [[eid, host_name, host_school, time_start, title]]
 
@@ -36,13 +35,10 @@ export default function Home() {
         linkText:"here"
       }
 
-  return (
-    <>
-        <div>
-            <Card></Card>
-            <EventGrid {...allEvents}/>
-            <Footer {...ambassador} />
-        </div>
-    </>
+    return (
+        <>
+        {allEvents.length ?  <EventGrid events={allEvents} style="px-2" gridNum="3 mx-6" closeCardF={props.closeCardF} /> : null}
+        <Footer {...ambassador} />
+        </>
   );
 };

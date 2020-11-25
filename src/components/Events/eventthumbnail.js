@@ -1,13 +1,20 @@
-import React from "react";
+import React, {useEffect, useState, useContext} from "react";
 import thumb from "../../../dev/images/e2.jpg"
 import Link from 'next/link'
+import { StateContext } from "../../pages/_app";
 
 const EventThumbnail = (props) => {
+    const context = useContext(StateContext)
+
+    const checkCard = () => {
+        if (context.cardState.isOpen){
+            context.dispatch("closeCard")
+        }
+    }
+
     return (
-        <div className="col-span-1 p-2 mb-4">
-            <Link href={{
-                pathname: `events/${encodeURIComponent(props.eid)}`,
-            }}>
+        <div onClick={checkCard} className={"cursor-pointer col-span-1 mb-4 " + props.style} >
+            <Link href={`/events/${props.eid}`}>
                 <div>
                     <img src={thumb} className="mb-2 rounded-2xl"></img>
                     <p className="mb-1 text-sm">{props.title}</p> 
@@ -18,6 +25,3 @@ const EventThumbnail = (props) => {
     )
 };
 export default EventThumbnail;
-
-// query: {...props},
-//pass something else to the router on Link tag so that /events/[id]/index.js can properly render correct page :) 

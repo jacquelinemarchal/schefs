@@ -1,12 +1,21 @@
 import EventPageDetails from "../../components/Events/eventpagedetails"
-//import useSWR from 'swr'
+import useSWR from 'swr'
+import axios from "axios"
 import pool from '../../utils/db'
 import queries from "../../utils/events_queries"
 
 const EventPage = ( {eventInfo} ) => {
+
+ //   const fetcher = url => axios.get(url).then(res => res.data)
+
+  //  const { data, error } = useSWR(`http://localhost:5000/api/events/${eventInfo.eid}/tickets`, fetcher)
+
+   /* if (error){
+        console.log(error)
+    }*/
     return (
         <>
-            <EventPageDetails {...eventInfo}/>
+            <EventPageDetails eventInfo={eventInfo} reservedTickets={2}/>
         </>
     )
 }
@@ -15,7 +24,7 @@ export default EventPage
 export const getStaticProps = async (context) => {
     const eventInfo = await new Promise((resolve, reject) => 
         pool.query(queries.getEvent, [ context.params.eid ], (err, results) => {
-            (err ? reject(err) : resolve((results.rows[0].json_build_object)))
+            (err ? reject(err) : resolve((results.rows[0].event)))
         })
     )
     return {
@@ -25,16 +34,21 @@ export const getStaticProps = async (context) => {
     }
 }
 export async function getStaticPaths(){
+    const events = await new Promise((resolve, reject) => {
+        pool.query(queries.getEventsSummary, ["2020-01-01", "2020-12-31", "all" ], (err, results) => {
+            (err ? reject(err) : resolve((results.rows)))
+        })
+    })
+    const paths = events.map(e => {
+        return {
+            params: {eid: (e.eid).toString()}
+        }
+    })
     return{
-        paths: [
-            { params: { eid: '1' } },
-            { params: { eid: '2' } },
-            { params: { eid: '3' } },
-        ],
+        paths,
         fallback: false,
     }
 }
-
     /*
 
     const res = await axios.get(`http://localhost:5000/api/events/${eid}`, query)

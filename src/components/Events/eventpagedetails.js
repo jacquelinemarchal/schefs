@@ -1,6 +1,7 @@
 import thumb from "../../../dev/images/e2.jpg"
 import prof from "../../../dev/images/p2.jpg"
 import Comment from "./comment"
+import axios from "axios"
 import WhitePillButton from "../Buttons/wpillbutton" //type, size (text), text, link
 import {useEffect, useState} from "react"
 import downloadLogo from "../../assets/bdownload.png"
@@ -14,18 +15,23 @@ const EventPageDetails = (props) => {
     let reserveButton = {
         type:"submit", 
         size:"xl",
+        padding:"px-4",
         text:"RESERVE FOR ZOOM",
     }
     useEffect(() => {
-        let requirements = props.requirements
+        let requirements = props.eventInfo.requirements
+        console.log(props)
+
         if (!requirements){
             requirements = "This event has no requirements."
         }
+
+        axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`).then(res => console.log(res))
         
     }, []);
 
     const copyLink = (e) => {{
-        navigator.clipboard.writeText(`schefs.us/events/${props.eid}`)}
+        navigator.clipboard.writeText(`schefs.us/events/${props.eventInfo.eid}`)}
         setCopyStatus("Copied!")
         setTimeout(() => {
             setCopyStatus("");
@@ -37,22 +43,22 @@ const EventPageDetails = (props) => {
         <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-8">
             <div className="sm:col-span-3">
                 <div className="text-5xl">
-                    {props.title}
+                    {props.eventInfo.title}
                 </div>
                 <div className="mb-2">
-                    {props.time_start}
+                    {props.eventInfo.time_start}
                 </div>
                 <div className="mr-6 mb-4">
                     <img src={thumb} href="/sampleevent" className="sm:w-3/4 rounded-2xl"></img>
                 </div>
                 <div className="mb-2">
-                    {props.description}
+                    {props.eventInfo.description}
                 </div>
                 <div className="text-2xl">
                     What to Prepare
                 </div>
                 <div className="mb-4">
-                    {props.requirements}
+                    {props.eventInfo.requirements}
                 </div>
                 <hr></hr>
                 <div className="my-4 text-2xl">
@@ -60,7 +66,7 @@ const EventPageDetails = (props) => {
                 </div>
                 <form className="flex row-span-1 items-end justify-center" >
                     <input className="w-full border-b border-black focus:outline-none" type="text" placeholder="Share your thought here" aria-label="Add a comment" />
-                    <WhitePillButton type="submit" text="POST" size="lg" />
+                    <WhitePillButton padding="px-4" type="submit" text="POST" size="lg" />
                 </form>
                 <div className="">
                     <Comment time="Yesterday" name="Jacqueline Marchal" university="Columbia University" thought="Wow I’d really love to come to this event but I can’t make it. Please please please host this again some other time!!!" />
@@ -72,23 +78,23 @@ const EventPageDetails = (props) => {
             <div className="sm:col-span-2 mb-20 sm:m-0">
                 <div className="sm:fixed">
                     <div className="hidden sm:inline-block">
-                        <div className = "flex">
+                        <div className="flex">
                             <WhitePillButton {...reserveButton} />
                             <button onMouseEnter={() => setHover(downloadHoverLogo)} onMouseLeave={() => setHover(downloadLogo)} onClick={copyLink} className="ml-2 flex space-x-2 text-gray-700 items-center h-8 w-8 bg-gray-400 rounded-full focus:outline-none">
                                 <img src={inHover} className="p-2"></img><p>{copyStatus}</p>
                             </button>
                         </div>
                         <div className="text-gray-500 mt-2">
-                            2/7 spots available
+                            {7-props.reservedTickets} / 7 spots available
                         </div>
                     </div>
                     <div className="sm:hidden inline-block">
                         <footer className="left-0 px-8 fixed w-full flex justify-between bottom-0 bg-white h-16">
                             <div className="text-gray-500 self-center">
-                                2/7 spots available
+                                {7-props.reservedTickets} / 7 spots available
                             </div>
                             <div className="self-center">
-                                <WhitePillButton type="submit" text="RESERVE" size="xl" />
+                                <WhitePillButton padding="px-4" type="submit" text="RESERVE" size="xl" />
                             </div>
                         </footer>
                     </div>
@@ -100,10 +106,10 @@ const EventPageDetails = (props) => {
                         <div className="p-4 grid-rows-3">
                             <div className="row-span-1 flex">
                                 <img src={prof} className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
-                                <p className="self-center ml-4 text-3xl">{props.host_name}</p>
+                                <p className="self-center ml-4 text-3xl">{props.eventInfo.host_name}</p>
                             </div>
                             <div className="mb-8 row-span-1 text-center justify-center">
-                                <p>{props.host_school} • 2023</p>
+                                <p>{props.eventInfo.host_school} • 2023</p>
                                 <p>Computer Engineering</p>
                             </div>
                             <div className="row-span-1 text-center justify-center">
