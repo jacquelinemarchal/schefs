@@ -290,9 +290,9 @@ router.get('/:eid/tickets', (req, res) => {
  *  404: event does not exist
  *  500: other postgres error
  */
-router.get('/:eid/tickets', (req, res) => {
+router.get('/:eid/comments', (req, res) => {
     // check auth and other stuff here
-    pool.query(queries.getReservedTickets, [ req.params.eid ], (q_err, q_res) => {
+    pool.query(queries.getComments, [ req.params.eid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else

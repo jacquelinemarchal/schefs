@@ -8,12 +8,14 @@ import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
 import useSWR from 'swr'
 
-
 const EventPageDetails = (props) => {
 
     const fetcher = url => axios.get(url).then(res => res.data)
-
     const { data, error } = useSWR(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`, fetcher, {initialData: props.reservedTickets})
+
+    const commentFetcher = url => axios.get(url).then(res => res.data)
+    const { data, error } = useSWR(`http://localhost:5000/api/${props.eventInfo.eid}/comments`, commentFetcher, {initialData: props.comments})
+
     console.log(data)
     if (error){
         console.log(error)

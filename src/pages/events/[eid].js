@@ -13,11 +13,19 @@ import useSWR from 'swr'
 const EventPage = ( props ) => {
     const fetcher = url => axios.get(url).then(res => res.data.count === "0" ? 0 : parseInt(res.data.count, 10))
 
-    const { data, error } = useSWR(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`, fetcher, {initialData: props.tickets})
-    if (error) {
-        console.log(error)
+    const { data:ticketCount, error:ticketError } = useSWR(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`, fetcher, {initialData: props.tickets})
+
+    if (ticketError) {
+        console.log(ticketError)
     }
 
+    const commentFetcher = url => axios.get(url).then(res => res.data)
+    const { data:comments, error:commentsError } = useSWR(`http://localhost:5000/api/${props.eventInfo.eid}/comments`, commentFetcher, {initialData: props.comments})
+
+    if (commentsError) {
+        console.log(commentsError)
+    }
+    console.log(comments)
     const [inHover, setHover] = useState(downloadLogo);
     const [copyStatus, setCopyStatus] = useState("")
 
@@ -28,14 +36,6 @@ const EventPage = ( props ) => {
         text:"RESERVE FOR ZOOM",
     }
 
-    useEffect(() => {
-        let requirements = props.eventInfo.requirements
-
-        if (!requirements){
-            requirements = "This event has no requirements."
-        }        
-    }, []);
-
     const copyLink = (e) => {{
         navigator.clipboard.writeText(`schefs.us/events/${props.eventInfo.eid}`)}
         setCopyStatus("Copied!")
@@ -44,7 +44,6 @@ const EventPage = ( props ) => {
         },2000); 
       };
     
-
     return (
         <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-8">
             <div className="sm:col-span-3">
@@ -64,7 +63,7 @@ const EventPage = ( props ) => {
                     What to Prepare
                 </div>
                 <div className="mb-4">
-                    {props.eventInfo.requirements}
+                    {props.eventInfo.requirements ? props.eventInfo.requirements : "This event has no requirements."}
                 </div>
                 <hr></hr>
                 <div className="my-4 text-2xl">
@@ -75,8 +74,7 @@ const EventPage = ( props ) => {
                     <WhitePillButton padding="px-4" type="submit" text="POST" size="lg" />
                 </form>
                 <div className="">
-                    <Comment time="Yesterday" name="Jacqueline Marchal" university="Columbia University" thought="Wow I’d really love to come to this event but I can’t make it. Please please please host this again some other time!!!" />
-                    <Comment time="Yesterday" name="Jacqueline Marchal" university="Columbia University" thought="Wow I’d really love to come to this event but I can’t make it. Please please please host this again some other time!!!" />
+                    {comments ? comments.map((p, i) => <Comment key={i} time={p.time_created} name={p.name} university={p.school} thought={p.body} />) : null}
                 </div>
             </div>
 
@@ -90,13 +88,13 @@ const EventPage = ( props ) => {
                             </button>
                         </div>
                         <div className="text-gray-500 mt-2">
-                            {7-data} / 7 spots available
+                            {7-ticketCount} / 7 spots available
                         </div>
                     </div>
                     <div className="sm:hidden inline-block">
                         <footer className="left-0 px-8 fixed w-full flex justify-between bottom-0 bg-white h-16">
                             <div className="text-gray-500 self-center">
-                                {7-data} / 7 spots available
+                                {7-ticketCount} / 7 spots available
                             </div>
                             <div className="self-center">
                                 <WhitePillButton padding="px-4" type="submit" text="RESERVE" size="xl" />
@@ -140,11 +138,21 @@ export const getStaticProps = async (context) => {
             (err ? reject(err) : resolve((results.rows[0].count)))
         })
     )
-    
+    const comments = await new Promise((resolve, reject) =>
+        pool.query(queries.getComments, [ context.params.eid ], (err, results) => {
+            err ? reject(err) : resolve(results.rows.map(comment => (
+                {
+                    ...comment,
+                    time_created: comment.time_created.toJSON()
+                }
+            )))
+        })
+    )
     return {
         props: {
             eventInfo,
             tickets: tickets === "0" ? 0 : parseInt(tickets, 10),
+            comments,
         },
     }
 }
@@ -164,8 +172,8 @@ export async function getStaticPaths(){
         fallback: false,
     }
 }
-    /*
-
+    
+/*
     const res = await axios.get(`http://localhost:5000/api/events/${eid}`, query)
     const eventInfo = res.data
     return {

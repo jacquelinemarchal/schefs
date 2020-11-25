@@ -136,10 +136,12 @@ const postComment = `
 const getComments = `
     SELECT * FROM comments
     WHERE event_id = $1
+    ORDER BY time_created ASC
 `;
 
 module.exports = {
     postComment,
+    getComments,
     getEventsSummary,
     getEventsDetailed,
     getEvent,
