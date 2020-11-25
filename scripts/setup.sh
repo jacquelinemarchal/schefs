@@ -9,9 +9,6 @@ pgpass=$4
 # set PSQL password
 export PGPASSWORD=$pgpass
 
-# create database
-psql -U $pguser -h $pghost -c "CREATE DATABASE $pgdata";
-
 # create schema
 psql -U $pguser -h $pghost -d $pgdata -f ../schema.sql
 
