@@ -6,9 +6,19 @@ import WhitePillButton from "../Buttons/wpillbutton" //type, size (text), text, 
 import {useEffect, useState} from "react"
 import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
+import useSWR from 'swr'
 
 
 const EventPageDetails = (props) => {
+
+    const fetcher = url => axios.get(url).then(res => res.data)
+
+    const { data, error } = useSWR(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`, fetcher, {initialData: props.reservedTickets})
+    console.log(data)
+    if (error){
+        console.log(error)
+    }
+
     const [inHover, setHover] = useState(downloadLogo);
     const [copyStatus, setCopyStatus] = useState("")
 
@@ -20,14 +30,10 @@ const EventPageDetails = (props) => {
     }
     useEffect(() => {
         let requirements = props.eventInfo.requirements
-        console.log(props)
 
         if (!requirements){
             requirements = "This event has no requirements."
-        }
-
-        axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`).then(res => console.log(res))
-        
+        }        
     }, []);
 
     const copyLink = (e) => {{
@@ -49,7 +55,7 @@ const EventPageDetails = (props) => {
                     {props.eventInfo.time_start}
                 </div>
                 <div className="mr-6 mb-4">
-                    <img src={thumb} href="/sampleevent" className="sm:w-3/4 rounded-2xl"></img>
+                    <img src={thumb} className="sm:w-3/4 rounded-2xl"></img>
                 </div>
                 <div className="mb-2">
                     {props.eventInfo.description}
@@ -85,13 +91,13 @@ const EventPageDetails = (props) => {
                             </button>
                         </div>
                         <div className="text-gray-500 mt-2">
-                            {7-props.reservedTickets} / 7 spots available
+                            {props.reservedTickets ? 7-props.reservedTickets : null} / 7 spots available
                         </div>
                     </div>
                     <div className="sm:hidden inline-block">
                         <footer className="left-0 px-8 fixed w-full flex justify-between bottom-0 bg-white h-16">
                             <div className="text-gray-500 self-center">
-                                {7-props.reservedTickets} / 7 spots available
+                                {props.reservedTickets ? 7-props.reservedTickets : null} / 7 spots available
                             </div>
                             <div className="self-center">
                                 <WhitePillButton padding="px-4" type="submit" text="RESERVE" size="xl" />
