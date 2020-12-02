@@ -19,6 +19,7 @@
     "fecha": "^4.2.0",
     "firebase-admin": "^9.4.1",
     "formik": "^2.2.5",
+    "html-to-text": "^6.0.0",
     "image-upload-react": "^1.4.9",
     "moment": "^2.29.1",
     "next": "9.5.5",

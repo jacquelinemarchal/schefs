@@ -17,6 +17,7 @@ const EventPage = ( props ) => {
     const [clientComments, setClientComments] = useState([])
     const [commentBody, setCommentBody] = useState("")
 
+    // OPTION: add refresh interval to tickets https://stackoverflow.com/questions/64245201/revalidating-data-using-mutate-in-swr-which-should-i-use
     const fetcher = url => axios.get(url).then(res => res.data.count === "0" ? 0 : parseInt(res.data.count, 10))
     const { data:ticketCount, error:ticketError } = useSWR(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`, fetcher, {initialData: props.tickets})
     if (ticketError) {
