@@ -8,26 +8,34 @@ import WhitePillButton from "../../components/Buttons/wpillbutton" //type, size 
 import {useEffect, useState} from "react"
 import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
-import useSWR from 'swr'
+import useSWR, {mutate} from 'swr'
 
 const EventPage = ( props ) => {
+
+    const [inHover, setHover] = useState(downloadLogo);
+    const [copyStatus, setCopyStatus] = useState("")
+    const [clientComments, setClientComments] = useState([])
+    const [commentBody, setCommentBody] = useState("")
+
     const fetcher = url => axios.get(url).then(res => res.data.count === "0" ? 0 : parseInt(res.data.count, 10))
-
     const { data:ticketCount, error:ticketError } = useSWR(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`, fetcher, {initialData: props.tickets})
-
     if (ticketError) {
         console.log(ticketError)
     }
 
     const commentFetcher = url => axios.get(url).then(res => res.data)
-    const { data:comments, error:commentsError } = useSWR(`http://localhost:5000/api/${props.eventInfo.eid}/comments`, commentFetcher, {initialData: props.comments})
-
+    const { data:comments, error:commentsError } = useSWR(`http://localhost:5000/api/events/${props.eventInfo.eid}/comments`, commentFetcher, {initialData: []})
     if (commentsError) {
         console.log(commentsError)
     }
-    console.log(comments)
-    const [inHover, setHover] = useState(downloadLogo);
-    const [copyStatus, setCopyStatus] = useState("")
+    // while revalidating <svg className=" border-gray-800 border animate-spin ease-in-out mt-4 h-5 w-5 rounded-sm" viewBox="0 0 100 100"></svg>
+    useEffect(() => {
+        mutate(`http://localhost:5000/api/events/${props.eventInfo.eid}/comments`)
+    }, []);
+
+    useEffect(() => {
+        setClientComments([...comments])
+    }, [comments]);
 
     let reserveButton = {
         type:"submit", 
@@ -44,6 +52,30 @@ const EventPage = ( props ) => {
         },2000); 
       };
     
+    const handleSubmit = (e) => { 
+        e.preventDefault();
+        if (commentBody.replace(/\s/g, '').length) {
+            setClientComments([...clientComments, {
+                time_created: Date.now(),
+                name: "Test Name",
+                school: "Test School", 
+                body: commentBody
+            }])
+            let sendComment = {
+                user_id: 1, // ADD AUTH
+                name: "Test Name",
+                body:commentBody,
+                school: "Test School",
+            }
+            axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/comment`, sendComment)
+            .then((res)=>{
+                setCommentBody("")
+                console.log(res)
+            })
+            .catch((err)=>{alert(err)})
+        }
+    }
+
     return (
         <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-8">
             <div className="sm:col-span-3">
@@ -69,13 +101,15 @@ const EventPage = ( props ) => {
                 <div className="my-4 text-2xl">
                     Thoughts:
                 </div>
-                <form className="flex row-span-1 items-end justify-center" >
-                    <input className="w-full border-b border-black focus:outline-none" type="text" placeholder="Share your thought here" aria-label="Add a comment" />
+                <form className="flex row-span-1 items-end justify-center" onSubmit={handleSubmit}>
+                    <input className="w-full border-b border-black focus:outline-none" value={commentBody} onChange={(e) => setCommentBody(e.target.value)} type="text" placeholder="Share your thought here" aria-label="Add a comment" />
                     <WhitePillButton padding="px-4" type="submit" text="POST" size="lg" />
                 </form>
                 <div className="">
-                    {comments ? comments.map((p, i) => <Comment key={i} time={p.time_created} name={p.name} university={p.school} thought={p.body} />) : null}
-                </div>
+                    {clientComments.length
+                        ? clientComments.sort((a, b) => {return new Date(b.time_created) - new Date(a.time_created)}).map((p, i) => <Comment key={i} time={p.time_created} name={p.name} university={p.school} thought={p.body} />) 
+                        : <p className="my-4 text-gray-500">There are no comments yet...start the conversation!</p>}
+                </div> 
             </div>
 
             <div className="sm:col-span-2 mb-20 sm:m-0">
@@ -138,6 +172,7 @@ export const getStaticProps = async (context) => {
             (err ? reject(err) : resolve((results.rows[0].count)))
         })
     )
+    /*
     const comments = await new Promise((resolve, reject) =>
         pool.query(queries.getComments, [ context.params.eid ], (err, results) => {
             err ? reject(err) : resolve(results.rows.map(comment => (
@@ -147,12 +182,12 @@ export const getStaticProps = async (context) => {
                 }
             )))
         })
-    )
+    )*/
     return {
         props: {
             eventInfo,
             tickets: tickets === "0" ? 0 : parseInt(tickets, 10),
-            comments,
+          //  comments,
         },
     }
 }

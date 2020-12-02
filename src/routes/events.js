@@ -296,7 +296,7 @@ router.get('/:eid/comments', (req, res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else
-            res.status(200).json(q_res.rows[0]);
+            res.status(200).json(q_res.rows);
     });
 });
 
@@ -314,14 +314,13 @@ router.get('/:eid/comments', (req, res) => {
  *      user_id     <int> required
  *      name        <string> required
  *      body        <string> required
- *      event_id    <int> required
  *
  * Response:
  *  201: successfully added comment
  *  500: other postgres error
  */
 
-router.post('/:eid/comment', async (req, res) => {
+router.post('/:eid/comment', (req, res) => {
     // check auth and other stuff here
     const values = [req.body.user_id, req.body.name, req.body.body, req.params.eid]
     pool.query(queries.postComment, values, (q_err, q_res) => {

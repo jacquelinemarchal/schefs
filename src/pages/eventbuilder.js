@@ -3,46 +3,50 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios"
 import ContentEditable from 'react-contenteditable'
 import thumb from "../../dev/images/e2.jpg"
+//https://www.npmjs.com/package/html-parser
 
 export default function EventBuilder () {
-
-    useEffect(() => {
-        // get data
-        return()=>(console.log("cleanup"))
-    }, [])
-    const [images, setImages] = React.useState([]);
-
-
-    const onDrop = picture => {
-      setPictures([...pictures, picture]);
-    };
     const eventName = useRef("");
-    const [charCounter, setCharCounter] = useState("0/65 characters")
+    const [charCounter, setCharCounter] = useState("0/65 characters");
 
     const onBlur = () => {
        // console.log(eventName.current);
     };
+    
+    const cleanupText = (text) => {
+        var inHTML = false;
+        var num = 0;
+        for (let i = 0; i < text.length; i++){
+            if (!inHTML){
+                num++;
+                break;
+            }
+            if (text.charAt(i) === "&"){
+                inHTML = true;
+                break;
+            }
+            if (text.charAt(i) === ";"){
+                inHTML = false;
+                break;
+            }
+        };
+        return num;
+    };
 
     const countChars = () => {
         var maxLength = 65;
-        var strLength = eventName.current.length;
-        // TASK:convert to plain text
-        console.log(eventName.current)
+        var strLength = cleanupText(eventName.current);
+
         if (strLength > maxLength){
             setCharCounter(`${strLength} / 65 characters`)
-            // alert to error
-            // set contenteditable to disabled
+            return false;
         }
         else{
             setCharCounter(`${strLength} / 65 characters`)
+            return true;
         }
-    }
+    };
 
-    const onChange = (imageList, addUpdateIndex) => {
-        // data for submit
-        console.log(imageList, addUpdateIndex);
-        setImages(imageList);
-      };
     return (
         <>  
             <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6">
@@ -51,6 +55,7 @@ export default function EventBuilder () {
                         html={eventName.current}
                         onBlur={onBlur}
                         onKeyUp={countChars}
+                        disabled={countChars ? false:true}
                         onChange={(e) => {eventName.current=e.target.value}} 
                         placeholder={"My event title..."}
                         className="text-5xl leading-snug mb-2 focus:outline-none"
@@ -76,12 +81,13 @@ export default function EventBuilder () {
 
             </div>
         </>
-  );
+    );
 };
 /*
-                    <ImageUploader
-                        {...props}
-                        onChange={onDrop}
-                        imgExtension={[".jpg", ".gif", ".png", ".gif"]}
-                        maxFileSize={5242880}
-                        />*/
+<ImageUploader
+    {...props}
+    onChange={onDrop}
+    imgExtension={[".jpg", ".gif", ".png", ".gif"]}
+    maxFileSize={5242880}
+    />
+*/

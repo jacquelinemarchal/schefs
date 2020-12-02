@@ -1,13 +1,11 @@
 import React from "react";
 import moment from 'moment';
 
-
 const Comment = (props) => {
     var displayTime = '';
-    var time = props.time;
+    var time = new Date(props.time);
     var now = new Date();
-    if (typeof time === 'string')
-        time = new Date(time)
+
     if (now.getDate() - time.getDate() === 1)
         displayTime = "Yesterday"
     else if (now.getDate() === time.getDate())
