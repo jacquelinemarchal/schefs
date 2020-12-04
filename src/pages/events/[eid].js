@@ -16,6 +16,7 @@ const EventPage = ( props ) => {
     const [copyStatus, setCopyStatus] = useState("")
     const [clientComments, setClientComments] = useState([])
     const [commentBody, setCommentBody] = useState("")
+    const [reservedTicket, setReservedTicket] = useState(false)
 
     // OPTION: add refresh interval to tickets https://stackoverflow.com/questions/64245201/revalidating-data-using-mutate-in-swr-which-should-i-use
     const fetcher = url => axios.get(url).then(res => res.data.count === "0" ? 0 : parseInt(res.data.count, 10))
@@ -32,11 +33,22 @@ const EventPage = ( props ) => {
     // while revalidating <svg className=" border-gray-800 border animate-spin ease-in-out mt-4 h-5 w-5 rounded-sm" viewBox="0 0 100 100"></svg>
     useEffect(() => {
         mutate(`http://localhost:5000/api/events/${props.eventInfo.eid}/comments`)
+        mutate(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`)
     }, []);
 
     useEffect(() => {
         setClientComments([...comments])
     }, [comments]);
+
+    useEffect(() => {
+        axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/1/ticketstatus`)
+        .then(res => {
+            setReservedTicket(res.data)
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    }, [ticketCount]);
 
     let reserveButton = {
         type:"submit", 
@@ -75,6 +87,22 @@ const EventPage = ( props ) => {
             })
             .catch((err)=>{alert(err)})
         }
+    }
+    
+    const reserveTicket = (e) => {
+        e.preventDefault()
+        let userContent = {
+            // TASK: add auth
+            user_id: 1,
+        }
+        axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`, userContent)
+        .then((res) => {
+            mutate(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`)
+            console.log(res.data, res, res.status)
+        })
+        .catch((err) => {
+            console.log(JSON.stringify(err))
+        })
     }
 
     return (
@@ -117,7 +145,10 @@ const EventPage = ( props ) => {
                 <div className="sm:fixed">
                     <div className="hidden sm:inline-block">
                         <div className="flex">
-                            <WhitePillButton {...reserveButton} />
+                            {ticketCount > 14 ? <button className={"flex justify-center items-center focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-default rounded-full"}>SOLD OUT</button>  : reservedTicket 
+                                ? <button className={"flex justify-center items-center bg-yellow-300 focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-default rounded-full"}>RESERVED</button> 
+                                : <form onSubmit={reserveTicket}><WhitePillButton {...reserveButton} /></form>}
+                            {}
                             <button onMouseEnter={() => setHover(downloadHoverLogo)} onMouseLeave={() => setHover(downloadLogo)} onClick={copyLink} className="ml-2 flex space-x-2 text-gray-700 items-center h-8 w-8 bg-gray-400 rounded-full focus:outline-none">
                                 <img src={inHover} className="p-2"></img><p>{copyStatus}</p>
                             </button>
@@ -173,22 +204,11 @@ export const getStaticProps = async (context) => {
             (err ? reject(err) : resolve((results.rows[0].count)))
         })
     )
-    /*
-    const comments = await new Promise((resolve, reject) =>
-        pool.query(queries.getComments, [ context.params.eid ], (err, results) => {
-            err ? reject(err) : resolve(results.rows.map(comment => (
-                {
-                    ...comment,
-                    time_created: comment.time_created.toJSON()
-                }
-            )))
-        })
-    )*/
+
     return {
         props: {
             eventInfo,
             tickets: tickets === "0" ? 0 : parseInt(tickets, 10),
-          //  comments,
         },
     }
 }
@@ -208,19 +228,3 @@ export async function getStaticPaths(){
         fallback: false,
     }
 }
-    
-/*
-    const res = await axios.get(`http://localhost:5000/api/events/${eid}`, query)
-    const eventInfo = res.data
-    return {
-      props: {eventInfo,},
-    };
-    
-    let sampleEvent ={
-        title: "Polyglot= Poly-Personalities?",
-        time_start:"Wednesday, September 31st @ 9:30 pm EDT",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-        requirements: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
-        host_name: "Lola Lafia",
-        hosts: null,
-    }*/

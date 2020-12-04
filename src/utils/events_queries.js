@@ -92,6 +92,15 @@ const getReservedTicketsCount = `
 `;
 
 /*
+ * $1: event_id <int>
+ * $2: user_id <int>
+ */
+const checkTicketStatus = `
+    SELECT * FROM tickets
+    WHERE event_id = $1 AND user_id = $2
+`;
+
+/*
  * $1: eid <int>
  */
 const getReservedTickets = `
@@ -123,11 +132,12 @@ const deleteTicket = `
  * $1: user_id <int>
  * $2: name  <string>
  * $3: body  <string>
- * $4: event_id <int>
+ * $4: school  <string>
+ * $5: event_id <int>
  */
 const postComment = `
-    INSERT INTO COMMENTS(user_id, name, body, event_id)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO COMMENTS(user_id, name, body, school, event_id)
+    VALUES ($1, $2, $3, $4, $5)
 `;
 
 /* 
@@ -147,6 +157,7 @@ module.exports = {
     getEvent,
     getReservedTickets,
     getReservedTicketsCount,
+    checkTicketStatus,
     reserveTicket,
     deleteTicket,
 };
