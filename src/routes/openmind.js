@@ -1,6 +1,6 @@
 const express = require('express');
 const pool = require('../utils/db');
-const queries = require('../utils/queries/openmind_queries');
+const queries = require('../utils/openmind_queries');
 
 const router = express.Router();
 

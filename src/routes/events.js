@@ -1,6 +1,6 @@
 const express = require('express');
 const pool = require('../utils/db');
-const queries = require('../utils/queries/events_queries');
+const queries = require('../utils/events_queries');
 
 const router = express.Router();
 
