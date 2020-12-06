@@ -145,7 +145,7 @@ const EventPage = ( props ) => {
                 <div className="sm:fixed">
                     <div className="hidden sm:inline-block">
                         <div className="flex">
-                            {ticketCount > 14 ? <button className={"flex justify-center items-center focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-default rounded-full"}>SOLD OUT</button>  : reservedTicket 
+                            {ticketCount > 14 ? <button className={"flex justify-center items-center focus:outline-none text-xl text-gray-500 border sm:border-2 border-gray-500 px-4 cursor-default rounded-full"}>SOLD OUT</button>  : reservedTicket 
                                 ? <button className={"flex justify-center items-center bg-yellow-300 focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-default rounded-full"}>RESERVED</button> 
                                 : <form onSubmit={reserveTicket}><WhitePillButton {...reserveButton} /></form>}
                             {}
