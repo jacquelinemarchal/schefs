@@ -12,7 +12,6 @@ const Comment = (props) => {
         displayTime = "Today"
     else
         displayTime = moment(time).format('MMMM DD, YYYY')
-
     return (
         <div className="my-4 sm:my-6">
             <div className="flex mb-2 items-center justify-between">
