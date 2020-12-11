@@ -1,12 +1,12 @@
+import React, { useState, useRef, useContext } from 'react';
+import Context from '../Context/context';
 import { SentimentSatisfied } from "@material-ui/icons";
-import { useState, useRef, useContext } from "react"
-import { StateContext } from "../../pages/_app";
 import ContentEditable from 'react-contenteditable'
 import WhitePillButton from "../Buttons/wpillbutton"
 import EventThumbnail from "../Events/eventgrid"
 
 const CardContent = () => {
-    const context = useContext(StateContext)
+    const context = useContext(Context)
     const [dropDown, setDropDown] = useState(false)
 
     // TASK: populate these hooks with correct user data from db (prob in useEffect)
@@ -22,7 +22,7 @@ const CardContent = () => {
 
     const closeCard = () => {
         if (window.location.pathname === "/" || window.location.pathname ===  "" || window.location.pathname === "/index"){
-            context.dispatch("closeCard")
+            context.handleCloseCard();
         }
         else {
             window.location.href="/"
