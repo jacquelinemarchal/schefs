@@ -9,6 +9,7 @@ import { max } from "moment";
 
 export default function EventBuilder () {
     const eventName = useRef("");
+    const [isOverflow, setIsOverflow] = useState(false)
     const [charCounter, setCharCounter] = useState("0/65 characters");
     const [counterStyle, setCounterStyle] = useState("0/65 characters");
 
@@ -20,15 +21,15 @@ export default function EventBuilder () {
         var maxLength = 65;
         var strLength = htmlToText(eventName.current).length;
 
-        if (strLength > maxLength){
+        if (strLength >= maxLength){
             setCharCounter(`${strLength} / 65 characters`)
             setCounterStyle("text-red-600")
-            return false;
+            setIsOverflow(true)
         }
         else if (strLength <= maxLength){
             setCharCounter(`${strLength} / 65 characters`)
             setCounterStyle("")
-            return true;
+            setIsOverflow(false)
         }
     };
 
@@ -40,7 +41,7 @@ export default function EventBuilder () {
                         html={eventName.current}
                         //onBlur={onBlur}
                         onKeyUp={countChars}
-                        disabled={countChars ? false : true}
+                        //disabled={isOverflow ? true : false}
                         onChange={(e) => {eventName.current=e.target.value}} 
                         placeholder={"My event title..."}
                         className="text-5xl leading-snug mb-2 focus:outline-none"

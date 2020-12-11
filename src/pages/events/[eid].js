@@ -8,47 +8,42 @@ import WhitePillButton from "../../components/Buttons/wpillbutton" //type, size 
 import {useEffect, useState} from "react"
 import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
-import useSWR, {mutate} from 'swr'
 
 const EventPage = ( props ) => {
-
+    const [clientTickets, setClientTickets] = useState(props.tickets)
+    const [clientComments, setClientComments] = useState(props.comments)
     const [inHover, setHover] = useState(downloadLogo);
     const [copyStatus, setCopyStatus] = useState("")
-    const [clientComments, setClientComments] = useState([])
     const [commentBody, setCommentBody] = useState("")
     const [reservedTicket, setReservedTicket] = useState(false)
 
-    // OPTION: add refresh interval to tickets https://stackoverflow.com/questions/64245201/revalidating-data-using-mutate-in-swr-which-should-i-use
-    const fetcher = url => axios.get(url).then(res => res.data.count === "0" ? 0 : parseInt(res.data.count, 10))
-    const { data:ticketCount, error:ticketError } = useSWR(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`, fetcher, {initialData: props.tickets})
-    if (ticketError) {
-        console.log(ticketError)
-    }
-
-    const commentFetcher = url => axios.get(url).then(res => res.data)
-    const { data:comments, error:commentsError } = useSWR(`http://localhost:5000/api/events/${props.eventInfo.eid}/comments`, commentFetcher, {initialData: []})
-    if (commentsError) {
-        console.log(commentsError)
-    }
-    // while revalidating <svg className=" border-gray-800 border animate-spin ease-in-out mt-4 h-5 w-5 rounded-sm" viewBox="0 0 100 100"></svg>
+    /* Get comments for event every 10 seconds*/ 
     useEffect(() => {
-        mutate(`http://localhost:5000/api/events/${props.eventInfo.eid}/comments`)
-        mutate(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`)
-    }, []);
-
-    useEffect(() => {
-        setClientComments([...comments])
-    }, [comments]);
-
-    useEffect(() => {
-        axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/1/ticketstatus`)
-        .then(res => {
-            setReservedTicket(res.data)
-        })
-        .catch(err => {
-            console.log(err)
-        })
-    }, [ticketCount]);
+        const interval = setInterval(() => {
+            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/1/ticketstatus`)
+            .then(res => {
+                setReservedTicket(res.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`)
+            .then(res => {
+                (res.data.count === "0" ? setClientTickets(0) : setClientTickets(parseInt(res.data.count, 10)))
+            })
+            .catch(err => {
+                console.log(err)
+            })
+            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/comments`)
+            .then(res => {
+                setClientComments(res.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        }, 10000);
+        return () => clearInterval(interval);
+      }, []); /*    necessary? [clientComments, clientTickets]);    */
 
     let reserveButton = {
         type:"submit", 
@@ -88,17 +83,16 @@ const EventPage = ( props ) => {
             .catch((err)=>{alert(err)})
         }
     }
-    
     const reserveTicket = (e) => {
         e.preventDefault()
         let userContent = {
             // TASK: add auth
             user_id: 1,
         }
+        setClientTickets(clientTickets + 1)
         axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`, userContent)
-        .then((res) => {
-            mutate(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`)
-            console.log(res.data, res, res.status)
+        .then(() => {
+            setReservedTicket(true)
         })
         .catch((err) => {
             console.log(JSON.stringify(err))
@@ -138,14 +132,14 @@ const EventPage = ( props ) => {
                     {clientComments.length
                         ? clientComments.sort((a, b) => {return new Date(b.time_created) - new Date(a.time_created)}).map((p, i) => <Comment key={i} time={p.time_created} name={p.name} university={p.school} thought={p.body} />) 
                         : <p className="my-4 text-gray-500">There are no comments yet...start the conversation!</p>}
-                </div> 
+                </div>
             </div>
 
             <div className="sm:col-span-2 mb-20 sm:m-0">
                 <div className="sm:fixed">
                     <div className="hidden sm:inline-block">
                         <div className="flex">
-                            {ticketCount > 14 ? <button className={"flex justify-center items-center focus:outline-none text-xl text-gray-500 border sm:border-2 border-gray-500 px-4 cursor-default rounded-full"}>SOLD OUT</button>  : reservedTicket 
+                            {clientTickets > 14 ? <button className={"flex justify-center items-center focus:outline-none text-xl text-gray-500 border sm:border-2 border-gray-500 px-4 cursor-default rounded-full"}>SOLD OUT</button>  : reservedTicket 
                                 ? <button className={"flex justify-center items-center bg-yellow-300 focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-default rounded-full"}>RESERVED</button> 
                                 : <form onSubmit={reserveTicket}><WhitePillButton {...reserveButton} /></form>}
                             {}
@@ -154,13 +148,13 @@ const EventPage = ( props ) => {
                             </button>
                         </div>
                         <div className="text-gray-500 mt-2">
-                            {7-ticketCount} / 7 spots available
+                            {7-clientTickets} / 7 spots available
                         </div>
                     </div>
                     <div className="sm:hidden inline-block">
                         <footer className="left-0 px-8 fixed w-full flex justify-between bottom-0 bg-white h-16">
                             <div className="text-gray-500 self-center">
-                                {7-ticketCount} / 7 spots available
+                                {7-clientTickets} / 7 spots available
                             </div>
                             <div className="self-center">
                                 <WhitePillButton padding="px-4" type="submit" text="RESERVE" size="xl" />
@@ -193,7 +187,7 @@ const EventPage = ( props ) => {
 }
 export default EventPage
 
-export const getStaticProps = async (context) => {
+export const getServerSideProps = async (context) => {
     const eventInfo = await new Promise((resolve, reject) => 
         pool.query(queries.getEvent, [ context.params.eid ], (err, results) => {
             (err ? reject(err) : resolve((results.rows[0].event)))
@@ -204,27 +198,18 @@ export const getStaticProps = async (context) => {
             (err ? reject(err) : resolve((results.rows[0].count)))
         })
     )
+    const comments = await new Promise((resolve, reject) => {
+        pool.query(queries.getComments, [ context.params.eid], (err, results) => {
+            (err ? reject(err) : resolve((results.rows)))
+        })
+    })
+    const commentSerialized = comments.map(comment => ({...comment, time_created: comment.time_created.toISOString()}))
 
     return {
         props: {
             eventInfo,
             tickets: tickets === "0" ? 0 : parseInt(tickets, 10),
+            comments: commentSerialized,
         },
     }
-}
-export async function getStaticPaths(){
-    const events = await new Promise((resolve, reject) => {
-        pool.query(queries.getEventsSummary, ["2020-01-01", "2020-12-31", "all" ], (err, results) => {
-            (err ? reject(err) : resolve((results.rows)))
-        })
-    })
-    const paths = events.map(e => {
-        return {
-            params: {eid: (e.eid).toString()}
-        }
-    })
-    return{
-        paths,
-        fallback: false,
-    }
-}
+  }
