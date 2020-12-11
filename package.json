@@ -17,7 +17,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fecha": "^4.2.0",
-    "firebase-admin": "^9.4.1",
+    "firebase-admin": "^9.4.2",
     "formik": "^2.2.5",
     "html-to-text": "^6.0.0",
     "image-upload-react": "^1.4.9",
