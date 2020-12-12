@@ -11,6 +11,70 @@ import CardButton from '../Card/cardbutton';
 import GreyOut from '../Card/greyout';
 
 const ContextState = ({ Component, pageProps, bannerProps }) => {
+    /* Auth Reducer */ 
+
+    const [stateAuthReducer, dispatchAuthReducer] = useReducer(
+        AuthReducer.AuthReducer,
+        AuthReducer.initialState,
+    );
+
+    const handleSignUp = register_data => {
+        dispatchAuthReducer(ACTIONS.setLoading());
+        axios
+            .post('/api/users/register', register_data)
+            .then(res => {
+                dispatchAuthReducer(ACTIONS.registerSuccess());
+                history.replace('/login');
+            })
+            .catch(err => dispatchAuthReducer(
+                ACTIONS.authFailure(err.response.data)
+            ));
+    }
+
+    const handleLogin = login_data => {
+        dispatchAuthReducer(ACTIONS.setLoading());
+        axios
+            .post('/api/users/login', login_data)
+            .then(res => {
+                // get JWT token
+                const token = res.data.token;
+
+                // decode token for profile data
+                const profile = jwt_decode(token).profile;
+
+                // update axios headers
+                setAuthToken(token);
+
+                // store token locally
+                localStorage.setItem('id_token', token);
+
+                // success dispatch
+                dispatchAuthReducer(ACTIONS.loginSuccess(profile));
+                history.replace('/');
+            })
+            .catch (err => dispatchAuthReducer(
+                ACTIONS.authFailure(err.response.data)
+            ));
+    }
+
+    const handleLoginFromToken = (token, profile) => {
+        setAuthToken(token);
+        dispatchAuthReducer(ACTIONS.loginSuccess(profile));
+    }
+
+    const handleLogout = () => {
+        // remove header from axios
+        setAuthToken(null);
+
+        // remove token from local storage
+        localStorage.removeItem('id_token');
+
+        // dispatch
+        dispatchAuthReducer(ACTIONS.logout());
+        history.replace('/login');
+    }
+
+    /* Card Reducer */
     const [stateCardReducer, dispatchCardReducer] = useReducer(
         CardReducer.CardReducer,
         CardReducer.initialState,
