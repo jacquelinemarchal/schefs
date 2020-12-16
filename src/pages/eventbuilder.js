@@ -30,7 +30,9 @@ export default function EventBuilder () {
     const [profilePictureURL, setProfilePictureURL] = useState("http://via.placeholder.com/100x100")
 
     const [descriptionCount, setDescriptionCount] = useState("0/70 words")
-    const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)
+    const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)    
+    const [isModalOpen, setIsModalOpen] = useState(true)
+
     const [isOverflow, setIsOverflow] = useState(false)
     const [charCounter, setCharCounter] = useState("0/65 characters");
     const [counterStyle, setCounterStyle] = useState("");
@@ -43,10 +45,12 @@ export default function EventBuilder () {
     const escFunction = (event) => {
         if(event.keyCode === 27) {
           setIsPhotoDisplayOpen(false)
+          setIsModalOpen(false)
         }
       };
 
     useEffect(() => {
+
         document.addEventListener("keydown", escFunction, false);
         return () => {
           document.removeEventListener("keydown", escFunction, false);
@@ -77,7 +81,11 @@ export default function EventBuilder () {
         croppedAreaPixels.height,
         );
         setProfilePictureURL(canvas.toDataURL('image/jpeg'));
+
+        console.log(profilePictureURL)
         setInCrop(false)
+        // TASK: make image that can be sent to backend on submit, toBlob from profilePicture URL or to file
+        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
     }
 
     const countChars = () => {
@@ -132,6 +140,35 @@ export default function EventBuilder () {
 
     return (
         <>
+            {isModalOpen ? 
+                <>
+                    <div className="h-screen fixed w-screen" onClick={() => setIsModalOpen(!isModalOpen)}></div>
+                    <div className="fixed overflow-scroll m-16 top-0 mt-20 rounded-xl bg-white justify-center z-10">
+                        <div className="flex justify-end">
+                            <button onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
+                                <HighlightOff/>
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="grid col-span-1 px-16 pt-2 pb-12">
+                                <h2 className="text-5xl">Welcome to the<br></br> Event Builder*</h2>
+                                <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
+                                <p className="text-sm mt-4"><b>*</b> Click “HELP” to return to this screen at any point</p>
+                            </div>
+                            <div className="grid col-span-1">
+                                <div className="grid col-span-1 bg-gray-100 mx-6 px-10 my-4 pb-10 overflow-y-auto" style={{height: "30rem"}}>
+                                    <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
+                                    <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
+                                    <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
+                                    <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
+                            
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                </>
+                : null}
+
             {isPhotoDisplayOpen ? 
                 <>
                     <div className="h-screen fixed w-screen" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}></div>
@@ -203,9 +240,11 @@ export default function EventBuilder () {
 
                 <div className="grid col-span-2 ">
                     <div className="sm:fixed">
-                        <div className="flex space-x-2 h-8">
-                            <WhitePillButton type="submit" text="SET DATE &#038; SUBMIT" padding="px-6"/>
-                            <WhitePillButton type="submit" text="HELP" padding="px-6"/>
+                        <div className="flex space-x-2 h-8 items-center">
+                            <WhitePillButton type="submit" text="SET DATE &#038; SUBMIT" padding="px-6 flex"/>
+                            <div onClick={() => {setIsModalOpen(true)}}> 
+                                <WhitePillButton type="submit" text="HELP" padding="px-6 flex"/>
+                            </div>
                         </div>
                         <div className="text-sm my-2 mt-20">
                             Hosted by:
@@ -224,7 +263,7 @@ export default function EventBuilder () {
                                             cropShape="round"
                                             showGrid={false}
                                             onCropChange={(crop) => {setCrop(crop)}}
-                                            onCropComplete={(croppedArea, croppedAreaPixels) => {console.log("hi");setCroppedAreaPixels(croppedAreaPixels)}}
+                                            onCropComplete={(croppedArea, croppedAreaPixels) => {setCroppedAreaPixels(croppedAreaPixels)}}
                                             onZoomChange={(zoom) => {setCrop(zoom)}}
                                         />
                                     </div>
@@ -276,12 +315,3 @@ export default function EventBuilder () {
         </>
     );
 };
-/*
-<ImageUploader
-    {...props}
-    onChange={onDrop}
-    imgExtension={[".jpg", ".gif", ".png", ".gif"]}
-    maxFileSize={5242880}
-    />
-https://codesandbox.io/s/53w20p2o3n?file=/src/index.js
-*/

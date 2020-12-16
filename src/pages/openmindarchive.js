@@ -68,7 +68,7 @@ export default function OMA () {
                         </div>
                         <form className="flex row-span-1 items-end justify-center" onSubmit={handleSubmit}>
                                 <input className="w-1/3 pt-4 border-b border-black focus:outline-none" type="text" value={topic} onChange={(e) => setTopic(e.target.value)} aria-label="Add a topic"  />
-                                <WhitePillButton padding="px-4" type="submit" text="POST" size="lg" />
+                                <WhitePillButton padding="px-4 flex" type="submit" text="POST" size="lg" />
                         </form>
                     </div>
                 </div>

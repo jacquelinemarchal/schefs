@@ -63,7 +63,7 @@ const LoginForm = () => {
                                 />
                             </div>
                             <div className="mx-auto">
-                                <WhitePillButton type="submit" text="LOG IN" padding="px-16 mt-4 mb-2 py-0"/>
+                                <WhitePillButton type="submit" text="LOG IN" padding="flex px-16 mt-4 mb-2 py-0"/>
                             </div>
                             <p className="underline justify-self-center">Forgot Your Password?</p>
                         </div>
@@ -71,7 +71,7 @@ const LoginForm = () => {
                 </div>
                 <footer className="my-2 mt-6 justify-between flex">
                             <p>Don't have an account?</p>
-                            <WhitePillButton text="SIGN UP" link="" padding="px-6"/>
+                            <WhitePillButton text="SIGN UP" link="" padding="flex px-6"/>
                 </footer>
             </div>
       );

@@ -48,7 +48,7 @@ const EventPage = ( props ) => {
     let reserveButton = {
         type:"submit", 
         size:"xl",
-        padding:"px-4",
+        padding:"px-4 flex",
         text:"RESERVE FOR ZOOM",
     }
 
@@ -126,7 +126,7 @@ const EventPage = ( props ) => {
                 </div>
                 <form className="flex row-span-1 items-end justify-center" onSubmit={handleSubmit}>
                     <input className="w-full border-b border-black focus:outline-none" value={commentBody} onChange={(e) => setCommentBody(e.target.value)} type="text" placeholder="Share your thought here" aria-label="Add a comment" />
-                    <WhitePillButton padding="px-4" type="submit" text="POST" size="lg" />
+                    <WhitePillButton padding="px-4 flex" type="submit" text="POST" size="lg" />
                 </form>
                 <div className="">
                     {clientComments.length
@@ -157,7 +157,7 @@ const EventPage = ( props ) => {
                                 {7-clientTickets} / 7 spots available
                             </div>
                             <div className="self-center">
-                                <WhitePillButton padding="px-4" type="submit" text="RESERVE" size="xl" />
+                                <WhitePillButton padding="px-4 flex" type="submit" text="RESERVE" size="xl" />
                             </div>
                         </footer>
                     </div>
