@@ -1,16 +1,18 @@
 import React, { useReducer } from 'react';
 import { CSSTransition } from 'react-transition-group';
+import axios from 'axios';
 
 import * as ACTIONS from '../../store/actions/actions';
 import * as CardReducer from '../../store/reducers/card_reducer';
+import * as AuthReducer from '../../store/reducers/auth_reducer';
 import Context from './context';
 import NavBar from '../Banners/navbar';
 import Banner from '../Banners/banner';
 import Card from '../Card/card';
 import CardButton from '../Card/cardbutton';
-import GreyOut from '../Card/greyout';
 
 const ContextState = ({ Component, pageProps, bannerProps }) => {
+
     /* Auth Reducer */ 
 
     const [stateAuthReducer, dispatchAuthReducer] = useReducer(
@@ -18,9 +20,8 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         AuthReducer.initialState,
     );
 
-    const handleSignUp = register_data => {
-        dispatchAuthReducer(ACTIONS.setLoading());
-        axios
+    const handleSignup = signup_date => {
+/*        axios
             .post('/api/users/register', register_data)
             .then(res => {
                 dispatchAuthReducer(ACTIONS.registerSuccess());
@@ -29,10 +30,11 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             .catch(err => dispatchAuthReducer(
                 ACTIONS.authFailure(err.response.data)
             ));
+*/
     }
 
     const handleLogin = login_data => {
-        dispatchAuthReducer(ACTIONS.setLoading());
+/*        dispatchAuthReducer(ACTIONS.setLoading());
         axios
             .post('/api/users/login', login_data)
             .then(res => {
@@ -55,6 +57,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             .catch (err => dispatchAuthReducer(
                 ACTIONS.authFailure(err.response.data)
             ));
+*/
     }
 
     const handleLoginFromToken = (token, profile) => {
@@ -75,6 +78,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     }
 
     /* Card Reducer */
+
     const [stateCardReducer, dispatchCardReducer] = useReducer(
         CardReducer.CardReducer,
         CardReducer.initialState,
@@ -96,34 +100,18 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             handleOpenCard,
             handleCloseCard,
             handleToggleCard,
+
+            profile: stateAuthReducer.profile,
           }}
         >
           <Banner {...bannerProps} />
           <NavBar scrollShadow={false} />
-          <CardButton/>
-  
-          <CSSTransition
-            in={stateCardReducer.isOpen}
-            timeout={500}
-            key="grey-out"
-            unmountOnExit
-            classNames="grey-out"
-          >
-            <GreyOut />
-          </CSSTransition>
-  
-          <CSSTransition
-            in={stateCardReducer.isOpen}
-            timeout={500}
-            key="card"
-            unmountOnExit
-            classNames="card"
-          >
-            <Card />
-          </CSSTransition>
-  
+          <CardButton />
+        
+          <Card />
+
           <div className={(stateCardReducer.isOpen ? 'overflow-hidden fixed' : '')}>
-              <Component {...pageProps}/>
+            <Component {...pageProps}/>
           </div>
         </Context.Provider>
     );

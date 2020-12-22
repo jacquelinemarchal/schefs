@@ -11,7 +11,7 @@ const hostBanner = {
 const App = ({ Component, pageProps }) => {
     return (
         <ContextState Component={Component} pageProps={pageProps} bannerProps={hostBanner} />
-    )
+    );
 };
 
 export default App;

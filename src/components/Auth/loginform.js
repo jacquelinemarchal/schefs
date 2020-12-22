@@ -1,6 +1,8 @@
+import React, { useState } from "react";
 import { useFormik } from "formik";
+import firebaseAdmin from '../../utils/firebase_admin';
+
 import WhitePillButton from "../Buttons/wpillbutton";
-import {useState} from "react"
 import sampleCard from "../../assets/sampleCard.png"
 
 
@@ -16,9 +18,11 @@ const LoginForm = () => {
     const formik = useFormik({
         initialValues: { email: "" },
         onSubmit: values => {
+
           alert(JSON.stringify(values, null, 2));
         }
       });
+
       return (
             <div className="grid grid-rows-2 md-shadow px-8 py-2 rounded-2xl">
                 <div className="grid row-span-1 grid-cols-2 mb-2">
@@ -67,11 +71,11 @@ const LoginForm = () => {
                             </div>
                             <p className="underline justify-self-center">Forgot Your Password?</p>
                         </div>
-                    </form>
+                  </form>
                 </div>
                 <footer className="my-2 mt-6 justify-between flex">
-                            <p>Don't have an account?</p>
-                            <WhitePillButton text="SIGN UP" link="" padding="px-6"/>
+                  <p>Don't have an account?</p>
+                  <WhitePillButton text="SIGN UP" link="" padding="px-6"/>
                 </footer>
             </div>
       );
