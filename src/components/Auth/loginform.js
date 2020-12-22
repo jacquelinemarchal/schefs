@@ -1,79 +1,82 @@
-import { useFormik } from "formik";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import WhitePillButton from "../Buttons/wpillbutton";
 import {useState} from "react"
 import sampleCard from "../../assets/sampleCard.png"
+import * as Yup from "yup"
 
 
 const LoginForm = () => {
+    // const [error, setError] = useState(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"]);
     const [error, setError] = useState([null, null, "border-black", "border-black"]);
-    // error[] format: typeError, errorMsg, emailBorderFormat, pwordBorderFormat
-    // default = [null, null, "border-black", "border-black"]
+        // error[] format: typeError, errorMsg, emailBorderFormat, pwordBorderFormat
+        // default = [null, null, "border-black", "border-black"]
 
     // TASK:
-        // setError(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"])
+        //setError(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"])
         // setError(["passwordError", "Sorry, seems like your password is incorrect. Please double-check your password & try again.", "border-black", "border-red-500"])
+        // on close reset error
+    const handleSubmit = (values) => {
+        console.log(values.email, values.password)
+    }
+     
+    const SigninSchema = Yup.object().shape({
+        email: Yup.string()
+            .required('This field is required') 
+            .email('This is not a valid email'),
+        password: Yup.string()
+            .required("You must provide your password")
+            .min(8, "Your password must be at least 8 characters")
+    });
     
-    const formik = useFormik({
-        initialValues: { email: "" },
-        onSubmit: values => {
-          alert(JSON.stringify(values, null, 2));
-        }
-      });
-      return (
-            <div className="grid grid-rows-2 md-shadow px-8 py-2 rounded-2xl">
-                <div className="grid row-span-1 grid-cols-2 mb-2">
+    return (
+    <div className="grid md-shadow px-8 py-2 rounded-2xl">
+        <Formik
+            initialValues = {{email: "", password: ""}}
+            onSubmit={handleSubmit}
+            //validator={() => ({})}
+            validationSchema={SigninSchema}
+        >
+            {({isValid}, dirty) => (
+            <Form>
+                <div className="grid grid-cols-2 mb-2">
                     <div className="grid col-span-1">
-                        <p>Sign in / Sign up</p>
-                        <p className="mb-4">To attend or host events, please create a Schefs account</p>
-                        <p>You wil need a valid university email to use Schefs.</p>
+                        <div className="flex flex-col">
+                            <p>Sign in / Sign up</p>
+                            <p className="my-4">To attend or host events, please create a Schefs account</p>
+                            <p>You wil need a valid university email to use Schefs.</p>
+                        </div>
                     </div>
                     <div className="grid col-span-1">
-                        <img className="justify-self-center self-center h-40" src={sampleCard}></img>
-                    </div>
-                    <div className="grid col-span-2">
-                        <p className="text-red-500 text-sm">{error[1]}</p>
+                        <div className="flex flex-col">
+                            <img className="justify-self-center self-center h-40" src={sampleCard}></img>
+                        </div>
                     </div>
                 </div>
-      
-                <div className="grid row-span-1">
-                    <form onSubmit={formik.handleSubmit}>
-                        <div className="grid grid-rows-3">
-                            <div className="grid row-span-1">
+                <div className="grid">
+                    <p className="text-red-500 text-sm">{error[1]}</p>
+                    <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="email"></ErrorMessage>
+                    <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="password"></ErrorMessage>
+                        <div className="flex flex-col">
                                 <label htmlFor="email"></label>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    className={error[2] + " border-2 rounded-full focus:outline-none my-2 px-4 py-1"}
-                                    onChange={formik.handleChange}
-                                    value={formik.values.email}
-                                    placeholder="School Email"
-                                    />
+                                <Field placeholder="School Email" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 " + error[2]} name="email"></Field>
+     
                                 <label className="outline" htmlFor="password"></label>
-                            </div>
-                            <div className="grid row-span-1">
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    className={error[3] + " border-2 rounded-full focus:outline-none my-2 px-4 py-1"}
-                                    onChange={formik.handleChange}
-                                    value={formik.values.password}
-                                    placeholder="Password"
-                                />
-                            </div>
+                                <Field type="password" placeholder="Password" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 " + error[3]} name="password"></Field>
                             <div className="mx-auto">
-                                <WhitePillButton type="submit" text="LOG IN" padding="flex px-16 mt-4 mb-2 py-0"/>
+                                <button disabled={!isValid} type="submit" className={"flex px-16 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black hover:text-white border sm:border-2 border-black rounded-full " + (isValid ? "hover:bg-black": "") }>LOG IN</button>
                             </div>
-                            <p className="underline justify-self-center">Forgot Your Password?</p>
+                            <p className="underline text-center justify-self-center">Forgot Your Password?</p>
                         </div>
-                    </form>
                 </div>
                 <footer className="my-2 mt-6 justify-between flex">
                             <p>Don't have an account?</p>
                             <WhitePillButton text="SIGN UP" link="" padding="flex px-6"/>
                 </footer>
-            </div>
-      );
+            </Form>
+            )}
+        </Formik>
+    </div>
+
+    );
 }
 export default LoginForm;

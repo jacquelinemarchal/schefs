@@ -18,7 +18,7 @@ const Card = () => {
                 <CardContent/>
                 <LoginForm />
             </div>
-           <CardContent />
+           <LoginForm />
         </div>
     )
     /*
