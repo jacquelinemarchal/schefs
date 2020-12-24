@@ -8,12 +8,14 @@ import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
 import useSWR from 'swr'
 
-
 const EventPageDetails = (props) => {
 
     const fetcher = url => axios.get(url).then(res => res.data)
-
     const { data, error } = useSWR(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`, fetcher, {initialData: props.reservedTickets})
+
+    const commentFetcher = url => axios.get(url).then(res => res.data)
+    const { data, error } = useSWR(`http://localhost:5000/api/${props.eventInfo.eid}/comments`, commentFetcher, {initialData: props.comments})
+
     console.log(data)
     if (error){
         console.log(error)
@@ -25,7 +27,7 @@ const EventPageDetails = (props) => {
     let reserveButton = {
         type:"submit", 
         size:"xl",
-        padding:"px-4",
+        padding:"px-4 flex",
         text:"RESERVE FOR ZOOM",
     }
     useEffect(() => {
@@ -72,7 +74,7 @@ const EventPageDetails = (props) => {
                 </div>
                 <form className="flex row-span-1 items-end justify-center" >
                     <input className="w-full border-b border-black focus:outline-none" type="text" placeholder="Share your thought here" aria-label="Add a comment" />
-                    <WhitePillButton padding="px-4" type="submit" text="POST" size="lg" />
+                    <WhitePillButton padding="px-4 flex" type="submit" text="POST" size="lg" />
                 </form>
                 <div className="">
                     <Comment time="Yesterday" name="Jacqueline Marchal" university="Columbia University" thought="Wow I’d really love to come to this event but I can’t make it. Please please please host this again some other time!!!" />
@@ -100,7 +102,7 @@ const EventPageDetails = (props) => {
                                 {props.reservedTickets ? 7-props.reservedTickets : null} / 7 spots available
                             </div>
                             <div className="self-center">
-                                <WhitePillButton padding="px-4" type="submit" text="RESERVE" size="xl" />
+                                <WhitePillButton padding="px-4 flex" type="submit" text="RESERVE" size="xl" />
                             </div>
                         </footer>
                     </div>

@@ -116,9 +116,9 @@ const CardContent = () => {
                 </div>
             </div>
             <div className="w-11/12 absolute bottom-0 mb-2 ml-4 flex justify-between">
-                <WhitePillButton text="MY EVENTS" link="" padding="px-4" size="xs bg-white sm:text-sm"/>
-                <WhitePillButton text="HOST AN EVENT" link="" padding="px-4" size="xs bg-white sm:text-sm"/>        
-                <WhitePillButton text="LOG OUT" link="" padding="px-4" size="xs bg-white sm:text-sm"/>        
+                <WhitePillButton text="MY EVENTS" link="" padding="px-4" size="xs bg-white sm:text-sm flex"/>
+                <WhitePillButton text="HOST AN EVENT" link="" padding="px-4" size="xs bg-white sm:text-sm flex"/>        
+                <WhitePillButton text="LOG OUT" link="" padding="px-4" size="xs bg-white sm:text-sm flex"/>        
             </div> 
         </>
     )

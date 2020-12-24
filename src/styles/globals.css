@@ -41,6 +41,14 @@
     opacity: 1;
 }
 
+.MuiSlider-thumb:focus, .MuiSlider-thumbColorPrimary:focus, .MuiSlider-thumbColorPrimary, .MuiSlider-thumb, .MuiSlider-thumb:hover, .MuiSlider-thumb.Mui-focusVisible{
+    outline-style: none;
+    outline-color: none;
+    -webkit-tap-highlight-color: none;
+    box-shadow: none;
+    transition: none;
+    outline: none;
+}
 .grey-out-exit-active {
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -53,4 +61,16 @@
   }
 #innerCardContainer {
     height: "400px"
+}
+
+@media screen and (min-width: 666px){
+    #imageContainerEB {
+        height: "30rem"
+    }
+}
+
+@media screen and (max-width: 666px){
+    #imageContainerEB {
+        height: ""
+    }
 }

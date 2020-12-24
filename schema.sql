@@ -45,6 +45,7 @@ CREATE TABLE comments (
     event_id      INT NOT NULL REFERENCES events(eid),
     user_id       INT NOT NULL REFERENCES users(uid),
     name          VARCHAR(255) NOT NULL,
+    school        VARCHAR(255) NOT NULL,
     body          VARCHAR NOT NULL,
     time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

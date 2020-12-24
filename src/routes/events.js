@@ -169,10 +169,9 @@ router.post('/:eid/tickets', async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        
-        const count = await client.query(queries.countReservedTickets, [ req.params.eid ]);
+        const count = await client.query(queries.getReservedTicketsCount, [ req.params.eid ]);
         if (count > 14)
-            res.status(406).json({ err: 'Event sold out: ' + req.params.eid });
+            res.status(416).json({ err: 'Event sold out: ' + req.params.eid });
         else {
             await client.query(queries.reserveTicket, [ req.params.eid, req.body.user_id ]);
             await client.query('COMMIT');
@@ -185,7 +184,7 @@ router.post('/:eid/tickets', async (req, res) => {
         else if (err.code === '23505') // unique_violation
             res.status(406).json({ err: 'Ticket already reserved' });
         else
-            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+            res.status(500).json({ err: 'PSQL Error: ' + err.message });
     } finally {
         client.release();
     }
@@ -248,6 +247,37 @@ router.get('/:eid/countTickets', (req, res) => {
 });
 
 /*
+ * GET /api/events/{eid}/{user}/ticketstatus
+ * Get boolean whether or not user has reserved ticket
+ *
+ * Request Parameters:
+ *  path:
+ *    eid <int> required
+ *    user_id <int>
+
+ * Response:
+ *  200: successfully retrieved
+ *  500: other postgres error
+ */
+router.get('/:eid/:uid/ticketstatus', (req, res) => {
+    // check auth and other stuff here
+    pool.query(queries.checkTicketStatus, [ req.params.eid, req.params.uid ], (q_err, q_res) => {
+        if (q_err){
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+        }
+        else{
+            if (q_res.rows.length){
+                res.status(200).json(true);
+            }
+            else{
+                res.status(200).json(false);
+
+            }
+        }
+    });
+});
+
+/*
  * GET /api/events/{eid}/tickets
  * Get array of ticket objects for event of specified eid containing 
  * user's first name, last name, and uid.
@@ -290,13 +320,13 @@ router.get('/:eid/tickets', (req, res) => {
  *  404: event does not exist
  *  500: other postgres error
  */
-router.get('/:eid/tickets', (req, res) => {
+router.get('/:eid/comments', (req, res) => {
     // check auth and other stuff here
-    pool.query(queries.getReservedTickets, [ req.params.eid ], (q_err, q_res) => {
+    pool.query(queries.getComments, [ req.params.eid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else
-            res.status(200).json(q_res.rows[0]);
+            res.status(200).json(q_res.rows);
     });
 });
 
@@ -314,16 +344,16 @@ router.get('/:eid/tickets', (req, res) => {
  *      user_id     <int> required
  *      name        <string> required
  *      body        <string> required
- *      event_id    <int> required
+ *      school        <string> required
  *
  * Response:
  *  201: successfully added comment
  *  500: other postgres error
  */
 
-router.post('/:eid/comment', async (req, res) => {
+router.post('/:eid/comment', (req, res) => {
     // check auth and other stuff here
-    const values = [req.body.user_id, req.body.name, req.body.body, req.params.eid]
+    const values = [req.body.user_id, req.body.name, req.body.body, req.body.school, req.params.eid]
     pool.query(queries.postComment, values, (q_err, q_res) => {
         if (q_err){
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
