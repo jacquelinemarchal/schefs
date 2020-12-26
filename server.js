@@ -40,6 +40,7 @@ app.prepare().then(() => {
 
     server.use('/api/events', routers.eventsRouter);
     server.use('/api/openmind', routers.openMindRouter);
+    server.use('/api/users', routers.usersRouter);
 
     server.all('*', (req, res) => {
         return handle(req, res);

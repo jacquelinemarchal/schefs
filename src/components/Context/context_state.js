@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import axios from 'axios';
 
@@ -10,6 +10,14 @@ import NavBar from '../Banners/navbar';
 import Banner from '../Banners/banner';
 import Card from '../Card/card';
 import CardButton from '../Card/cardbutton';
+import firebase from '../../utils/firebase_client';
+
+const setAuthHeader = (token) => {
+    if (token)
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+    else
+        delete axios.defaults.headers.common['Authorization'];
+}
 
 const ContextState = ({ Component, pageProps, bannerProps }) => {
 
@@ -19,6 +27,38 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         AuthReducer.AuthReducer,
         AuthReducer.initialState,
     );
+
+    useEffect(() => {
+        if (localStorage.id_token)
+            setAuthHeader(localStorage.id_token);
+    }, []);
+
+    useEffect(() => {
+        return firebase.auth().onIdTokenChanged(async (user) => {
+            if (!user)
+                dispatchAuthReducer(ACTIONS.logout());
+            else {
+                if (stateAuthReducer.profile && user.uid !== stateAuthReducer.profile.uid) {
+                    const profile = (await axios.get('/api/users/' + uid)).data;
+                    dispatchAuthReducer(ACTIONS.loginSuccess(profile));
+                }
+
+                const id_token = await user.getIdToken();
+                setAuthHeader(id_token);
+                localStorage.setItem('id_token', id_token);
+            }
+        });
+    }, []);
+
+    useEffect(() => {
+        const timer = setInterval(async () => {
+            const user = firebase.auth().currentUser;
+            if (user)
+                await user.getIdToken(true);
+        }, 10 * 60 * 1000);
+
+        return () => clearInterval(timer);
+    }, []);
 
     const handleSignup = signup_date => {
 /*        axios
@@ -33,48 +73,27 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
 */
     }
 
-    const handleLogin = login_data => {
-/*        dispatchAuthReducer(ACTIONS.setLoading());
-        axios
-            .post('/api/users/login', login_data)
-            .then(res => {
-                // get JWT token
-                const token = res.data.token;
-
-                // decode token for profile data
-                const profile = jwt_decode(token).profile;
-
-                // update axios headers
-                setAuthToken(token);
-
-                // store token locally
-                localStorage.setItem('id_token', token);
-
-                // success dispatch
-                dispatchAuthReducer(ACTIONS.loginSuccess(profile));
-                history.replace('/');
-            })
-            .catch (err => dispatchAuthReducer(
-                ACTIONS.authFailure(err.response.data)
-            ));
-*/
-    }
-
-    const handleLoginFromToken = (token, profile) => {
-        setAuthToken(token);
-        dispatchAuthReducer(ACTIONS.loginSuccess(profile));
+    const handleLoginWithEmailAndPassword = async (email, password) => {
+        const user = await firebase.auth().signInWithEmailAndPassword(email, password);
+        const id_token = await firebase.auth().currentUser.getIdToken();
+        setAuthHeader(id_token);
+        
+        const uid = firebase.auth().currentUser.uid;
+        try {
+            const profile = (await axios.get('/api/users/' + uid)).data;
+            localStorage.setItem('id_token', id_token);
+            dispatchAuthReducer(ACTIONS.loginSuccess(profile));
+        } catch (err) {
+            console.log(err.response.data.err);
+            setAuthHeader(null);
+            dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
+        }
     }
 
     const handleLogout = () => {
-        // remove header from axios
         setAuthToken(null);
-
-        // remove token from local storage
         localStorage.removeItem('id_token');
-
-        // dispatch
         dispatchAuthReducer(ACTIONS.logout());
-        history.replace('/login');
     }
 
     /* Card Reducer */
@@ -102,6 +121,8 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             handleToggleCard,
 
             profile: stateAuthReducer.profile,
+            handleLoginWithEmailAndPassword,
+            handleLogout,
           }}
         >
           <Banner {...bannerProps} />

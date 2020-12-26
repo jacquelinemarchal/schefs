@@ -1,4 +1,4 @@
-import * as firebase from 'firebase/app';
+import firebase from 'firebase/app';
 import 'firebase/auth';
 
 if (typeof window !== 'undefined' && !firebase.apps.length) {
@@ -15,4 +15,4 @@ if (typeof window !== 'undefined' && !firebase.apps.length) {
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
 }
 
-export default firebaseClient;
+module.exports = firebase;
