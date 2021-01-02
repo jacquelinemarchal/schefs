@@ -25,7 +25,9 @@ const Card = () => {
                 <HighlightOff/>
               </button>
             </div>
-
+    /*
+     * <div className="fixed m-2 rounded-xl top-0 md:mt-10 bg-white justify-center sm:right-0 z-20" style={{height: "900px"}, {width: "450px"}}>
+     */
             {context.profile
               ? <CardContent />
               : <LoginForm />

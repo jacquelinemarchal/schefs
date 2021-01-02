@@ -97,9 +97,11 @@ export default function EventBuilder () {
         setProfilePictureURL(canvas.toDataURL('image/jpeg'));
 
         console.log(profilePictureURL)
+
         setInCrop(false)
         // TASK: make image that can be sent to backend on submit, toBlob from profilePicture URL or to file
         // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
+        // https://stackoverflow.com/questions/49228118/upload-image-from-data-url-to-axios
     }
 
     const countChars = () => {
@@ -218,7 +220,7 @@ export default function EventBuilder () {
                     <div className="flex flex-col px-6">
                         <p className="mb-4 leading-snug text-2xl w-56 ">How does co-hosting an event work?</p>
                         <p className="text-sm">You’re welcome to co-host an event with any other undergraduate student. Add your co-host’s email, fill out your card to contain both your information (as pictured below), and upload a joint profile picture.</p>
-                        <img className="w-5/6 mx-auto pr-2 my-2" src={cohost}></img>
+                        <img draggable="false" className="w-5/6 mx-auto pr-2 my-2" src={cohost}></img>
                         <p className="text-sm">Once added, your co-host will receive all communications about this event following a confirmation email</p>
                         <ContentEditable
                             html={coHostEmail.current}
