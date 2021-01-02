@@ -11,6 +11,14 @@ const SignUpForm = () => {
     // TASK:
         // setError(["emailError", "This email is invalid", "border-black", "border-black", "border-red-500", "border-black", "border-black", "border-black"])
 
+        //https://www.youtube.com/watch?v=gpOUFrYhOIg
+    const formik = useFormik({
+        initialValues: { email: "" },
+        onSubmit: values => {
+          alert(JSON.stringify(values, null, 2));
+        }
+      });
+
       return (
         <div className="md-shadow mx-10 py-6 mb-2 rounded-2xl">
 

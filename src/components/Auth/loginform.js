@@ -1,6 +1,8 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import React, { useState, useContext } from "react";
+import admin from '../../utils/firebase_admin';
+import Context from '../Context/context';
 import WhitePillButton from "../Buttons/wpillbutton";
-import {useState} from "react"
 import sampleCard from "../../assets/sampleCard.png"
 import * as Yup from "yup"
 
@@ -15,8 +17,11 @@ const LoginForm = () => {
         //setError(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"])
         // setError(["passwordError", "Sorry, seems like your password is incorrect. Please double-check your password & try again.", "border-black", "border-red-500"])
         // on close reset error
+    const context = useContext(Context);
+
     const handleSubmit = (values) => {
-        console.log(values.email, values.password)
+        context.handleLoginWithEmailAndPassword(values.email, values.password)
+        alert(JSON.stringify(values, null, 2));
     }
      
     const SigninSchema = Yup.object().shape({
@@ -32,6 +37,7 @@ const LoginForm = () => {
     <div className="grid md-shadow px-8 py-2 rounded-2xl">
         <Formik
             initialValues = {{email: "", password: ""}}
+      
             onSubmit={handleSubmit}
             //validator={() => ({})}
             validationSchema={SigninSchema}
@@ -76,7 +82,6 @@ const LoginForm = () => {
             )}
         </Formik>
     </div>
-
     );
 }
 export default LoginForm;
