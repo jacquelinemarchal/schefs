@@ -72,7 +72,7 @@ const SignUpForm = () => {
                             placeholder="Password"
                         />
                     <div className="mx-auto">
-                        <WhitePillButton type="submit" text="CREATE ACCOUNT" padding="px-16 mt-4 py-0"/>
+                        <WhitePillButton type="submit" text="CREATE ACCOUNT" padding="px-16 mt-4 py-0 flex"/>
                     </div>                            
                     <p className="underline text-center my-2">Forgot Your Password?</p>
                     </div>

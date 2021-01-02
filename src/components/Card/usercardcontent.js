@@ -127,7 +127,6 @@ const CardContent = () => {
                     </>
                 : <p>Not Logged In</p>}
             </>
-
     )
 }
 export default CardContent;
