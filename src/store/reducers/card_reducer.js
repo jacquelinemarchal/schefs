@@ -1,9 +1,3 @@
-/**
- * @file Configures actions for the card.
- *
- * @requires /Client/src/store/actions/action_types
- */
-
 import * as ACTION_TYPES from '../actions/action_types'
 
 export const initialState = {
@@ -12,17 +6,17 @@ export const initialState = {
 
 export const CardReducer = (state=initialState, action) => {
     switch (action.type) {
-        case 'openCard':
+        case ACTION_TYPES.OPEN_CARD:
             return {
                 isOpen: true,
             }
-        case 'closeCard':
+        case ACTION_TYPES.CLOSE_CARD:
             return {
-                isOpen:false,
+                isOpen: false,
             }
-        case 'toggleCard':
+        case ACTION_TYPES.TOGGLE_CARD:
             return {
-                isOpen:!state.isOpen
+                isOpen: !state.isOpen
             }
         default:
             return state

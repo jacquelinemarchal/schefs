@@ -10,7 +10,7 @@ const SignUpForm = () => {
 
     // TASK:
         // setError(["emailError", "This email is invalid", "border-black", "border-black", "border-red-500", "border-black", "border-black", "border-black"])
-    
+        //https://www.youtube.com/watch?v=gpOUFrYhOIg
     const formik = useFormik({
         initialValues: { email: "" },
         onSubmit: values => {
