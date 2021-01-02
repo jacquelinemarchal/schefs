@@ -80,7 +80,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         
         const uid = firebase.auth().currentUser.uid;
         try {
-            const profile = (await axios.get('/api/users/' + uid)).data;
+            const profile = (await axios.get('http://localhost:5000/api/users/' + uid)).data;
             localStorage.setItem('id_token', id_token);
             dispatchAuthReducer(ACTIONS.loginSuccess(profile));
         } catch (err) {
