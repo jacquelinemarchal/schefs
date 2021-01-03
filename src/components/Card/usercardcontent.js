@@ -65,8 +65,6 @@ const CardContent = () => {
                             <ContentEditable
                                 html={userInfo.current.first_name}
                                 onBlur={handleBlur}
-                                //onKeyUp={checkLength(100, userName)} TASK: Check if you want char limit
-                                //disabled={checkLength(100, userName)}
                                 onChange={(e) => {userInfo.current.first_name=e.target.value; setEdited(true)}} 
                                 placeholder={"First Name"}
                                 className="text-5xl leading-none mb-4 focus:outline-none"
@@ -74,8 +72,6 @@ const CardContent = () => {
                             <ContentEditable
                                 html={userInfo.current.last_name}
                                 onBlur={handleBlur}
-                                //onKeyUp={checkLength(100, userName)} TASK: Check if you want char limit
-                                //disabled={checkLength(100, userName)}
                                 onChange={(e) => {userInfo.current.last_name=e.target.value; setEdited(true)}} 
                                 placeholder={"Last Name"}
                                 className="text-5xl leading-none mb-4 focus:outline-none"
