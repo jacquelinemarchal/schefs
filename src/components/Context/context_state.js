@@ -19,6 +19,12 @@ const setAuthHeader = (token) => {
         delete axios.defaults.headers.common['Authorization'];
 }
 
+const die = (err) => {
+    console.log(err.response.data.err);
+    setAuthHeader(null);
+    dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
+}
+
 const ContextState = ({ Component, pageProps, bannerProps }) => {
 
     /* Auth Reducer */ 
@@ -29,8 +35,20 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     );
 
     useEffect(() => {
-        if (localStorage.id_token)
-            setAuthHeader(localStorage.id_token);
+        return firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                const uid = user.uid;
+                const id_token = await user.getIdToken();
+                setAuthHeader(id_token);
+
+                try {
+                    const profile = (await axios.get('/api/users/' + uid)).data;
+                    dispatchAuthReducer(ACTIONS.loginSuccess(profile));
+                } catch (err) {
+                    die(err);
+                }
+            }
+        });
     }, []);
 
     useEffect(() => {
@@ -39,13 +57,16 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
                 dispatchAuthReducer(ACTIONS.logout());
             else {
                 if (stateAuthReducer.profile && user.uid !== stateAuthReducer.profile.uid) {
-                    const profile = (await axios.get('/api/users/' + uid)).data;
-                    dispatchAuthReducer(ACTIONS.loginSuccess(profile));
+                    try {
+                        const profile = (await axios.get('/api/users/' + uid)).data;
+                        dispatchAuthReducer(ACTIONS.loginSuccess(profile));
+                    } catch (err) {
+                        die(err);
+                    }
                 }
 
                 const id_token = await user.getIdToken();
                 setAuthHeader(id_token);
-                localStorage.setItem('id_token', id_token);
             }
         });
     }, []);
@@ -53,8 +74,10 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     useEffect(() => {
         const timer = setInterval(async () => {
             const user = firebase.auth().currentUser;
-            if (user)
-                await user.getIdToken(true);
+            if (user) {
+                const id_token = await user.getIdToken(true);
+                setAuthHeader(id_token);
+            }
         }, 10 * 60 * 1000);
 
         return () => clearInterval(timer);
@@ -74,25 +97,23 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     }
 
     const handleLoginWithEmailAndPassword = async (email, password) => {
-        const user = await firebase.auth().signInWithEmailAndPassword(email, password);
-        const id_token = await firebase.auth().currentUser.getIdToken();
+        const user_creds = await firebase.auth().signInWithEmailAndPassword(email, password);
+        const user = user_creds.user;
+
+        const uid = user.uid;
+        const id_token = await user.getIdToken();
         setAuthHeader(id_token);
         
-        const uid = firebase.auth().currentUser.uid;
         try {
             const profile = (await axios.get('/api/users/' + uid)).data;
-            localStorage.setItem('id_token', id_token);
             dispatchAuthReducer(ACTIONS.loginSuccess(profile));
         } catch (err) {
-            console.log(err.response.data.err);
-            setAuthHeader(null);
-            dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
+            die(err);
         }
     }
 
     const handleLogout = () => {
         setAuthToken(null);
-        localStorage.removeItem('id_token');
         dispatchAuthReducer(ACTIONS.logout());
     }
 

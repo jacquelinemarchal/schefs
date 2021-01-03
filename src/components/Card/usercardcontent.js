@@ -33,8 +33,9 @@ const CardContent = () => {
     };
   
     const handleBlur = () => {
-      console.log(userName.current);
+      setDropDown(false);
     };
+
     let fakeEvent = [{
         title: "How to Code in React",
         host_name: "Jackie",

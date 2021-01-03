@@ -18,11 +18,13 @@ const LoginForm = () => {
     const context = useContext(Context);
     
     const formik = useFormik({
-        initialValues: { email: "" },
+        initialValues: {
+            email: '',
+            password: '',
+        },
         onSubmit: (values) => {
-            context.handleLoginWithEmailAndPassword(values.email, values.password)
-          alert(JSON.stringify(values, null, 2));
-        }
+            context.handleLoginWithEmailAndPassword(values.email, values.password);
+        },
     });
 
     return (
@@ -54,7 +56,7 @@ const LoginForm = () => {
                                   onChange={formik.handleChange}
                                   value={formik.values.email}
                                   placeholder="School Email"
-                                  />
+                              />
                               <label className="outline" htmlFor="password"></label>
                           </div>
                           <div className="grid row-span-1">
