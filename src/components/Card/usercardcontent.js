@@ -9,12 +9,15 @@ const CardContent = () => {
 
     const context = useContext(Context)
     const [dropDown, setDropDown] = useState(false)
+    const [gradYear, setGradYear] = useState(context.profile.grad_year)
+    const [edited, setEdited] = useState(false)
+    const userInfo = useRef({
+        first_name: context.profile.first_name,
+        last_name: context.profile.last_name,
+        uni:context.profile.school,
+        email: context.profile.email,
+    })
 
-    // TASK: populate these hooks with correct user data from db (prob in useEffect)
-    const [gradYear, setGradYear] = useState("Grad Year")
-    const userName = useRef(context.profile.first_name.concat(context.profile.last_name));
-    const userUni = useRef(context.profile.school);
-    const userEmail = useRef(context.profile.email);
     const [events, setEvents] = useState([])
 
     const toggleDropDown = () => {
@@ -29,13 +32,16 @@ const CardContent = () => {
             window.location.href="/"
         }
     }
-    const handleChange = e => {
-      userName.current = e.target.value;
-    };
   
     const handleBlur = () => {
-      console.log(userName.current);
+      console.log(userInfo.current);
     };
+
+    const saveUserInfo = () => {
+        console.log("user info saved")
+        //TASK: send to user endpoint
+    }
+
     let fakeEvent = [{
         title: "How to Code in React",
         host_name: "Jackie",
@@ -51,25 +57,33 @@ const CardContent = () => {
         eid: "1"
     }]
 
-    return (
-         
+    return (       
             <>  
                 {context.profile ?
                     <>
                         <div className="md-shadow sm:px-8 px-6 pb-0 pt-2 rounded-2xl">
                             <ContentEditable
-                                html={userName.current}
+                                html={userInfo.current.first_name}
                                 onBlur={handleBlur}
                                 //onKeyUp={checkLength(100, userName)} TASK: Check if you want char limit
                                 //disabled={checkLength(100, userName)}
-                                onChange={handleChange} 
-                                placeholder={"Your Name"}
+                                onChange={(e) => {userInfo.current.first_name=e.target.value; setEdited(true)}} 
+                                placeholder={"First Name"}
                                 className="text-5xl leading-none mb-4 focus:outline-none"
                             />
                             <ContentEditable
-                                html={userUni.current}
+                                html={userInfo.current.last_name}
                                 onBlur={handleBlur}
-                                onChange={handleChange} 
+                                //onKeyUp={checkLength(100, userName)} TASK: Check if you want char limit
+                                //disabled={checkLength(100, userName)}
+                                onChange={(e) => {userInfo.current.last_name=e.target.value; setEdited(true)}} 
+                                placeholder={"Last Name"}
+                                className="text-5xl leading-none mb-4 focus:outline-none"
+                            />
+                            <ContentEditable
+                                html={userInfo.current.uni}
+                                onBlur={handleBlur}
+                                onChange={(e) => {userInfo.current.uni=e.target.value; setEdited(true)}} 
                                 placeholder={"Your University"}
                                 className="focus:outline-none text-sm"
                             />
@@ -92,18 +106,19 @@ const CardContent = () => {
                                         <a onClick={() => {setGradYear("Class of 2022")}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2022</a>
                                         <a onClick={() => {setGradYear("Class of 2023")}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2023</a>
                                         <a onClick={() => {setGradYear("Class of 2024")}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2024</a>
-                                        <a onClick={() => {setGradYear("Gap Year")}} className="block px-2 hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Gap Year</a>
+                                        <a onClick={() => {setGradYear("Gap Year")}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Gap Year</a>
                                     </div>
                                 </div>
                             </div>
                             <ContentEditable
-                                html={userEmail.current}
+                                html={userInfo.current.email}
                                 onBlur={handleBlur}
-                                onChange={handleChange} 
+                                onChange={(e) => {userInfo.current.email=e.target.value; setEdited(true)}} 
                                 placeholder={"Your Email"}
                                 className="focus:outline-none text-sm"
-                            />  
-                            
+                            /> 
+                            { edited ? <button onClick={saveUserInfo} className="px-4 my-2 bg-yellow-200 justify-center items-center bg-transparent focus:outline-none text-xs sm:text-sm text-black hover:bg-black hover:text-white border sm:border-2 border-black rounded-full">SAVE NEW INFO</button> : null} 
+
                             <div className="">
                                 <div className="text-gray-500 mt-6 text-sm hidden">
                                     Your upcoming events will be displayed here… so go start reserving tickets already!

@@ -17,11 +17,12 @@ const LoginForm = () => {
         //setError(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"])
         // setError(["passwordError", "Sorry, seems like your password is incorrect. Please double-check your password & try again.", "border-black", "border-red-500"])
         // on close reset error
+        
     const context = useContext(Context);
 
     const handleSubmit = (values) => {
         context.handleLoginWithEmailAndPassword(values.email, values.password)
-        alert(JSON.stringify(values, null, 2));
+       // alert(JSON.stringify(values, null, 2));
     }
      
     const SigninSchema = Yup.object().shape({
@@ -37,12 +38,11 @@ const LoginForm = () => {
     <div className="grid md-shadow px-8 py-2 rounded-2xl">
         <Formik
             initialValues = {{email: "", password: ""}}
-      
             onSubmit={handleSubmit}
             //validator={() => ({})}
             validationSchema={SigninSchema}
         >
-            {({isValid}, dirty) => (
+            {({isValid, dirty}) => (
             <Form>
                 <div className="grid grid-cols-2 mb-2">
                     <div className="grid col-span-1">
@@ -62,14 +62,11 @@ const LoginForm = () => {
                     <p className="text-red-500 text-sm">{error[1]}</p>
                     <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="email"></ErrorMessage>
                     <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="password"></ErrorMessage>
-                        <div className="flex flex-col">
-                                <label htmlFor="email"></label>
+                        <div className="flex flex-col">          
                                 <Field placeholder="School Email" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 " + error[2]} name="email"></Field>
-     
-                                <label className="outline" htmlFor="password"></label>
                                 <Field type="password" placeholder="Password" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 " + error[3]} name="password"></Field>
                             <div className="mx-auto">
-                                <button disabled={!isValid} type="submit" className={"flex px-16 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black hover:text-white border sm:border-2 border-black rounded-full " + (isValid ? "hover:bg-black": "") }>LOG IN</button>
+                                <button disabled={!isValid || !dirty} type="submit" className={"flex px-16 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white") }>LOG IN</button>
                             </div>
                             <p className="underline text-center justify-self-center">Forgot Your Password?</p>
                         </div>

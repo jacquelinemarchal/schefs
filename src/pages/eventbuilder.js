@@ -1,5 +1,5 @@
 import WhitePillButton from "../components/Buttons/wpillbutton"
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
 import axios from "axios"
 import HighlightOff from '@material-ui/icons/HighlightOff';
 import { htmlToText } from 'html-to-text';
@@ -14,19 +14,27 @@ import Slider from '@material-ui/core/Slider';
 import getCroppedImg from 'react-image-crop';
 import Cropper from 'react-easy-crop'
 
+import { ErrorMessage, Field, Form, Formik } from "formik";
+//import admin from '../../utils/firebase_admin';
+import Context from '../components/Context/context';
+import * as Yup from "yup"
+
 //https://www.npmjs.com/package/html-parser
 
 export default function EventBuilder () {
-    const eventName = useRef("");
-    const description = useRef("");
-    const gradYear = useRef("");
-    const major = useRef("");
-    const bio = useRef("");
-    const university = useRef("");
-    const name = useRef("");
+
+    const userInput = useRef({
+        eventName: "",
+        description: "",
+        gradYear: "",
+        major: "",
+        bio: "",
+        university: "",
+        name: "",
+        requirements: "",
+        coHostEmail: "",
+    })
     const fileInput = useRef(null)
-    const requirements = useRef("");
-    const coHostEmail = useRef("");
     const [inCrop, setInCrop] = useState(false)
     const [crop, setCrop] = useState({x:0,y:0},)
     const [zoom, setZoom] = useState(1)
@@ -106,7 +114,7 @@ export default function EventBuilder () {
 
     const countChars = () => {
         var maxLength = 65;
-        var strLength = htmlToText(eventName.current).length;
+        var strLength = htmlToText(userInput.current.eventName).length;
 
         if (strLength >= maxLength){
             setCharCounter(`${strLength} / 65 characters`)
@@ -121,7 +129,7 @@ export default function EventBuilder () {
     };
 
     const countWords = () => {
-        var strLength = htmlToText(description.current).split(" ").length;
+        var strLength = htmlToText(userInput.current.description).split(" ").length;
 
         if (strLength <= 70){
             setDescriptionCount(`${strLength} / 70 words`)
@@ -223,9 +231,9 @@ export default function EventBuilder () {
                         <img draggable="false" className="w-5/6 mx-auto pr-2 my-2" src={cohost}></img>
                         <p className="text-sm">Once added, your co-host will receive all communications about this event following a confirmation email</p>
                         <ContentEditable
-                            html={coHostEmail.current}
+                            html={userInput.current.coHostEmail}
                             onKeyUp={countChars}
-                            onChange={(e) => {coHostEmail.current=e.target.value}} 
+                            onChange={(e) => {userInput.current.coHostEmail=e.target.value}} 
                             placeholder={"Co-host's school email"}
                             className="border sm:border-2 border-black my-4 px-2 py-1 focus:outline-none rounded-3xl"
                         />
@@ -237,11 +245,11 @@ export default function EventBuilder () {
             <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6" onClick={() => {if (isCoHostOpen)setIsCoHostOpen(false);}}>
                 <div className="grid col-span-3">
                     <ContentEditable
-                        html={eventName.current}
+                        html={userInput.current.eventName}
                         //onBlur={onBlur}
                         onKeyUp={countChars}
                         //disabled={isOverflow ? true : false}
-                        onChange={(e) => {eventName.current=e.target.value}} 
+                        onChange={(e) => {userInput.current.eventName=e.target.value}} 
                         placeholder={"My event title..."}
                         className="text-left text-5xl leading-snug mb-2 focus:outline-none"
                     />
@@ -260,9 +268,9 @@ export default function EventBuilder () {
                         <p className="text-left text-gray-600 text-sm ">{descriptionCount}</p>
                     </div>
                     <ContentEditable
-                        html={description.current}
+                        html={userInput.current.description}
                         onKeyUp={countWords}
-                        onChange={(e) => {description.current=e.target.value}} 
+                        onChange={(e) => {userInput.current.description=e.target.value}} 
                         placeholder={"My event description..."}
                         className="text-left mt-4 leading-snug mb-8 focus:outline-none"
                     />
@@ -271,8 +279,8 @@ export default function EventBuilder () {
                         <p className=" pr-2 text-sm text-gray-600">Optional</p>
                     </div>
                     <ContentEditable
-                        html={requirements.current}
-                        onChange={(e) => {requirements.current=e.target.value}} 
+                        html={userInput.current.requirements}
+                        onChange={(e) => {userInput.current.requirements=e.target.value}} 
                         placeholder={"My event requirements..."}
                         className="text-left mt-4 leading-snug mb-8 focus:outline-none"
                     />
@@ -281,9 +289,9 @@ export default function EventBuilder () {
                 <div className="grid col-span-2 ">
                     <div className="sm:fixed">
                         <div className="flex space-x-2 h-8 items-center">
-                            <WhitePillButton type="submit" text="SET DATE &#038; SUBMIT" padding="px-6 flex"/>
+                            <WhitePillButton onSubmit={(v)=>console.log(v)} type="submit" text="SET DATE &#038; SUBMIT" padding="px-6 flex"/>
                             <div onClick={() => {setIsModalOpen(true)}}> 
-                                <WhitePillButton type="submit" text="HELP" padding="px-6 flex"/>
+                                <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
                             </div>
                         </div>
                         <div className="flex justify-between text-sm my-2 mt-20" style={{ maxWidth: "300px"}}>
@@ -337,8 +345,8 @@ export default function EventBuilder () {
                                             </div>
                                             <div className="col-span-2 my-auto">
                                                 <ContentEditable
-                                                    html={name.current}
-                                                    onChange={(e) => {name.current=e.target.value}} 
+                                                    html={userInput.current.name}
+                                                    onChange={(e) => {userInput.current.name=e.target.value}} 
                                                     placeholder={"My name..."}
                                                     className="ml-4 text-left text-3xl focus:outline-none"
                                                 />
@@ -348,30 +356,30 @@ export default function EventBuilder () {
                                     <div className="mb-8 row-span-1 text-center justify-center">
                                         <div className="flex justify-center">
                                             <ContentEditable
-                                                html={university.current}
-                                                onChange={(e) => {university.current=e.target.value}} 
+                                                html={userInput.current.university}
+                                                onChange={(e) => {userInput.current.universityt=e.target.value}} 
                                                 placeholder={"My university..."}
                                                 className="leading-snug focus:outline-none"
                                             />
                                             <p className="mx-3">•</p>
                                             <ContentEditable
-                                                html={gradYear.current}
-                                                onChange={(e) => {gradYear.current=e.target.value}} 
+                                                html={userInput.current.gradYear}
+                                                onChange={(e) => {userInput.current.gradYear=e.target.value}} 
                                                 placeholder={"My graduation year..."}
                                                 className="leading-snug focus:outline-none"
                                             />
                                         </div>
                                         <ContentEditable
-                                                html={major.current}
-                                                onChange={(e) => {major.current=e.target.value}} 
+                                                html={userInput.current.major}
+                                                onChange={(e) => {userInput.current.major=e.target.value}} 
                                                 placeholder={"My major..."}
                                                 className="leading-snug focus:outline-none"
                                         />
                                     </div>
                                     <div className="row-span-1 text-center justify-center">
                                         <ContentEditable
-                                                html={bio.current}
-                                                onChange={(e) => {bio.current=e.target.value}} 
+                                                html={userInput.current.bio}
+                                                onChange={(e) => {userInput.current.bio=e.target.value}} 
                                                 placeholder={"My bio..."}
                                                 className="text-left leading-snug focus:outline-none"
                                         />
