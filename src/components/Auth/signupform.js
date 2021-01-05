@@ -3,11 +3,11 @@ import WhitePillButton from "../Buttons/wpillbutton"
 import {useState, useContext} from "react"
 import Context from '../Context/context';
 import * as Yup from "yup"
-
+// TASK: if instant validation is too aggressive, check out options here https://formik.org/docs/guides/validation
 
 const SignUpForm = () => {
 
-    const [error, setError] = useState("This email is already in use");
+    const [error, setError] = useState(); //useState("This email is already in use");
     
     const context = useContext(Context);
      
@@ -34,7 +34,7 @@ const SignUpForm = () => {
         gradYear: Yup.string()
             .required('This field is required'),
     });
-
+// add error message to gradyear select
       return (
         <div className="md-shadow mx-10 py-6 mb-2 rounded-2xl">
             <Formik

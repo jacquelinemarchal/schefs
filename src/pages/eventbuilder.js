@@ -18,8 +18,6 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import Context from '../components/Context/context';
 import * as Yup from "yup"
 
-//https://www.npmjs.com/package/html-parser
-
 export default function EventBuilder () {
     const context = useContext(Context);
 
@@ -27,25 +25,16 @@ export default function EventBuilder () {
     const [inCrop, setInCrop] = useState(false)
     const [crop, setCrop] = useState({x:0,y:0},)
     const [zoom, setZoom] = useState(1)
-    const [aspect, setAspect] = useState(1)
 
     const [profilePicture, setProfilePicture] = useState(null)
     const [profilePictureURL, setProfilePictureURL] = useState("http://via.placeholder.com/100x100")
 
-    const [descriptionCount, setDescriptionCount] = useState("0/70 words")
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)    
     const [isModalOpen, setIsModalOpen] = useState(true)
     const [isCoHostOpen, setIsCoHostOpen] = useState(false)
 
-    const [isOverflow, setIsOverflow] = useState(false)
-    const [charCounter, setCharCounter] = useState("0/65 characters");
-    const [counterStyle, setCounterStyle] = useState("");
-    const [wordCounterStyle, setWordCounterStyle] = useState("");
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
-   /* const onBlur = () => {
-        console.log(eventName.current);
-    };*/
     const escFunction = (event) => {
         if(event.keyCode === 27) {
           setIsPhotoDisplayOpen(false)
@@ -101,34 +90,20 @@ export default function EventBuilder () {
         // https://stackoverflow.com/questions/49228118/upload-image-from-data-url-to-axios
     }
 
-    /*const countChars = () => {
-        var maxLength = 65;
-        var strLength = htmlToText(userInput.current.eventName).length;
 
-        if (strLength >= maxLength){
-            setCharCounter(`${strLength} / 65 characters`)
-            setCounterStyle("text-red-600")
-            setIsOverflow(true)
-        }
-        else if (strLength <= maxLength){
-            setCharCounter(`${strLength} / 65 characters`)
-            setCounterStyle("")
-            setIsOverflow(false)
-        }
-    };
-
-    const countWords = () => {
-        var strLength = htmlToText(userInput.current.description).split(" ").length;
+    const wordCounter = value => {
+        var strLength = value.split(" ").length-1;
 
         if (strLength <= 70){
-            setDescriptionCount(`${strLength} / 70 words`)
-            setWordCounterStyle("text-red-600")
+            return(`${strLength} words`)
         }
-        else if (strLength >= 70){
-            setDescriptionCount(`${strLength} / 70 words`)
-            setWordCounterStyle("")
+      };
+
+    const charCounter = value => {
+        if (value.length > 65){
+            return(`${value.length} / 65 characters`)
         }
-    };*/
+    };
 
     const fileEventHandler = e => {
         const file = e.target.files[0]
@@ -151,21 +126,11 @@ export default function EventBuilder () {
         fd.append('image', profilePicture)
        // axios.post('api...')
     }
-    const handleSubmit = (values) => {
-        alert(JSON.stringify(values, null, 2));
-    }
 
     const EventBuilderSchema = Yup.object().shape({
         coHostEmail: Yup.string()
-            .required('This field is required')
             .email('This is not a valid email'),
-        eventTitle: Yup.string()
-            .required("You must provide your password")
-            .min(70, "Your description must be at least 70 characters"),
-        eventDesc: Yup.string()
-            .required('This field is required'),
-        eventReq: Yup.string()
-            .required('This field is required'),
+        eventReq: Yup.string(),
         firstName: Yup.string()
             .required('This field is required'),
         lastName: Yup.string()
@@ -179,25 +144,26 @@ export default function EventBuilder () {
         bio: Yup.string()
             .required('This field is required'),
     });
-// finish validation (word counter)
-//      add error messages
-// fix css issues: bio box, continuous line not scroll
-// prevent button when isValid and isDirty 
+
+    const handleSubmit = (values, { setSubmitting }) => {
+        alert(JSON.stringify(values, null, 2));
+        setSubmitting(false);
+    }
+
     return (
         <Formik
             initialValues = {{coHostEmail: "", eventTitle: "", eventDesc: "", eventReq: "", firstName:"", lastName:"", university: "", gradYear:"", major:"", bio:""}}
             onSubmit={handleSubmit}
-            validator={() => ({})}
-            //validationSchema={SigninSchema}
+            validationSchema={EventBuilderSchema}
         >
-            {({isValid, dirty}) => (
+            {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
             <Form>
                 {isModalOpen ? 
                     <>
                         <div className="h-screen fixed w-screen" onClick={() => setIsModalOpen(!isModalOpen)}></div>
                         <div className="fixed overflow-scroll m-16 top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
                             <div className="flex justify-end">
-                                <button onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
+                                <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
                                     <HighlightOff/>
                                 </button>
                             </div>
@@ -225,7 +191,7 @@ export default function EventBuilder () {
                         <div className="h-screen fixed w-screen" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}></div>
                         <div className="fixed overflow-scroll m-8 sm:border-2 top-0 mt-10 shadow rounded-xl bg-white justify-center z-10">
                             <div className="flex justify-end">
-                                <button onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
+                                <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
                                     <HighlightOff/>
                                 </button>
                             </div>
@@ -236,10 +202,6 @@ export default function EventBuilder () {
                             <div id="imageContainerEB" className="mx-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
                                 <img src={sampleImage1} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
                                 <img src={sampleImage2} className="hover:bg-yellow-300 cursor-pointer p-2 rounded-3xl"></img>
-                                <img src={sampleImage3} className="hover:bg-yellow-300 cursor-pointer p-2 rounded-3xl"></img>
-                                <img src={sampleImage1} className="hover:bg-yellow-300 cursor-pointer p-2 rounded-3xl"></img>
-                                <img src={sampleImage3} className="hover:bg-yellow-300 cursor-pointer p-2 rounded-3xl"></img>
-                                <img src={sampleImage2} className="hover:bg-yellow-300 cursor-pointer p-2 rounded-3xl"></img>
                             </div>
                         </div> 
                     </>
@@ -249,7 +211,7 @@ export default function EventBuilder () {
                     <>
                     <div className="fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center left-0 z-20" style={{maxWidth: "435px", minHeight: "600px"}}>
                         <div className="flex justify-end">
-                            <button onClick={() => setIsCoHostOpen(false)} className="focus:outline-none p-2">
+                            <button type="button" onClick={() => setIsCoHostOpen(false)} className="focus:outline-none p-2">
                                 <HighlightOff/>
                             </button>
                         </div>
@@ -262,7 +224,6 @@ export default function EventBuilder () {
                                 placeholder="Co-host's school email" 
                                 className={"border sm:border-2 border-black my-4 px-2 py-1 focus:outline-none rounded-3xl"} 
                                 name="coHostEmail" 
-                                // onKeyUp={countChars}
                             />
                         </div>
                     </div>
@@ -271,15 +232,17 @@ export default function EventBuilder () {
 
                 <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6" onClick={() => {if (isCoHostOpen)setIsCoHostOpen(false);}}>
                     <div className="grid col-span-3">
-                        <Field
-                            placeholder="My event title..." 
-                            className={"text-left text-5xl leading-snug mb-2 focus:outline-none"} 
+                        <Field 
                             name="eventTitle" 
-                            //onChange={countChars}
+                            validate={charCounter}
+                            className="text-left text-5xl leading-snug mb-1 focus:outline-none"
+                            placeholder="My event title..."
+                            onChange={e => {
+                                setFieldTouched('eventTitle');
+                                handleChange(e);
+                            }}
                         />
-                        <div className={"text-gray-600 pb-2 " + counterStyle}>
-                            {charCounter}
-                        </div>
+                        <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="eventTitle"></ErrorMessage>
                         <div>
                             You’ll be able to select your event’s date on the next page
                         </div>
@@ -289,21 +252,27 @@ export default function EventBuilder () {
                         <div className="items-center flex space-x-2">
                             <p>Your event description:</p>
                             <p className="text-sm pr-2 text-gray-600">70 word minimum</p>
-                            <p className="text-left text-gray-600 text-sm ">{descriptionCount}</p>
+                            <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="eventDesc"></ErrorMessage>
                         </div>
                         <Field 
+                            as="textarea"
                             placeholder="My event description..." 
-                            className={"text-left mt-4 leading-snug mb-8 focus:outline-none overflow-visible"} 
+                            className={"text-left mt-4 h-32 leading-snug mb-8 w-5/6 focus:outline-none"} 
                             name="eventDesc" 
-                            //onChange={countWords}
+                            validate={wordCounter}
+                            onChange={e => {
+                                setFieldTouched('eventDesc');
+                                handleChange(e)
+                            }}
                         />
                         <div className="items-center flex space-x-2">
                             <p>Your event requirements (what guests should prepare):</p>
                             <p className=" pr-2 text-sm text-gray-600">Optional</p>
                         </div>
                         <Field 
+                            as="textarea"   
                             placeholder="My event requirements..." 
-                            className={"text-left mt-4 leading-snug mb-8 focus:outline-none"} 
+                            className={"text-left mt-4 h-32 leading-snug mb-8 w-5/6 focus:outline-none"} 
                             name="eventReq" 
                         />
                     </div>
@@ -311,7 +280,7 @@ export default function EventBuilder () {
                     <div className="grid col-span-2 ">
                         <div className="sm:fixed">
                             <div className="flex space-x-2 h-8 items-center">
-                                <WhitePillButton onSubmit={(v)=>console.log(v)} type="submit" text="SET DATE &#038; SUBMIT" padding="px-6 flex"/>
+                                <button disabled={!isValid || !dirty || isSubmitting} type="submit" className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }>SUBMIT</button>
                                 <div onClick={() => {setIsModalOpen(true)}}> 
                                     <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
                                 </div>
@@ -368,13 +337,15 @@ export default function EventBuilder () {
                                                 <div className="col-span-2 my-auto">
                                                     <Field 
                                                         placeholder="First Name" 
-                                                        className={"ml-4 text-left text-3xl focus:outline-none overflow-hidden"} 
+                                                        className={"ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-visible"}
+                                                        as="textarea"
                                                         name="firstName" 
                                                     />
                                                     <Field 
                                                         placeholder="Last Name" 
-                                                        className={"ml-4 text-left text-3xl focus:outline-none overflow-hidden"} 
+                                                        className={"ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-hidden"} 
                                                         name="lastName" 
+                                                        as="textarea"
                                                     />
                                                 </div>
                                             </div>
@@ -402,12 +373,12 @@ export default function EventBuilder () {
                                         <div className="flex">
                                                 <Field 
                                                     placeholder="My bio..."
-                                                    className="leading-snug focus:outline-none"
+                                                    className="leading-snug h-32 focus:outline-none w-full"
                                                     name="bio" 
+                                                    as="textarea"
                                                 />
                                         </div> 
-                                    </>
-                                    }  
+                                    </>}
                                 </div>
                             </div> 
                         </div>
