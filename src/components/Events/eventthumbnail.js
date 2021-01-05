@@ -13,13 +13,13 @@ const EventThumbnail = (props) => {
 
     return (
         <div onClick={checkCard} className={"cursor-pointer col-span-1 mb-4 " + props.style} >
-            <Link href={`/events/${props.eid}`}>
+            <a href={`/events/${props.eid}`}>
                 <div>
                     <img src={thumb} className="mb-2 rounded-2xl"></img>
                     <p className="mb-1 text-sm">{props.title}</p> 
                     <p className="text-xs">Hosted by {props.host_name} • {props.host_school}<br></br> at {props.time_start}</p>
                 </div>
-            </Link>
+            </a>
         </div>
     )
 };
