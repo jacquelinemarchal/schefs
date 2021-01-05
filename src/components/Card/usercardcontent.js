@@ -34,6 +34,7 @@ const CardContent = () => {
     }
   
     const handleBlur = () => {
+
       console.log(userInfo.current);
     };
 
