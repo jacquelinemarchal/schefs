@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../utils/db');
-const queries = require('../utils/events_queries');
+const { verifyFirebaseIdToken } = require('../middleware/auth');
+const queries = require('../utils/queries/events');
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ const router = express.Router();
  * }
  * axios.get("backend.com/api/events", query)
  *
+ *
  *                  SAMPLE
  * let query = {
  *      params{
@@ -26,7 +28,9 @@ const router = express.Router();
  * }
  * axios.get("backend.com/api/events", query)
  *
- * 
+ *                END SAMPLE
+ *
+ *
  * Request Parameters:
  *  query:
  *    date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
@@ -143,6 +147,62 @@ router.get('/:eid', (req, res) => {
         else
             res.status(200).json(q_res.rows[0].json_build_object);
     });
+});
+
+/* POST /api/events
+ * Create a new event.
+ *
+ * Request Body:
+ *  <object>
+ *    title         <string> required
+ *    description   <string> required
+ *    requirements  <string>
+ *    img_thumbnail <string> required
+ *    time_start    <Date>   required
+ *    hosts         <array[object]> required
+ *      uid         <int>    required
+ *      first_name  <string> required
+ *      school      <string> required
+ */
+router.post('', verifyFirebaseIdToken, async (req, res) => {
+    if (!req.body.hosts.map(host => host.uid).includes(req.uid)) {
+        res.status(403).json({ err: 'Cannot make an event for someone else!' });
+        return;
+    }
+
+    const host_name = req.body.hosts.map(host => host.first_name).join(', ');
+    const host_school = req.body.hosts.map(host => host.school).join(', ');
+
+    const values = [
+        host_name,
+        host_school,
+        req.body.title,
+        req.body.description,
+        req.body.requirements,
+        req.body.img_thumbnail,
+        '', // zoom link empty for now
+        '', // zoom id empty for now
+        req.body.time_start,
+        'pending', // default status pending        
+    ];
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const eid = await client.query(queries.createEvent, values);
+        for (let host of req.body.hosts)
+            await client.query(queries.createHost, [ host.uid, eid ]);
+        await client.query('COMMIT');
+        res.status(201).send();
+    } catch (err) {
+        await client.query('ROLLBACK');
+        if (err.code === '23502') // not_null_violation
+            res.status(406).json({ err: 'Required field missing' });
+        else
+            res.status(500).json({ err: 'PSQL Error: ' + err.message });
+    } finally {
+        client.release();
+    }
 });
 
 /*
