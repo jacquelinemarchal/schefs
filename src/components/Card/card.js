@@ -7,21 +7,22 @@ import SignUpForm from '../Auth/signupform';
 import LoginForm from '../Auth/loginform';
 import Context from '../Context/context';
 
-const Card = () => {
+// props.right = boolean
+const Card = (props) => {
     const context = useContext(Context);
+    const handleCloseCard = () => context.handleCloseCard(!props.right, props.right);
 
     return (
-      <>
         <CSSTransition
-          in={context.cardIsOpen}
+          in={props.right ? context.rCardIsOpen : context.lCardIsOpen}
           timeout={500}
-          key="card"
-          classNames="card"
+          key={props.right ? 'rcard' : 'lcard'}
+          classNames={props.right ? 'rcard' : 'lcard'}
           unmountOnExit
         >
-          <div className="fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center right-0 z-20" style={{maxWidth: "435px", minHeight: "600px",}}>
+          <div className={'fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20 ' + (props.right ? 'right-0' : 'left-0')} style={{maxWidth: "435px", minHeight: "600px",}}>
             <div className="flex justify-end">
-              <button onClick={context.handleCloseCard} className="focus:outline-none p-2">
+              <button onClick={handleCloseCard} className="focus:outline-none p-2">
                 <HighlightOff/>
               </button>
             </div>
@@ -32,19 +33,6 @@ const Card = () => {
             }
           </div>
         </CSSTransition>
-
-        <CSSTransition
-          in={context.cardIsOpen}
-          timeout={500}
-          key="grey-out"
-          classNames="grey-out"
-          unmountOnExit
-        >
-          <div onClick={context.handleCloseCard} className="fixed inset-0 z-10">
-            <div className="absolute inset-0 bg-gray-700 bg-opacity-75"></div>
-          </div>
-        </CSSTransition>
-      </>
     );
 }
 

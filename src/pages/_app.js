@@ -1,4 +1,6 @@
 import '../styles/globals.css';
+import '../styles/card.css';
+
 import React from 'react';
 import ContextState from '../components/Context/context_state';
 

@@ -10,6 +10,7 @@ import NavBar from '../Banners/navbar';
 import Banner from '../Banners/banner';
 import Card from '../Card/card';
 import CardButton from '../Card/cardbutton';
+import GreyOut from '../Card/greyout';
 import firebase from '../../utils/firebase_client';
 
 const setAuthHeader = (token) => {
@@ -139,24 +140,42 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
 
     /* Card Reducer */
 
-    const [stateCardReducer, dispatchCardReducer] = useReducer(
+    const [stateRCardReducer, dispatchRCardReducer] = useReducer(
         CardReducer.CardReducer,
         CardReducer.initialState,
     );
 
-    const handleOpenCard = () =>
-        dispatchCardReducer(ACTIONS.openCard())
+    const [stateLCardReducer, dispatchLCardReducer] = useReducer(
+        CardReducer.CardReducer,
+        CardReducer.initialState,
+    );
+    
+    const handleOpenCard = (left, right) => {
+        if (right)
+            dispatchRCardReducer(ACTIONS.openCard());
+        if (left)
+            dispatchLCardReducer(ACTIONS.openCard());
+    }
 
-    const handleCloseCard = () =>
-        dispatchCardReducer(ACTIONS.closeCard())
+    const handleCloseCard = (left, right) => {
+        if (right)
+            dispatchRCardReducer(ACTIONS.closeCard());
+        if (left)
+            dispatchLCardReducer(ACTIONS.closeCard());
+    }
 
-    const handleToggleCard = () =>
-        dispatchCardReducer(ACTIONS.toggleCard())
+    const handleToggleCard = (left, right) => {
+        if (right)
+            dispatchRCardReducer(ACTIONS.toggleCard());
+        if (left)
+            dispatchLCardReducer(ACTIONS.toggleCard());
+    }
 
     return (
         <Context.Provider
           value={{
-            cardIsOpen: stateCardReducer.isOpen,
+            rCardIsOpen: stateRCardReducer.isOpen,
+            lCardIsOpen: stateLCardReducer.isOpen,
             handleOpenCard,
             handleCloseCard,
             handleToggleCard,
@@ -171,9 +190,11 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
           <NavBar scrollShadow={false} />
           <CardButton />
         
-          <Card />
+          <Card right={true} />
+          <Card right={false} />
+          <GreyOut />
 
-          <div className={(stateCardReducer.isOpen ? 'overflow-hidden fixed' : '')}>
+          <div className={(stateRCardReducer.isOpen ? 'overflow-hidden fixed' : '')}>
             <Component {...pageProps}/>
           </div>
         </Context.Provider>
