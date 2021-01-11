@@ -7,7 +7,7 @@ import SignUpForm from '../Auth/signupform';
 import LoginForm from '../Auth/loginform';
 import Context from '../Context/context';
 
-// props.right = boolean
+// props.right = boolean side of screen, props.profile = profile to display, if not the current user's card
 const Card = (props) => {
     const context = useContext(Context);
     const handleCloseCard = () => context.handleCloseCard(!props.right, props.right);
@@ -27,10 +27,12 @@ const Card = (props) => {
               </button>
             </div>
 
-            {context.profile
-              ? <CardContent />
-              : <LoginForm /> 
-            }
+	        {props.right
+		      ? context.profile
+			    ? <CardContent profile={context.profile} />
+			    : <LoginForm /> 
+		      : <CardContent profile={props.profile} />
+		    }
           </div>
         </CSSTransition>
     );

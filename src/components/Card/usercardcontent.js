@@ -5,17 +5,20 @@ import ContentEditable from 'react-contenteditable'
 import WhitePillButton from "../Buttons/wpillbutton"
 import EventThumbnail from "../Events/eventgrid"
 
-const CardContent = () => {
+// props.profile -- either current user's profile or another user's
+const CardContent = (props) => {
 
     const context = useContext(Context)
+    const disabled = !(context.profile && (props.profile.uid === context.profile.uid));
+
     const [dropDown, setDropDown] = useState(false)
-    const [gradYear, setGradYear] = useState(context.profile.grad_year)
+    const [gradYear, setGradYear] = useState(props.profile.grad_year)
     const [edited, setEdited] = useState(false)
     const userInfo = useRef({
-        first_name: context.profile.first_name,
-        last_name: context.profile.last_name,
-        uni:context.profile.school,
-        email: context.profile.email,
+        first_name: props.profile.first_name,
+        last_name: props.profile.last_name,
+        uni: props.profile.school,
+        email: props.profile.email,
     })
 
     const [events, setEvents] = useState([])
@@ -33,7 +36,6 @@ const CardContent = () => {
     }
   
     const handleBlur = () => {
-
       console.log(userInfo.current);
     };
 
@@ -61,6 +63,7 @@ const CardContent = () => {
         <>
           <div className="md-shadow sm:px-8 px-6 pb-0 pt-2 rounded-2xl">
               <ContentEditable
+		  disabled={disabled}
                   html={userInfo.current.first_name}
                   onBlur={handleBlur}
                   onChange={(e) => {userInfo.current.first_name=e.target.value; setEdited(true)}} 
@@ -68,6 +71,7 @@ const CardContent = () => {
                   className="text-5xl leading-none mb-4 focus:outline-none"
               />
               <ContentEditable
+		  disabled={disabled}
                   html={userInfo.current.last_name}
                   onBlur={handleBlur}
                   onChange={(e) => {userInfo.current.last_name=e.target.value; setEdited(true)}} 
@@ -75,6 +79,7 @@ const CardContent = () => {
                   className="text-5xl leading-none mb-4 focus:outline-none"
               />
               <ContentEditable
+		  disabled={disabled}
                   html={userInfo.current.uni}
                   onBlur={handleBlur}
                   onChange={(e) => {userInfo.current.uni=e.target.value; setEdited(true)}} 
@@ -84,12 +89,15 @@ const CardContent = () => {
               <div className="relative inline-block text-left text-sm">
                   <div>
                       <span className="rounded-md">
-                          <button id="gradYear" type="button" onClick={toggleDropDown} className="inline-flex justify-center w-full rounded-md bg-white leading-5 hover:text-gray-500 focus:outline-none active:bg-gray-50 active:text-gray-800 transition ease-in-out text-sm duration-150" id="options-menu" aria-haspopup="true" aria-expanded="true">
-                          {gradYear}
+			{disabled
+			  ? <>{gradYear}</>
+			  : <button id="gradYear" type="button" onClick={toggleDropDown} className="inline-flex justify-center w-full rounded-md bg-white leading-5 hover:text-gray-500 focus:outline-none active:bg-gray-50 active:text-gray-800 transition ease-in-out text-sm duration-150" id="options-menu" aria-haspopup="true" aria-expanded="true" disabled={disabled}>
+                            {gradYear}
                               <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                               </svg>
-                          </button>
+                            </button>
+			}
                       </span>
                   </div>
               </div>
@@ -105,6 +113,7 @@ const CardContent = () => {
                   </div>
               </div>
               <ContentEditable
+		  disabled={disabled}
                   html={userInfo.current.email}
                   onBlur={handleBlur}
                   onChange={(e) => {userInfo.current.email=e.target.value; setEdited(true)}} 
@@ -122,17 +131,23 @@ const CardContent = () => {
                   </a>
               </div>
               <div className="mt-4 text-sm ">
-                  My upcoming events:
+				{disabled
+				  ? <>{props.profile.first_name}'s upcoming events:</>
+                  : <>My upcoming events:</>
+				}
                   <div id="innerCardContainer" className="overflow-scroll mt-2" style={{height: "333px"}}>
                       <EventThumbnail events={fakeEvent} style="mr-12" gridNum="1"/>
                   </div>
               </div>
           </div>
-          <div className="w-11/12 absolute bottom-0 mb-2 ml-4 flex justify-between">
-              <WhitePillButton text="MY EVENTS" link="" padding="px-4" size="xs bg-white sm:text-sm"/>
-              <WhitePillButton text="HOST AN EVENT" link="" padding="px-4" size="xs bg-white sm:text-sm"/>        
-              <WhitePillButton text="LOG OUT" link="" padding="px-4" size="xs bg-white sm:text-sm" handleClick={context.handleLogout}/>
-          </div> 
+		  {!disabled
+			? <div className="w-11/12 absolute bottom-0 mb-2 ml-4 flex justify-between">
+				  <WhitePillButton text="MY EVENTS" link="" padding="px-4" size="xs bg-white sm:text-sm"/>
+				  <WhitePillButton text="HOST AN EVENT" link="" padding="px-4" size="xs bg-white sm:text-sm"/>        
+				  <WhitePillButton text="LOG OUT" link="" padding="px-4" size="xs bg-white sm:text-sm" handleClick={context.handleLogout}/>
+			  </div> 
+			: null
+		  }
         </>
     )
 }
