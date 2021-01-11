@@ -20,12 +20,6 @@ const setAuthHeader = (token) => {
         delete axios.defaults.headers.common['Authorization'];
 }
 
-const die = (err) => {
-    console.log(err.response.data.err);
-    setAuthHeader(null);
-    dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
-}
-
 const ContextState = ({ Component, pageProps, bannerProps }) => {
 
     /* Auth Reducer */ 
@@ -34,6 +28,12 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         AuthReducer.AuthReducer,
         AuthReducer.initialState,
     );
+
+    const die = (err) => {
+        console.log(err.response.data.err);
+        setAuthHeader(null);
+        dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
+    }
 
     useEffect(() => {
         return firebase.auth().onAuthStateChanged(async (user) => {
@@ -59,9 +59,10 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             else {
                 if (stateAuthReducer.profile && user.uid !== stateAuthReducer.profile.uid) {
                     try {
-                        const profile = (await axios.get('/api/users/' + uid)).data;
+                        const profile = (await axios.get('/api/users/' + user.uid)).data;
                         dispatchAuthReducer(ACTIONS.loginSuccess(profile));
                     } catch (err) {
+                        console.log(err);
                         die(err);
                     }
                 }
@@ -133,8 +134,17 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         }
     }
 
-    const handleLogout = () => {
-        setAuthToken(null);
+    const handleLoginWithGoogle = async () => {
+        const res = await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        alert(JSON.stringify({
+            cred: res.credential,
+            user: res.user,
+        }));
+    }
+
+    const handleLogout = async () => {
+        await firebase.auth().signOut();
+        setAuthHeader(null);
         dispatchAuthReducer(ACTIONS.logout());
     }
 
@@ -195,6 +205,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
           <GreyOut />
 
           <div className={(stateRCardReducer.isOpen ? 'overflow-hidden fixed' : '')}>
+            <button onClick={handleLoginWithGoogle}>test</button>
             <Component {...pageProps}/>
           </div>
         </Context.Provider>
