@@ -17,7 +17,7 @@ export default function Home(props) {
         let query = {
              params:{
                   date_from:"2020-01-01",
-                  date_to:"2020-12-31",
+                  date_to:"2021-12-31",
                   status:"all",
                   type:"summary"
             }
