@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$#" -ne 4 ]; then
+    echo "Usage: $0 <pguser> <pghost> <pgdata> <pgpass>" >&2
+    exit 1
+fi
+
 # get PSQL variables as args
 pguser=$1
 pghost=$2
@@ -10,8 +15,8 @@ pgpass=$4
 export PGPASSWORD=$pgpass
 
 # create database
-if [ "$( psql -tAc "SELECT 1 FROM pg_database WHERE datname='$pgdata'" )" != '1' ]; then
-    psql -U $pguser -h $pghost -c "CREATE DATABASE $pgdata";
+if [ "$( psql -U $pguser -h $pghost -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$pgdata'" )" != '1' ]; then
+    psql -U $pguser -h $pghost -d postgres -c "CREATE DATABASE $pgdata";
 fi
 
 # create schema
@@ -50,7 +55,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
         'Christopher',
         'Wang',
         '$root/dev/images/p1.jpg',
-        'I am Chris! B)'
+        'I am Chris! B)',
         'Columbia University',
         'Math',
         2022
