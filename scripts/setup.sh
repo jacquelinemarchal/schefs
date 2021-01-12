@@ -10,15 +10,17 @@ pgpass=$4
 export PGPASSWORD=$pgpass
 
 # create database
-psql -U $pguser -h $pghost -c "CREATE DATABASE $pgdata";
+if [ "$( psql -tAc "SELECT 1 FROM pg_database WHERE datname='$pgdata'" )" != '1' ]; then
+    psql -U $pguser -h $pghost -c "CREATE DATABASE $pgdata";
+fi
 
 # create schema
 psql -U $pguser -h $pghost -d $pgdata -f ../schema.sql
 
 # download test event images
-curl -s -o ../dev/images/e1.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/selectableImages%2Fschefsoctober-1280-12.jpg?alt=media&token=5a12c023-bb11-421a-b089-87256c7acbc2 
-curl -s -o ../dev/images/e2.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/selectableImages%2Fschefsoctober-1280-19.jpg?alt=media&token=85db0dc6-6cf0-4b45-9618-b64ab16dfdd7
-curl -s -o ../dev/images/e3.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/selectableImages%2Fschefsoctober-1280-20.jpg?alt=media&token=c9100716-92b6-45fe-b7bd-5981cd463edf
+curl -s -o ../dev/images/e1.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-12.jpg?alt=media&token=5a12c023-bb11-421a-b089-87256c7acbc2 
+curl -s -o ../dev/images/e2.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-19.jpg?alt=media&token=85db0dc6-6cf0-4b45-9618-b64ab16dfdd7
+curl -s -o ../dev/images/e3.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-20.jpg?alt=media&token=c9100716-92b6-45fe-b7bd-5981cd463edf
 
 # download test profile pictures
 curl -s -o ../dev/images/p1.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/hostPictures%2F3uausku7CtfqHa629OhoLfwBSvE2%2BThe%20Individual%20Versus%20the%20Collective?alt=media&token=2e082ae4-5a99-47d8-91c8-d7b6439bb336
@@ -30,93 +32,121 @@ root="$(dirname "$PWD")"
 # create test users in PSQL
 psql -U $pguser -h $pghost -d $pgdata -c "
     INSERT INTO users(
+        fb_uid,
         email,
         phone,
-        password,
         first_name,
         last_name,
         img_profile,
         bio,
         school,
         major,
-        grad_year,
-        is_admin
+        grad_year
     )
     VALUES (
-        'u1email@school.edu',
+        'bOBANGm9UzPWeZMymLQkqWScSbm1',
+        'cyw2124@columbia.edu',
         '1-408-477-9572',
-        'password1',
-        'TestFirst1',
-        'TestLast1',
+        'Christopher',
+        'Wang',
         '$root/dev/images/p1.jpg',
-        'Test Bio 1',
-        'Test School 1',
-        'Test Major 1',
-        2001,
-        FALSE
+        'I am Chris! B)'
+        'Columbia University',
+        'Math',
+        2022
     ), (
-        'u2email@school.it',
-        NULL,
-        'password2',
-        'TestFirst2',
-        'TestLast2',
+        'HFCkIFwzX0euYQzZqRT5MMsVvd23',
+        'jm4609@columbia.edu',
+        '6463064032',
+        'Jacqueline',
+        'Marchal',
         '$root/dev/images/p2.jpg',
-        'Test Bio 2',
-        'Test School 2',
-        'Test Major 2',
-        2002,
-        TRUE
+        'I am Jackie!',
+        'Columbia University',
+        'Computer Science',
+        2022
     ), (
-        'u3email@gmail.com',
-        '12345678901234567890',
-        'password3',
-        'TestFirst3',
-        'TestLast3',
+        'OszYRSpAzggaADSgMTdPYCGQe4a2',
+        'll3257@columbia.edu',
+        '9177699405',
+        'Lola',
+        'Lafia',
         NULL,
         NULL,
-        'Test School 3',
-        'Test Major 3',
-        2003,
-        FALSE
+        'Columbia University',
+        'Architecture & Computer Science',
+        2023
+    ), (
+        'VrM3VRLQuqUKB382pmbW768yJVi1',
+        'pedro.damasceno@columbia.edu',
+        '9547742110',
+        'Pedro',
+        'Damasceno',
+        NULL,
+        'I am Pedro!',
+        'Columbia University',
+        'Comparative Literature',
+        2023
     )
 "
 
 # create test events in PSQL
 psql -U $pguser -h $pghost -d $pgdata -c "
     INSERT INTO events(
-        host_id,
+        host_name,
+        host_school,
         title,
         description,
         requirements,
         img_thumbnail,
+        zoom_link,
+        zoom_id,
         time_start,
         status
     )
     VALUES (
-        1,
+        'Christopher',
+        'Columbia University',
         'Event 1',
         'Description 1',
         'Requirements 1',
         '$root/dev/images/e1.jpg',
+        'www.example.com',
+        '123 456 789',
         NOW(),
         'pending'
     ), (
-        2,
+        'Jacqueline',
+        'Columbia University',
         'Event 2',
         'Description 2',
         NULL,
         '/dev/images/e2.jpg',
+        'www.example.com',
+        '123 456 789',
         NOW(),
         'approved'
     ), (
-        3,
+        'Lola & Pedro',
+        'Columbia University',
         'Event 3',
         'Description 3',
         'Requirements 3',
         '$root/dev/images/e3.jpg',
+        'www.example.com',
+        '123 456 789',
         NOW(),
         'denied'
     )
+"
+
+# create host links
+psql -U $pguser -h $pghost -d $pgdata -c "
+    INSERT INTO event_hosts(
+        user_id,
+        event_id
+    )
+    VALUES (1, 1), (2, 2), (3, 3), (4, 3)
 "
 
 # create test tickets in PSQL
