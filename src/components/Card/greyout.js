@@ -1,14 +1,23 @@
 import React, { useContext } from 'react';
-import { StateContext } from '../../pages/_app';
+import { CSSTransition } from 'react-transition-group';
+import Context from '../Context/context';
 
 const GreyOut = () => {
-    const cardContext = useContext(StateContext);
+    const context = useContext(Context);
 
     return (
-        <div onClick={() => cardContext.dispatch('closeCard')} className="fixed inset-0 z-10">
+        <CSSTransition
+          in={context.rCardIsOpen || context.lCardIsOpen}
+          timeout={500}
+          key="grey-out"
+          classNames="grey-out"
+          unmountOnExit
+        >
+          <div onClick={() => context.handleCloseCard(true, true)} className="fixed inset-0 z-10">
             <div className="absolute inset-0 bg-gray-700 bg-opacity-75"></div>
-        </div>
-    );
-};
+          </div>
+        </CSSTransition>
+    )
+}
 
 export default GreyOut;

@@ -1,6 +1,8 @@
+const { verifyFirebaseIdToken } = require('../middleware/auth');
+
 const express = require('express');
 const pool = require('../utils/db');
-const queries = require('../utils/events_queries');
+const queries = require('../utils/queries/events');
 
 const router = express.Router();
 
@@ -8,25 +10,27 @@ const router = express.Router();
  * GET /api/events
  * List events (summary) within date range, in ascending order by date/time.
  * 
- *             SAMPLE
+ *                  SAMPLE
  * let query = {
- *      params{
+ *      params: {
  *          date_from:"2020-08-09",
  *          date_to:"2020-08-09",
  *      }
  * }
  * axios.get("backend.com/api/events", query)
+ *
  *
  *                  SAMPLE
  * let query = {
- *      params{
+ *      params: {
  *          date_from:"2020-08-09",
  *          date_to:"2020-08-09",
  *      }
  * }
  * axios.get("backend.com/api/events", query)
  *
- * 
+ *
+ *
  * Request Parameters:
  *  query:
  *    date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
@@ -60,8 +64,6 @@ const router = express.Router();
  *  500: other postgres error
  */
 router.get('', (req, res) => {
-    // check auth and other stuff here
-
     let q = '';
     if (req.query.type === 'detailed')
         q = queries.getEventsDetailed;
@@ -134,7 +136,6 @@ router.get('', (req, res) => {
  *  500: other postgres error
  */
 router.get('/:eid', (req, res) => {
-    // check auth and other stuff here
     pool.query(queries.getEvent, [ req.params.eid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -145,17 +146,83 @@ router.get('/:eid', (req, res) => {
     });
 });
 
+/* POST /api/events
+ * Create a new event.
+ *
+ * Authorization:
+ *  Firebase ID Token
+ *
+ * Request Body:
+ *  <object>
+ *    title         <string> required
+ *    description   <string> required
+ *    requirements  <string>
+ *    img_thumbnail <string> required
+ *    time_start    <Date>   required
+ *    hosts         <array[object]> required
+ *      uid         <int>    required
+ *      first_name  <string> required
+ *      school      <string> required
+ *
+ * Response:
+ *  201: successfully created
+ *  403: attempting to create event for non-self user
+ *  406: required field missing
+ *  500: other postgres error
+ */
+router.post('', verifyFirebaseIdToken, async (req, res) => {
+    if (!req.body.hosts.map(host => host.uid).includes(req.uid)) {
+        res.status(403).json({ err: 'Cannot make an event for someone else!' });
+        return;
+    }
+
+    const host_name = req.body.hosts.map(host => host.first_name).join(', ');
+    const host_school = req.body.hosts.map(host => host.school).join(', ');
+
+    const values = [
+        host_name,
+        host_school,
+        req.body.title,
+        req.body.description,
+        req.body.requirements,
+        req.body.img_thumbnail,
+        '', // zoom link empty for now
+        '', // zoom id empty for now
+        req.body.time_start,
+        'pending', // default status pending        
+    ];
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const eid = await client.query(queries.createEvent, values);
+        for (let host of req.body.hosts)
+            await client.query(queries.createHost, [ host.uid, eid ]);
+        await client.query('COMMIT');
+        res.status(201).send();
+    } catch (err) {
+        await client.query('ROLLBACK');
+        if (err.code === '23502') // not_null_violation
+            res.status(406).json({ err: 'Required field missing' });
+        else
+            res.status(500).json({ err: 'PSQL Error: ' + err.message });
+    } finally {
+        client.release();
+    }
+});
+
 /*
  * POST /api/events/{eid}/tickets
  * Reserve ticket associated with a specified event and user.
  *
+ * TODO: Restrict to self/admin
+ *
+ * Authorization:
+ *  Firebase ID Token
+ *
  * Request Parameters:
  *  path:
  *    eid <int> required
- *
- * Request Body:
- *  <object>
- *    user_id <int> required
  *
  * Response:
  *  201: success
@@ -163,17 +230,15 @@ router.get('/:eid', (req, res) => {
  *  406: event sold out or ticket already reserved
  *  500: other postgres error
  */
-router.post('/:eid/tickets', async (req, res) => {
-    // check auth and other stuff here
-
+router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
         const count = await client.query(queries.getReservedTicketsCount, [ req.params.eid ]);
         if (count > 14)
-            res.status(416).json({ err: 'Event sold out: ' + req.params.eid });
+            res.status(406).json({ err: 'Event sold out: ' + req.params.eid });
         else {
-            await client.query(queries.reserveTicket, [ req.params.eid, req.body.user_id ]);
+            await client.query(queries.reserveTicket, [ req.params.eid, req.uid ]);
             await client.query('COMMIT');
             res.status(201).send();
         }
@@ -194,6 +259,11 @@ router.post('/:eid/tickets', async (req, res) => {
  * DELETE /api/events/{eid}/tickets/{uid}
  * Delete ticket associated with a specified event and user.
  *
+ * TODO: Restrict to self/admin
+ *
+ * Authorization:
+ *  Firebase ID Token
+ *
  * Request Parameters:
  *  path:
  *    eid <int> required
@@ -204,9 +274,7 @@ router.post('/:eid/tickets', async (req, res) => {
  *  404: event and/or user and/or ticket do not exist
  *  500: other postgres error
  */
-router.delete('/:eid/tickets/:uid', (req, res) => {
-    // check auth and other stuff here
-
+router.delete('/:eid/tickets/:uid', verifyFirebaseIdToken, (req, res) => {
     const values = [ req.params.eid, req.params.uid ];
     pool.query(queries.deleteTicket, values, (q_err, q_res) => {
         if (q_err)

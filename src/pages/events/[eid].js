@@ -1,11 +1,11 @@
 import axios from "axios"
 import pool from '../../utils/db'
-import queries from "../../utils/events_queries"
+import queries from "../../utils/queries/events"
 import thumb from "../../../dev/images/e2.jpg"
 import prof from "../../../dev/images/p2.jpg"
 import Comment from "../../components/Events/comment"
 import WhitePillButton from "../../components/Buttons/wpillbutton" //type, size (text), text, link
-import {useEffect, useState} from "react"
+import React, { useEffect, useState } from "react"
 import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
 

@@ -57,3 +57,4 @@ CREATE TABLE openmind (
     body          VARCHAR(255) NOT NULL,
     time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
