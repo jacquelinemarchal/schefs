@@ -83,17 +83,37 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         return () => clearInterval(timer);
     }, []);
 
-    const handleSignup = signup_date => {
-/*        axios
-            .post('/api/users/register', register_data)
-            .then(res => {
-                dispatchAuthReducer(ACTIONS.registerSuccess());
-                history.replace('/login');
-            })
-            .catch(err => dispatchAuthReducer(
-                ACTIONS.authFailure(err.response.data)
-            ));
-*/
+    // missing img_profile right now
+    const handleSignupWithEmailAndPassword = async (
+        email,
+        password,
+        phone,
+        first_name,
+        last_name,
+        bio,
+        school,
+        major,
+        grad_year
+    ) => {
+
+        data = {
+            email,
+            password,
+            phone,
+            first_name,
+            last_name,
+            bio,
+            school,
+            major,
+            grad_year,
+        };
+
+        try {
+            await axios.post('/api/users/signup', data);
+            await handleLoginWithEmailAndPassword(email, password);
+        } catch (err) {
+            die(err);
+        }
     }
 
     const handleLoginWithEmailAndPassword = async (email, password) => {
@@ -142,6 +162,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             handleToggleCard,
 
             profile: stateAuthReducer.profile,
+            handleSignupWithEmailAndPassword,
             handleLoginWithEmailAndPassword,
             handleLogout,
           }}
