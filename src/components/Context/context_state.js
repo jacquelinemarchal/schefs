@@ -19,11 +19,6 @@ const setAuthHeader = (token) => {
         delete axios.defaults.headers.common['Authorization'];
 }
 
-const die = (err) => {
-    console.log(err.response.data.err);
-    setAuthHeader(null);
-    dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
-}
 
 const ContextState = ({ Component, pageProps, bannerProps }) => {
 
@@ -33,6 +28,11 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         AuthReducer.AuthReducer,
         AuthReducer.initialState,
     );
+    const die = (err) => {
+        console.log(err.response.data.err);
+        setAuthHeader(null);
+        dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
+    }
 
     useEffect(() => {
         return firebase.auth().onAuthStateChanged(async (user) => {
