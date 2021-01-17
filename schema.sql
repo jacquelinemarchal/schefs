@@ -6,7 +6,7 @@ CREATE TABLE users (
     first_name    VARCHAR(255) NOT NULL,
     last_name     VARCHAR(255) NOT NULL,
     img_profile   VARCHAR(255),
-   bio           VARCHAR,
+    bio           VARCHAR,
     school        VARCHAR(255) NOT NULL,
     major         VARCHAR(255) NOT NULL,
     grad_year     INT NOT NULL
