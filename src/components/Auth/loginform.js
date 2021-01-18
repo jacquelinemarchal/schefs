@@ -5,7 +5,7 @@ import Context from '../Context/context';
 import WhitePillButton from "../Buttons/wpillbutton";
 import sampleCard from "../../assets/sampleCard.png"
 import * as Yup from "yup"
-
+import google from '../../assets/googleIcon.png'
 
 const LoginForm = () => {
     // const [error, setError] = useState(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"]);
@@ -36,6 +36,22 @@ const LoginForm = () => {
     
     return (
     <div className="grid md-shadow px-8 py-2 rounded-2xl">
+        <div className="grid grid-cols-2 mb-2">
+            <div className="grid col-span-1">
+                <div className="flex flex-col">
+                    <p>Sign in / Sign up</p>
+                    <p className="my-4">To attend or host events, please create a Schefs account</p>
+                    <p>You wil need a valid university email to use Schefs.</p>
+                </div>
+            </div>
+            <div className="grid col-span-1">
+                <div className="flex flex-col">
+                    <img className="justify-self-center self-center h-40" src={sampleCard}></img>
+                </div>
+            </div>
+        </div>
+        <button onClick={context.handleLoginWithGoogle} className="w-full flex mt-4 mb-2 py-1 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white"><img className="h-5 pr-4" src={google}></img>LOG IN WITH GOOGLE</button>
+        <p className="text-sm m-0 p-0 text-center">or</p>
         <Formik
             initialValues = {{email: "", password: ""}}
             onSubmit={handleSubmit}
@@ -44,20 +60,6 @@ const LoginForm = () => {
         >
             {({isValid, dirty}) => (
             <Form>
-                <div className="grid grid-cols-2 mb-2">
-                    <div className="grid col-span-1">
-                        <div className="flex flex-col">
-                            <p>Sign in / Sign up</p>
-                            <p className="my-4">To attend or host events, please create a Schefs account</p>
-                            <p>You wil need a valid university email to use Schefs.</p>
-                        </div>
-                    </div>
-                    <div className="grid col-span-1">
-                        <div className="flex flex-col">
-                            <img className="justify-self-center self-center h-40" src={sampleCard}></img>
-                        </div>
-                    </div>
-                </div>
                 <div className="grid">
                     <p className="text-red-500 text-sm">{error[1]}</p>
                     <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="email"></ErrorMessage>

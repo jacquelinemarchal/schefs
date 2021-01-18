@@ -84,6 +84,62 @@ const getEvent = `
 `;
 
 /*
+ * $1:  host_name     <string> required
+ * $2:  host_school   <string> required
+ * $3:  title         <string> required
+ * $4:  description   <string> required
+ * $5:  requirements  <string>
+ * $6:  img_thumbnail <string> required
+ * $7:  zoom_link     <string>
+ * $8:  zoom_id       <string>
+ * $9:  time_start    <Date>   required
+ * $10: status        <string>
+ */
+const createEvent = `
+    INSERT INTO events (
+        host_name,
+        host_school,
+        title,
+        description,
+        requirements,
+        img_thumbnail,
+        zoom_link,
+        zoom_id,
+        time_start,
+        status
+    ) VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10
+    )
+    RETURNING eid
+`;
+
+/*
+ * Intended to be used in same transaction
+ * as createEvent.
+ *
+ * $1: user_id  <int> required
+ * $2: event_id <int> required
+ */
+const createHost = `
+    INSERT INTO event_hosts (
+        user_id,
+        event_id
+    ) VALUES (
+        $1,
+        $2
+    )
+`;
+
+/*
  * $1: eid <int>
  */
 const getReservedTicketsCount = `
@@ -107,9 +163,8 @@ const getReservedTickets = `
     SELECT uid, first_name, last_name FROM users
     LEFT JOIN tickets ON users.uid = tickets.user_id WHERE tickets.event_id = $1
 `;
-/* [{uid: 1, first_name: Jackie, last_name: Marchal}, {uid: 0, first_name: Chris, last_name: Wang}]
- * 
- *
+
+/*
  * $1: event_id <int>
  * $2: user_id  <int>
  */
@@ -160,4 +215,6 @@ module.exports = {
     checkTicketStatus,
     reserveTicket,
     deleteTicket,
+    createEvent,
+    createHost,
 };

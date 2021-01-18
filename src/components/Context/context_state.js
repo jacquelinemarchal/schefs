@@ -10,6 +10,7 @@ import NavBar from '../Banners/navbar';
 import Banner from '../Banners/banner';
 import Card from '../Card/card';
 import CardButton from '../Card/cardbutton';
+import GreyOut from '../Card/greyout';
 import firebase from '../../utils/firebase_client';
 
 const setAuthHeader = (token) => {
@@ -17,12 +18,6 @@ const setAuthHeader = (token) => {
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
     else
         delete axios.defaults.headers.common['Authorization'];
-}
-
-const die = (err) => {
-    console.log(err.response.data.err);
-    setAuthHeader(null);
-    dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
 }
 
 const ContextState = ({ Component, pageProps, bannerProps }) => {
@@ -33,6 +28,12 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         AuthReducer.AuthReducer,
         AuthReducer.initialState,
     );
+
+    const die = (err) => {
+        console.log(err.response.data.err);
+        setAuthHeader(null);
+        dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
+    }
 
     useEffect(() => {
         return firebase.auth().onAuthStateChanged(async (user) => {
@@ -58,9 +59,10 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             else {
                 if (stateAuthReducer.profile && user.uid !== stateAuthReducer.profile.uid) {
                     try {
-                        const profile = (await axios.get('/api/users/' + uid)).data;
+                        const profile = (await axios.get('/api/users/' + user.uid)).data;
                         dispatchAuthReducer(ACTIONS.loginSuccess(profile));
                     } catch (err) {
+                        console.log(err);
                         die(err);
                     }
                 }
@@ -83,17 +85,37 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         return () => clearInterval(timer);
     }, []);
 
-    const handleSignup = signup_date => {
-/*        axios
-            .post('/api/users/register', register_data)
-            .then(res => {
-                dispatchAuthReducer(ACTIONS.registerSuccess());
-                history.replace('/login');
-            })
-            .catch(err => dispatchAuthReducer(
-                ACTIONS.authFailure(err.response.data)
-            ));
-*/
+    // missing img_profile right now
+    const handleSignupWithEmailAndPassword = async (
+        email,
+        password,
+        phone,
+        first_name,
+        last_name,
+        bio,
+        school,
+        major,
+        grad_year
+    ) => {
+
+        data = {
+            email,
+            password,
+            phone,
+            first_name,
+            last_name,
+            bio,
+            school,
+            major,
+            grad_year,
+        };
+
+        try {
+            await axios.post('/api/users/signup', data);
+            await handleLoginWithEmailAndPassword(email, password);
+        } catch (err) {
+            die(err);
+        }
     }
 
     const handleLoginWithEmailAndPassword = async (email, password) => {
@@ -112,47 +134,79 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         }
     }
 
-    const handleLogout = () => {
-        setAuthToken(null);
+    const handleLoginWithGoogle = async () => {
+        const res = await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        alert(JSON.stringify({
+            cred: res.credential,
+            user: res.user,
+        }));
+    }
+
+    const handleLogout = async () => {
+        await firebase.auth().signOut();
+        setAuthHeader(null);
         dispatchAuthReducer(ACTIONS.logout());
     }
 
     /* Card Reducer */
 
-    const [stateCardReducer, dispatchCardReducer] = useReducer(
+    const [stateRCardReducer, dispatchRCardReducer] = useReducer(
         CardReducer.CardReducer,
         CardReducer.initialState,
     );
 
-    const handleOpenCard = () =>
-        dispatchCardReducer(ACTIONS.openCard())
+    const [stateLCardReducer, dispatchLCardReducer] = useReducer(
+        CardReducer.CardReducer,
+        CardReducer.initialState,
+    );
+    
+    const handleOpenCard = (left, right) => {
+        if (right)
+            dispatchRCardReducer(ACTIONS.openCard());
+        if (left)
+            dispatchLCardReducer(ACTIONS.openCard());
+    }
 
-    const handleCloseCard = () =>
-        dispatchCardReducer(ACTIONS.closeCard())
+    const handleCloseCard = (left, right) => {
+        if (right)
+            dispatchRCardReducer(ACTIONS.closeCard());
+        if (left)
+            dispatchLCardReducer(ACTIONS.closeCard());
+    }
 
-    const handleToggleCard = () =>
-        dispatchCardReducer(ACTIONS.toggleCard())
+    const handleToggleCard = (left, right) => {
+        if (right)
+            dispatchRCardReducer(ACTIONS.toggleCard());
+        if (left)
+            dispatchLCardReducer(ACTIONS.toggleCard());
+    }
 
     return (
         <Context.Provider
           value={{
-            cardIsOpen: stateCardReducer.isOpen,
+            rCardIsOpen: stateRCardReducer.isOpen,
+            lCardIsOpen: stateLCardReducer.isOpen,
             handleOpenCard,
             handleCloseCard,
             handleToggleCard,
 
             profile: stateAuthReducer.profile,
+            handleSignupWithEmailAndPassword,
             handleLoginWithEmailAndPassword,
             handleLogout,
+            handleLoginWithGoogle,
           }}
         >
           <Banner {...bannerProps} />
           <NavBar scrollShadow={false} />
           <CardButton />
+	  <button onClick={() => handleToggleCard(true, false)}>left card</button>
         
-          <Card />
+          <Card right={true} />
+          <Card right={false} profile={{"uid":5,"email":"cyw2124@columbia.edu","phone":null,"first_name":"Christopher","last_name":"Wang","img_profile":null,"bio":null,"school":"Columbia University","major":"Math","grad_year":2022,"fb_uid":"bOBANGm9UzPWeZMymLQkqWScSbm1"}}/>
+          <GreyOut />
 
-          <div className={(stateCardReducer.isOpen ? 'overflow-hidden fixed' : '')}>
+          <div className={(stateRCardReducer.isOpen ? 'overflow-hidden fixed' : '')}>
             <Component {...pageProps}/>
           </div>
         </Context.Provider>

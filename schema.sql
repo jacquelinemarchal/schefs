@@ -9,7 +9,7 @@ CREATE TABLE users (
     bio           VARCHAR,
     school        VARCHAR(255) NOT NULL,
     major         VARCHAR(255) NOT NULL,
-    grad_year     INT NOT NULL
+    grad_year     VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE events (
@@ -57,3 +57,4 @@ CREATE TABLE openmind (
     body          VARCHAR(255) NOT NULL,
     time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
