@@ -171,10 +171,10 @@ router.get('/:eid', (req, res) => {
  *  500: other postgres error
  */
 router.post('', verifyFirebaseIdToken, async (req, res) => {
-    if (!req.body.hosts.map(host => host.uid).includes(req.uid)) {
+   /* if (!req.body.hosts.map(host => host.uid).includes(req.uid)) {
         res.status(403).json({ err: 'Cannot make an event for someone else!' });
         return;
-    }
+    }*/
 
     const host_name = req.body.hosts.map(host => host.first_name).join(', ');
     const host_school = req.body.hosts.map(host => host.school).join(', ');
@@ -191,7 +191,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         req.body.time_start,
         'pending', // default status pending        
     ];
-
+console.log(values)
     const client = await pool.connect();
     try {
         await client.query('BEGIN');

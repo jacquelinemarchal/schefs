@@ -161,7 +161,7 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
         *      school      <string> required
         */
        let sendHosts = [{
-           uid: '123',
+           uid: '4',
            first_name: values.firstName,
            school: values.university, 
        }]
@@ -169,19 +169,19 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
             title: values.eventTitle, 
             description: values.eventDesc,
             img_thumbnail: "image_thumbnail",
-            time_start: new Date(now),
+            time_start: new Date(),
             hosts: sendHosts,
         }
         if (values.eventReq != ""){
             sendEvent = {...sendEvent, requirements: values.eventReq}
         }
-        console.log(sendEvent)
+        //console.log(JSON.stringify(sendEvent))
 
         axios.post("http://localhost:5000/api/events", sendEvent)
         .then((res)=>{
             alert("success", res)
         })
-        .catch((err)=>{alert(err)})
+        .catch((err)=>{alert(err.response.data.err)})
 
     }
 

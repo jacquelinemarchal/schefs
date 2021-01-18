@@ -132,7 +132,7 @@ const createEvent = `
 const createHost = `
     INSERT INTO event_hosts (
         user_id,
-        event_id,
+        event_id
     ) VALUES (
         $1,
         $2
@@ -215,4 +215,6 @@ module.exports = {
     checkTicketStatus,
     reserveTicket,
     deleteTicket,
+    createEvent,
+    createHost,
 };
