@@ -94,45 +94,48 @@ const getEvent = `
  * $8:  zoom_id       <string>
  * $9:  time_start    <Date>   required
  * $10: status        <string>
- * $11: hosts         <string> - stringified JSON list, objects with "user_id", "event_id"
- *          ex. '[{"user_id": 1, "event_id": 2}]'
- *          ex. '[{"user_id": 1, "event_id": 2}, {"user_id": 2, "event_id": 2}]'
  */
 const createEvent = `
-    WITH e AS (
-        INSERT INTO events (
-            host_name,
-            host_school,
-            title,
-            description,
-            requirements,
-            img_thumbnail,
-            zoom_link,
-            zoom_id,
-            time_start,
-            status
-        ) VALUES (
-            $1,
-            $2,
-            $3,
-            $4,
-            $5,
-            $6,
-            $7,
-            $8,
-            $9,
-            $10
-        )
-        RETURNING eid
+    INSERT INTO events (
+        host_name,
+        host_school,
+        title,
+        description,
+        requirements,
+        img_thumbnail,
+        zoom_link,
+        zoom_id,
+        time_start,
+        status
+    ) VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10
     )
+    RETURNING eid
+`;
+
+/*
+ * Intended to be used in same transaction
+ * as createEvent.
+ *
+ * $1: user_id  <int> required
+ * $2: event_id <int> required
+ */
+const createHost = `
     INSERT INTO event_hosts (
         user_id,
-        event_id,
-    )
-    SELECT *
-    FROM JSON_POPULATE_RECORDSET(
-        NULL::event_hosts,
-        $11::JSON
+        event_id
+    ) VALUES (
+        $1,
+        $2
     )
 `;
 
@@ -212,4 +215,6 @@ module.exports = {
     checkTicketStatus,
     reserveTicket,
     deleteTicket,
+    createEvent,
+    createHost,
 };

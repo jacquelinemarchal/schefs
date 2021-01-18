@@ -17,16 +17,23 @@ import Cropper from 'react-easy-crop'
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import Context from '../components/Context/context';
 import * as Yup from "yup"
+import { now } from "moment";
 
 export default function EventBuilder () {
     const context = useContext(Context);
 
+    const [preLoad, setPreLoad] = useState({
+        first_name: "",
+        last_name: "",
+        grad_year: "",
+        university: "",
+        major: "",
+    })
     const fileInput = useRef(null)
     const [inCrop, setInCrop] = useState(false)
     const [crop, setCrop] = useState({x:0,y:0},)
     const [zoom, setZoom] = useState(1)
 
-    const [profilePicture, setProfilePicture] = useState(null)
     const [profilePictureURL, setProfilePictureURL] = useState("http://via.placeholder.com/100x100")
 
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)    
@@ -41,24 +48,31 @@ export default function EventBuilder () {
           setIsModalOpen(false)
         }
       };
-    useEffect(() => {
-        if (isPhotoDisplayOpen){
-           // document.body.setAttribute('style', 'position:fixed;')
-        }
-        if (!isPhotoDisplayOpen){
-          //  document.body.setAttribute('', '')
-        };
-      }, [isPhotoDisplayOpen]);
 
     useEffect(() => {
         document.addEventListener("keydown", escFunction, false);
+
+        if (context.profile){
+            var user = context.profile;
+            setPreLoad({
+                first_name: user.first_name,
+                last_name: user.last_name,
+                grad_year: user.grad_year,
+                university: user.school,
+                major: user.major,
+            })
+            //console.log(preLoad)
+        }
+        else{
+            // figure out behavior here
+        }
+
         return () => {
           document.removeEventListener("keydown", escFunction, false);
         };
-      }, []);
+      }, [context.profile]);
 
     const makeCroppedImage = () => {
-        typeof(profilePicture)
         const image = new Image()
         image.src=profilePictureURL;
 
@@ -107,8 +121,6 @@ export default function EventBuilder () {
 
     const fileEventHandler = e => {
         const file = e.target.files[0]
-        setProfilePicture(file)
-
         var reader = new FileReader();
 
         reader.onload = (e) => {
@@ -119,12 +131,6 @@ export default function EventBuilder () {
             reader.readAsDataURL(file)
             setInCrop(true)
         }
-    }
-
-    const fileUploadHandler = () => {
-        const fd = new FormData();
-        fd.append('image', profilePicture)
-       // axios.post('api...')
     }
 
     const EventBuilderSchema = Yup.object().shape({
@@ -146,13 +152,48 @@ export default function EventBuilder () {
     });
 
     const handleSubmit = (values, { setSubmitting }) => {
-        alert(JSON.stringify(values, null, 2));
         setSubmitting(false);
-    }
+/*
+values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
+        *    title         <string> required
+        *    description   <string> required
+        *    requirements  <string>
+        *    img_thumbnail <string> required
+        *    time_start    <Date>   required
+        *    hosts         <array[object]> required
+        *      uid         <int>    required
+        *      first_name  <string> required
+        *      school      <string> required
+        */
+       let sendHosts = [{
+           uid: '4',
+           first_name: values.firstName,
+           school: values.university, 
+       }]
+        let sendEvent = {
+            title: values.eventTitle, 
+            description: values.eventDesc,
+            img_thumbnail: "image_thumbnail",
+            time_start: new Date(),
+            hosts: sendHosts,
+        }
+        if (values.eventReq != ""){
+            sendEvent = {...sendEvent, requirements: values.eventReq}
+        }
+        console.log(JSON.stringify(sendEvent))
 
+        axios.post("/api/events", sendEvent)
+        .then((res)=>{
+	    console.log(JSON.stringify(sendEvent));
+            alert("success", res)
+        })
+        .catch((err) => alert(err.response.data.err))
+
+    }
+    
     return (
         <Formik
-            initialValues = {{coHostEmail: "", eventTitle: "", eventDesc: "", eventReq: "", firstName:"", lastName:"", university: "", gradYear:"", major:"", bio:""}}
+            initialValues = {{coHostEmail: "", eventTitle: "", eventDesc: "", eventReq: "", firstName: preLoad.first_name, lastName: preLoad.last_name, university: preLoad.university, gradYear: preLoad.grad_year, major: preLoad.major, bio:""}}
             onSubmit={handleSubmit}
             validationSchema={EventBuilderSchema}
         >
@@ -331,7 +372,7 @@ export default function EventBuilder () {
                                                 <div className="col-span-1 h-24 w-24 ">
                                                     <input className="hidden" ref={fileInput} type="file" onChange={fileEventHandler} accept={"image/*"} multiple={false} />
                                                     <div onClick={() => {fileInput.current.click()}}>
-                                                        <img src={profilePictureURL} onClick={fileUploadHandler} className="rounded-full p-2 items-center cursor-pointer justify-center"></img>
+                                                        <img src={profilePictureURL} className="rounded-full p-2 items-center cursor-pointer justify-center"></img>
                                                     </div>
                                                 </div>
                                                 <div className="col-span-2 my-auto">

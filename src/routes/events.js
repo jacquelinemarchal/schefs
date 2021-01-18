@@ -59,7 +59,7 @@ const router = express.Router();
  *        bio         <string>
  *        school      <string>
  *        major       <string>
- *        grad_year   <int>
+ *        grad_year   <string>
  *  400: invalid value for 'status' or 'type'
  *  500: other postgres error
  */
@@ -131,7 +131,7 @@ router.get('', (req, res) => {
  *        bio         <string>
  *        school      <string>
  *        major       <string>
- *        grad_year   <int>
+ *        grad_year   <string>
  *  404: event does not exist
  *  500: other postgres error
  */
@@ -171,10 +171,10 @@ router.get('/:eid', (req, res) => {
  *  500: other postgres error
  */
 router.post('', verifyFirebaseIdToken, async (req, res) => {
-    if (!req.body.hosts.map(host => host.uid).includes(req.uid)) {
+   /* if (!req.body.hosts.map(host => host.uid).includes(req.uid)) {
         res.status(403).json({ err: 'Cannot make an event for someone else!' });
         return;
-    }
+    }*/
 
     const host_name = req.body.hosts.map(host => host.first_name).join(', ');
     const host_school = req.body.hosts.map(host => host.school).join(', ');
@@ -195,9 +195,11 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        const eid = await client.query(queries.createEvent, values);
+        const eid = (await client.query(queries.createEvent, values)).rows[0].eid;
+	
         for (let host of req.body.hosts)
             await client.query(queries.createHost, [ host.uid, eid ]);
+
         await client.query('COMMIT');
         res.status(201).send();
     } catch (err) {
