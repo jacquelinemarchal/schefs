@@ -29,10 +29,15 @@ const router = express.Router();
  *    bio         <string>
  *    school      <string>
  *    major       <string>
- *    grad_year   <int>
+ *    grad_year   <string>
  *  500: postgres error
  */
 router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
+    if (!req.params.uid) {
+	res.status(406).json({ err: 'uid is required' });
+	return;
+    }
+
     pool.query(queries.getUser, [ req.params.uid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -56,7 +61,6 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
  * Request Body:
  *  <object>
  *    email         <string> required
- *    password      <string> required
  *    phone         <string>
  *    first_name    <string> required
  *    last_name     <string> required
@@ -64,7 +68,7 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
  *    bio           <string>
  *    school        <string> required
  *    major         <string> required
- *    grad_year     <int>    required
+ *    grad_year     <string> required
  * 
  * Response:
  *  201: successfully signed up
@@ -81,6 +85,7 @@ router.post('/signup', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ err: 'Firebase error: ' + err });
+	return;
     }
 
     const values = [
@@ -105,7 +110,62 @@ router.post('/signup', async (req, res) => {
             else
                 res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         } else
-            req.status(201).send();
+            res.status(201).send();
+    });
+});
+
+/*
+ * PUT /api/users/{uid}
+ * Update a user's information.
+ *
+ * Request Parameters
+ *  path:
+ *    uid <int> required
+ *
+ * Request Body:
+ *  <object>
+ *    email         <string>
+ *    phone         <string>
+ *    first_name    <string>
+ *    last_name     <string>
+ *    img_profile   <string>
+ *    bio           <string>
+ *    school        <string>
+ *    major         <string>
+ *    grad_year     <string>
+ *
+ * Response:
+ *  201: successfully updated
+ *  406: uid missing and/or email already exists
+ *  500: other postgres error
+ */
+router.put('/:uid', verifyFirebaseIdToken, async (req, res) => {
+    if (!req.params.uid) {
+	res.status(406).json({ err: 'uid is required' });
+    	return;
+    }
+
+    const values = [
+	req.body.email,
+	req.body.phone,
+	req.body.first_name,
+	req.body.last_name,
+	req.body.img_profile,
+	req.body.bio,
+	req.body.school,
+	req.body.major,
+	req.body.grad_year,
+	req.params.uid,
+    ];
+    
+    pool.query(queries.updateUser, values, (q_err, q_res) => {
+	if (q_err) {
+	    if (q_err.code === '23505') // unique_violation
+		res.status(406).json({ err: 'Someone with this email already exists' });
+	    else
+		res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+	} else
+	    req.status(201).send();
     });
 });
 
