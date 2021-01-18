@@ -5,17 +5,24 @@ import HighlightOff from '@material-ui/icons/HighlightOff';
 import CardContent from './usercardcontent'
 import SignUpForm from '../Auth/signupform';
 import LoginForm from '../Auth/loginform';
+import PasswordReset from '../Auth/passwordreset';
 import Context from '../Context/context';
 
 // props.right = boolean side of screen, props.profile = profile to display, if not the current user's card
 const Card = (props) => {
     const context = useContext(Context);
     const handleCloseCard = () => context.handleCloseCard(!props.right, props.right);
-    const [isLogin, setIsLogin] = useState(true)
+    const [cardInterior, setCardInterior] = useState("login")
 
     const toggle = () => {
-        setIsLogin(!isLogin)
+        if (cardInterior === "login"){
+            setCardInterior("signup")
+        }
+        else{
+            setCardInterior("login")
+        }
     }
+
 
     return (
         <CSSTransition
@@ -35,7 +42,13 @@ const Card = (props) => {
 	        {props.right
 		      ? context.profile
 			    ? <CardContent profile={context.profile} />
-                : isLogin ? <LoginForm function={toggle} /> : <SignUpForm function={toggle} />
+                : cardInterior === "login"
+                    ? <LoginForm function={toggle} resetFunction={() => setCardInterior("password")}/> 
+                    : cardInterior === "signup" 
+                        ? <SignUpForm function={toggle} /> 
+                        : cardInterior === "password"
+                            ? <PasswordReset function={() => setCardInterior("login")}/> 
+                            : null
 		      : <CardContent profile={props.profile} />
 		    }
           </div>
