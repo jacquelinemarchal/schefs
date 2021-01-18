@@ -22,7 +22,7 @@ export default function Home(props) {
                   type:"summary"
             }
         }
-        axios.get("http://localhost:5000/api/events", query)
+        axios.get("/api/events", query)
         .then((res)=>{
             setAllEvents([...res.data])
         })
