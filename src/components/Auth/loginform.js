@@ -1,15 +1,17 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import React, { useState, useContext } from "react";
-import admin from '../../utils/firebase_admin';
 import Context from '../Context/context';
 import WhitePillButton from "../Buttons/wpillbutton";
 import sampleCard from "../../assets/sampleCard.png"
 import * as Yup from "yup"
 import google from '../../assets/googleIcon.png'
+const admin = require('../../utils/firebase_admin');
 
-const LoginForm = () => {
+const LoginForm = (props) => {
     // const [error, setError] = useState(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"]);
     const [error, setError] = useState([null, null, "border-black", "border-black"]);
+    const [pwReset, inPWReset] = useState(false)
+
         // error[] format: typeError, errorMsg, emailBorderFormat, pwordBorderFormat
         // default = [null, null, "border-black", "border-black"]
 
@@ -74,8 +76,8 @@ const LoginForm = () => {
                         </div>
                 </div>
                 <footer className="my-2 mt-6 justify-between flex">
-                            <p>Don't have an account?</p>
-                            <WhitePillButton text="SIGN UP" link="" padding="flex px-6"/>
+                            <p onClick={set}>Don't have an account?</p>
+                            <WhitePillButton handleClick={props.function} text="SIGN UP" padding="flex px-6"/>
                 </footer>
             </Form>
             )}

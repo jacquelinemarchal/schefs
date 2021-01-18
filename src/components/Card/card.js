@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { CSSTransition } from 'react-transition-group';
 
 import HighlightOff from '@material-ui/icons/HighlightOff';
@@ -11,6 +11,11 @@ import Context from '../Context/context';
 const Card = (props) => {
     const context = useContext(Context);
     const handleCloseCard = () => context.handleCloseCard(!props.right, props.right);
+    const [isLogin, setIsLogin] = useState(true)
+
+    const toggle = () => {
+        setIsLogin(!isLogin)
+    }
 
     return (
         <CSSTransition
@@ -20,7 +25,7 @@ const Card = (props) => {
           classNames={props.right ? 'rcard' : 'lcard'}
           unmountOnExit
         >
-          <div className={'fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20 ' + (props.right ? 'right-0' : 'left-0')} style={{maxWidth: "435px", minHeight: "600px",}}>
+          <div className={'fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20 ' + (props.right ? 'right-0' : 'left-0')} style={{minWidth: "430px", maxWidth: "435px", minHeight: "600px",}}>
             <div className="flex justify-end">
               <button onClick={handleCloseCard} className="focus:outline-none p-2">
                 <HighlightOff/>
@@ -30,7 +35,7 @@ const Card = (props) => {
 	        {props.right
 		      ? context.profile
 			    ? <CardContent profile={context.profile} />
-			    : <LoginForm /> 
+                : isLogin ? <LoginForm function={toggle} /> : <SignUpForm function={toggle} />
 		      : <CardContent profile={props.profile} />
 		    }
           </div>

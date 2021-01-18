@@ -4,6 +4,7 @@ const admin = require('../utils/firebase_admin');
 const express = require('express');
 const pool = require('../utils/db');
 const queries = require('../utils/queries/users');
+const { resolveHref } = require('next/dist/next-server/lib/router/router');
 
 const router = express.Router();
 
@@ -81,6 +82,7 @@ router.post('/signup', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ err: 'Firebase error: ' + err });
+        return;
     }
 
     const values = [
@@ -105,7 +107,7 @@ router.post('/signup', async (req, res) => {
             else
                 res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         } else
-            req.status(201).send();
+            res.status(201).send();
     });
 });
 
