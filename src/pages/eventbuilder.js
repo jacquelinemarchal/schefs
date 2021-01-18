@@ -17,6 +17,7 @@ import Cropper from 'react-easy-crop'
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import Context from '../components/Context/context';
 import * as Yup from "yup"
+import { now } from "moment";
 
 export default function EventBuilder () {
     const context = useContext(Context);
@@ -146,8 +147,42 @@ export default function EventBuilder () {
     });
 
     const handleSubmit = (values, { setSubmitting }) => {
-        alert(JSON.stringify(values, null, 2));
         setSubmitting(false);
+/*
+values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
+        *    title         <string> required
+        *    description   <string> required
+        *    requirements  <string>
+        *    img_thumbnail <string> required
+        *    time_start    <Date>   required
+        *    hosts         <array[object]> required
+        *      uid         <int>    required
+        *      first_name  <string> required
+        *      school      <string> required
+        */
+       let sendHosts = [{
+           uid: '123',
+           first_name: values.firstName,
+           school: values.university, 
+       }]
+        let sendEvent = {
+            title: values.eventTitle, 
+            description: values.eventDesc,
+            img_thumbnail: "image_thumbnail",
+            time_start: new Date(now),
+            hosts: sendHosts,
+        }
+        if (values.eventReq != ""){
+            sendEvent = {...sendEvent, requirements: values.eventReq}
+        }
+        console.log(sendEvent)
+
+        axios.post("http://localhost:5000/api/events", sendEvent)
+        .then((res)=>{
+            alert("success", res)
+        })
+        .catch((err)=>{alert(err)})
+
     }
 
     return (

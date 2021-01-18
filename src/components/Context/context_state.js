@@ -28,11 +28,6 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         AuthReducer.AuthReducer,
         AuthReducer.initialState,
     );
-    const die = (err) => {
-        console.log(err.response.data.err);
-        setAuthHeader(null);
-        dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
-    }
 
     const die = (err) => {
         console.log(err.response.data.err);
@@ -199,6 +194,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             handleSignupWithEmailAndPassword,
             handleLoginWithEmailAndPassword,
             handleLogout,
+            handleLoginWithGoogle,
           }}
         >
           <Banner {...bannerProps} />
@@ -211,7 +207,6 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
           <GreyOut />
 
           <div className={(stateRCardReducer.isOpen ? 'overflow-hidden fixed' : '')}>
-            <button onClick={handleLoginWithGoogle}>test</button>
             <Component {...pageProps}/>
           </div>
         </Context.Provider>

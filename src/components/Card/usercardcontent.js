@@ -104,11 +104,11 @@ const CardContent = (props) => {
               <div className={(dropDown ? 'block' : 'hidden') + " w-40 absolute mt-1 rounded-md shadow-lg"}>
                   <div className="rounded-md bg-white shadow-xs">
                       <div tabIndex="0" onBlur={() => {setDropDown(false)}} role="menu" className="focus:outline-none" aria-orientation="vertical" aria-labelledby="options-menu">
-                          <a onClick={() => {setGradYear("Class of 2021")}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2021</a>
-                          <a onClick={() => {setGradYear("Class of 2022")}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2022</a>
-                          <a onClick={() => {setGradYear("Class of 2023")}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2023</a>
-                          <a onClick={() => {setGradYear("Class of 2024")}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2024</a>
-                          <a onClick={() => {setGradYear("Gap Year")}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Gap Year</a>
+                          <a onClick={() => {setGradYear("Class of 2021"); setEdited(true)}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2021</a>
+                          <a onClick={() => {setGradYear("Class of 2022"); setEdited(true)}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2022</a>
+                          <a onClick={() => {setGradYear("Class of 2023"); setEdited(true)}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2023</a>
+                          <a onClick={() => {setGradYear("Class of 2024"); setEdited(true)}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Class of 2024</a>
+                          <a onClick={() => {setGradYear("Gap Year"); setEdited(true)}} className="block px-2 text-sm hover:bg-gray-300 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" role="menuitem">Gap Year</a>
                       </div>
                   </div>
               </div>
