@@ -180,13 +180,14 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
         if (values.eventReq != ""){
             sendEvent = {...sendEvent, requirements: values.eventReq}
         }
-        //console.log(JSON.stringify(sendEvent))
+        console.log(JSON.stringify(sendEvent))
 
-        axios.post("http://localhost:5000/api/events", sendEvent)
+        axios.post("/api/events", sendEvent)
         .then((res)=>{
+	    console.log(JSON.stringify(sendEvent));
             alert("success", res)
         })
-        .catch((err)=>{alert(err.response.data.err)})
+        .catch((err) => alert(err.response.data.err))
 
     }
     

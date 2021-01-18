@@ -59,7 +59,7 @@ const router = express.Router();
  *        bio         <string>
  *        school      <string>
  *        major       <string>
- *        grad_year   <int>
+ *        grad_year   <string>
  *  400: invalid value for 'status' or 'type'
  *  500: other postgres error
  */
@@ -131,7 +131,7 @@ router.get('', (req, res) => {
  *        bio         <string>
  *        school      <string>
  *        major       <string>
- *        grad_year   <int>
+ *        grad_year   <string>
  *  404: event does not exist
  *  500: other postgres error
  */
@@ -191,13 +191,15 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         req.body.time_start,
         'pending', // default status pending        
     ];
-console.log(values)
+
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        const eid = await client.query(queries.createEvent, values);
+        const eid = (await client.query(queries.createEvent, values)).rows[0].eid;
+	
         for (let host of req.body.hosts)
             await client.query(queries.createHost, [ host.uid, eid ]);
+
         await client.query('COMMIT');
         res.status(201).send();
     } catch (err) {
