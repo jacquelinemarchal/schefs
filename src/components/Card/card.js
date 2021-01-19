@@ -23,7 +23,6 @@ const Card = (props) => {
         }
     }
 
-
     return (
         <CSSTransition
           in={props.right ? context.rCardIsOpen : context.lCardIsOpen}
