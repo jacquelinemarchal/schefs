@@ -1,15 +1,15 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import React, { useState, useContext } from "react";
-import admin from '../../utils/firebase_admin';
 import Context from '../Context/context';
 import WhitePillButton from "../Buttons/wpillbutton";
 import sampleCard from "../../assets/sampleCard.png"
 import * as Yup from "yup"
 import google from '../../assets/googleIcon.png'
 
-const LoginForm = () => {
+const LoginForm = (props) => {
     // const [error, setError] = useState(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"]);
     const [error, setError] = useState([null, null, "border-black", "border-black"]);
+
         // error[] format: typeError, errorMsg, emailBorderFormat, pwordBorderFormat
         // default = [null, null, "border-black", "border-black"]
 
@@ -70,16 +70,16 @@ const LoginForm = () => {
                             <div className="mx-auto">
                                 <button disabled={!isValid || !dirty} type="submit" className={"flex px-16 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white") }>LOG IN</button>
                             </div>
-                            <p className="underline text-center justify-self-center">Forgot Your Password?</p>
                         </div>
                 </div>
-                <footer className="my-2 mt-6 justify-between flex">
-                            <p>Don't have an account?</p>
-                            <WhitePillButton text="SIGN UP" link="" padding="flex px-6"/>
-                </footer>
             </Form>
             )}
         </Formik>
+        <a onClick={props.resetFunction} className="underline text-center cursor-pointer justify-self-center">Forgot Your Password?</a>
+        <footer className="my-2 mt-6 justify-between flex">
+            <p>Don't have an account?</p>
+            <WhitePillButton handleClick={props.function} text="SIGN UP" padding="flex px-6"/>
+        </footer>
     </div>
     );
 }

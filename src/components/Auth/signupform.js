@@ -5,11 +5,9 @@ import Context from '../Context/context';
 import * as Yup from "yup"
 import axios from "axios"
 
-// TASK: if instant validation is too aggressive, check out options here https://formik.org/docs/guides/validation
+const SignUpForm = (props) => {
 
-const SignUpForm = () => {
-
-    const [error, setError] = useState(); //useState("This email is already in use");
+    const [error, setError] = useState();
     
     const context = useContext(Context);
      
@@ -31,7 +29,14 @@ const SignUpForm = () => {
 
         axios.post("http://localhost:5000/api/users/signup", userInfo)
         .then((res)=>{
-            alert("success", res)
+            alert("success making account", res)
+            context.handleLoginWithEmailAndPassword(values.signUpEmail, values.signUpPassword)
+                .then((res) =>{
+                    alert("success", res)
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
             setSubmitting(false);
         })
         .catch((err)=>{
@@ -107,7 +112,7 @@ const SignUpForm = () => {
                     </div>
                     <footer className="my-2 mt-6 justify-between flex">
                             <p>Already have an account?</p>
-                            <WhitePillButton text="LOG IN" link="" padding="flex mx-2 px-6"/>
+                            <WhitePillButton handleClick={props.function} text="LOG IN" link="" padding="flex mx-2 px-6"/>
                     </footer>
 
                 </Form>
