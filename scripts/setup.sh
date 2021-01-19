@@ -22,6 +22,9 @@ fi
 # create schema
 psql -U $pguser -h $pghost -d $pgdata -f ../schema.sql
 
+# download placeholder
+curl -s -o ../public/images/placeholder.png https://raw.githubusercontent.com/jacquelinemarchal/schefs/backend/dev/images/placeholder.png?token=ADEH73WEORMCVOQPPTFTTZDAA4DMW
+
 # download test event images
 curl -s -o ../public/images/e1.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-12.jpg?alt=media&token=5a12c023-bb11-421a-b089-87256c7acbc2 
 curl -s -o ../public/images/e2.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-19.jpg?alt=media&token=85db0dc6-6cf0-4b45-9618-b64ab16dfdd7

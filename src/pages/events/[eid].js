@@ -142,7 +142,6 @@ const EventPage = ( props ) => {
                             {clientTickets > 14 ? <button className={"flex justify-center items-center focus:outline-none text-xl text-gray-500 border sm:border-2 border-gray-500 px-4 cursor-default rounded-full"}>SOLD OUT</button>  : reservedTicket 
                                 ? <button className={"flex justify-center items-center bg-yellow-300 focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-default rounded-full"}>RESERVED</button> 
                                 : <form onSubmit={reserveTicket}><WhitePillButton {...reserveButton} /></form>}
-                            {}
                             <button onMouseEnter={() => setHover(downloadHoverLogo)} onMouseLeave={() => setHover(downloadLogo)} onClick={copyLink} className="ml-2 flex space-x-2 text-gray-700 items-center h-8 w-8 bg-gray-400 rounded-full focus:outline-none">
                                 <img src={inHover} className="p-2"></img><p>{copyStatus}</p>
                             </button>
@@ -212,4 +211,4 @@ export const getServerSideProps = async (context) => {
             comments: commentSerialized,
         },
     }
-  }
+}

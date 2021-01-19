@@ -180,10 +180,6 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), async (
     }
 
     if (parseInt(req.profile.uid) !== parseInt(req.params.uid)) {
-	console.log(req.profile.uid);
-	console.log(typeof req.profile.uid);
-	console.log(req.params.uid);
-	console.log(typeof req.params.uid);
 	res.status(403).json({ err: 'May not update other user profile' });
 	return;
     }
