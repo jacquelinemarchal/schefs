@@ -72,7 +72,7 @@ const getEvent = `
         'title', e.title,
         'description', e.description,
         'requirements', e.requirements,
-        'img_thumbnail', t.location
+        'img_thumbnail', t.location,
         'time_start', e.time_start,
         'hosts', (
             SELECT JSON_AGG(ROW_TO_JSON(u))

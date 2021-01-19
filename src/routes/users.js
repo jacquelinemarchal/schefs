@@ -151,15 +151,15 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), async (
     }
     
     const values = [
-	req.body.email,
-	req.body.phone,
-	req.body.first_name,
-	req.body.last_name,
-	req.file.filename,
-	req.body.bio,
-	req.body.school,
-	req.body.major,
-	req.body.grad_year,
+	req.body.email || null,
+	req.body.phone || null,
+	req.body.first_name || null,
+	req.body.last_name || null,
+	req.file.filename || null,
+	req.body.bio || null,
+	req.body.school || null,
+	req.body.major || null,
+	req.body.grad_year || null,
 	req.params.uid,
     ];
     
