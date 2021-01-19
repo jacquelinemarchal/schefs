@@ -41,7 +41,9 @@ app.prepare().then(() => {
     server.use('/api/events', routers.eventsRouter);
     server.use('/api/openmind', routers.openMindRouter);
     server.use('/api/users', routers.usersRouter);
+    server.use('/api/thumbnails', routers.thumbnailsRouter);
 
+    server.use(express.static('dev'));
     server.all('*', (req, res) => {
         return handle(req, res);
     });

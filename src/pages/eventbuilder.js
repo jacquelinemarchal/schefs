@@ -19,7 +19,7 @@ import Context from '../components/Context/context';
 import * as Yup from "yup"
 import { now } from "moment";
 
-export default function EventBuilder () {
+const EventBuilder = () => {
     const context = useContext(Context);
 
     const [preLoad, setPreLoad] = useState({
@@ -28,7 +28,9 @@ export default function EventBuilder () {
         grad_year: "",
         university: "",
         major: "",
+		bio: "",
     })
+
     const fileInput = useRef(null)
     const [inCrop, setInCrop] = useState(false)
     const [crop, setCrop] = useState({x:0,y:0},)
@@ -42,12 +44,14 @@ export default function EventBuilder () {
 
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
+	const [thumbnails, setThumbnails] = useState([]);
+
     const escFunction = (event) => {
-        if(event.keyCode === 27) {
-          setIsPhotoDisplayOpen(false)
-          setIsModalOpen(false)
+        if (event.keyCode === 27) {
+      	    setIsPhotoDisplayOpen(false);
+            setIsModalOpen(false);
         }
-      };
+    };
 
     useEffect(() => {
         document.addEventListener("keydown", escFunction, false);
@@ -58,10 +62,9 @@ export default function EventBuilder () {
                 first_name: user.first_name,
                 last_name: user.last_name,
                 grad_year: user.grad_year,
-                university: user.school,
+                school: user.school,
                 major: user.major,
             })
-            console.log(preLoad)
         }
         else{
             // figure out behavior here
@@ -70,7 +73,14 @@ export default function EventBuilder () {
         return () => {
           document.removeEventListener("keydown", escFunction, false);
         };
-      }, [context.profile]);
+    }, [context.profile]);
+
+	useEffect(() => {
+		axios
+			.get('/api/thumbnails')
+			.then(res => setThumbnails([...res.data]))
+			.catch(err => console.log(err.response.data.err));
+	}, []);
 
     const makeCroppedImage = () => {
         const image = new Image()
@@ -84,24 +94,19 @@ export default function EventBuilder () {
         const ctx = canvas.getContext('2d');
       
         ctx.drawImage(
-        image,
-        croppedAreaPixels.x * scaleX,
-        croppedAreaPixels.y * scaleY,
-        croppedAreaPixels.width * scaleX,
-        croppedAreaPixels.height * scaleY,
-        0,
-        0,
-        croppedAreaPixels.width,
-        croppedAreaPixels.height,
+			image,
+			croppedAreaPixels.x * scaleX,
+			croppedAreaPixels.y * scaleY,
+			croppedAreaPixels.width * scaleX,
+			croppedAreaPixels.height * scaleY,
+			0,
+			0,
+			croppedAreaPixels.width,
+			croppedAreaPixels.height,
         );
+
         setProfilePictureURL(canvas.toDataURL('image/jpeg'));
-
-        console.log(profilePictureURL)
-
-        setInCrop(false)
-        // TASK: make image that can be sent to backend on submit, toBlob from profilePicture URL or to file
-        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
-        // https://stackoverflow.com/questions/49228118/upload-image-from-data-url-to-axios
+        setInCrop(false);
     }
 
 
@@ -111,7 +116,7 @@ export default function EventBuilder () {
         if (strLength <= 70){
             return(`${strLength} words`)
         }
-      };
+    };
 
     const charCounter = value => {
         if (value.length > 65){
@@ -136,14 +141,14 @@ export default function EventBuilder () {
     const EventBuilderSchema = Yup.object().shape({
         coHostEmail: Yup.string()
             .email('This is not a valid email'),
-        eventReq: Yup.string(),
-        firstName: Yup.string()
+        requirements: Yup.string(),
+        first_name: Yup.string()
             .required('This field is required'),
-        lastName: Yup.string()
+        last_name: Yup.string()
             .required('This field is required'),
-        university: Yup.string()
+        school: Yup.string()
             .required('This field is required'),
-        gradYear: Yup.string()
+        grad_year: Yup.string()
             .required('This field is required'),
         major: Yup.string()
             .required('This field is required'),
@@ -165,32 +170,59 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
         *      first_name  <string> required
         *      school      <string> required
         */
-       let sendHosts = [{
-           uid: '4',
-           first_name: values.firstName,
-           school: values.university, 
-       }]
-        let sendEvent = {
-            title: values.eventTitle, 
-            description: values.eventDesc,
-            img_thumbnail: "image_thumbnail",
-            time_start: new Date(),
-            hosts: sendHosts,
-        }
-        if (values.eventReq != ""){
-            sendEvent = {...sendEvent, requirements: values.eventReq}
-        }
-        console.log(JSON.stringify(sendEvent))
 
-        axios.post("/api/events", sendEvent)
-        .then((res)=>{
-	    console.log(JSON.stringify(sendEvent));
-            alert("success", res)
-        })
-        .catch((err) => alert(err.response.data.err))
+		/*
+        const sendHosts = [{
+            uid: 4,
+            first_name: values.firstName,
+            school: values.university, 
+        }];
 
-    }
-    
+		const sendEvent = new FormData();
+		for (const [key, value] in Object.entries(values))
+			sendEvent.append(key, value);
+
+		sendEvent.append('time_start', new Date()); // TODO: integrate actual start time
+		sendEvent.append('hosts', JSON.stringify(sendHosts)); // arrays must be stringified
+
+		fetch(profilePictureURL)
+			.then(res => res.blob())
+			.then(blob => {
+				sendEvent.append('img_profile'
+			});
+			axios.post("/api/events", sendEvent)
+			.then((res)=> {
+			console.log(JSON.stringify(sendEvent));
+				alert("success", res)
+			})
+			.catch((err) => alert(err.response.data.err))
+		}
+		*/
+
+
+		const userData = new FormData();
+		userData.append('first_name', values.first_name);
+		userData.append('last_name', values.last_name);
+		userData.append('bio', values.bio);
+		userData.append('school', values.school);
+		userData.append('major', values.major);
+		userData.append('grad_year', values.grad_year);
+
+		fetch(profilePictureURL)
+			.then(res => res.blob())
+			.then(blob => {
+				userData.append('img_profile', blob);
+
+				axios
+					.put('/api/users/' + context.profile.uid, userData, {
+						headers: { 'Content-Type': 'multipart/form-data' }
+					})
+					.then(res => console.log(res))
+					.catch(err => console.log(err.response.data.err));
+			})
+			.catch(err => console.log(err));
+	}
+
     return (
         context.profile ?
             <Formik
@@ -394,7 +426,7 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                                             </div>
                                             <div className="mb-8 row-span-1 text-center">
                                                 <div className="flex ">
-                                                    <Field 
+                                                    <Field
                                                         placeholder="My university..." 
                                                         className={"leading-snug focus:outline-none overflow-hidden text-center"} 
                                                         name="university" 
@@ -435,3 +467,5 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
         
     );
 };
+
+export default EventBuilder;
