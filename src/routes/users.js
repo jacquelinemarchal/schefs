@@ -1,11 +1,14 @@
 const { verifyFirebaseIdToken } = require('../middleware/auth');
 const admin = require('../utils/firebase_admin');
+const upload = require('../utils/multer');
 
 const express = require('express');
 const pool = require('../utils/db');
 const queries = require('../utils/queries/users');
 
 const router = express.Router();
+
+
 
 /*
  * GET /api/users/{uid}
@@ -139,18 +142,18 @@ router.post('/signup', async (req, res) => {
  *  406: uid missing and/or email already exists
  *  500: other postgres error
  */
-router.put('/:uid', verifyFirebaseIdToken, async (req, res) => {
+router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), async (req, res) => {
     if (!req.params.uid) {
 	res.status(406).json({ err: 'uid is required' });
     	return;
     }
-
+    
     const values = [
 	req.body.email,
 	req.body.phone,
 	req.body.first_name,
 	req.body.last_name,
-	req.body.img_profile,
+	req.file.filename,
 	req.body.bio,
 	req.body.school,
 	req.body.major,
@@ -165,7 +168,7 @@ router.put('/:uid', verifyFirebaseIdToken, async (req, res) => {
 	    else
 		res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
 	} else
-	    req.status(201).send();
+	    res.status(201).send();
     });
 });
 

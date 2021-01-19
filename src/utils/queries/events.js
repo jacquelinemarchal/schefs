@@ -6,8 +6,9 @@
 const getEventsSummary = `
     SELECT
         e.eid, e.host_name, e.host_school,
-        e.title, e.img_thumbnail, e.time_start
-    FROM events AS e
+        e.title, t.location AS img_thumbnail,
+    	e.time_start
+    FROM events AS e, thumbnails AS t
     WHERE (
         COALESCE($1) = '' OR
         e.time_start >= TO_DATE($1, 'YYYY-MM-DD')
@@ -17,7 +18,8 @@ const getEventsSummary = `
     ) AND (
         'all' = $3 OR
         e.status = $3
-    )
+    ) AND
+	t.tid = e.thumbnail_id
     ORDER BY e.time_start ASC
 `;
 
@@ -34,7 +36,7 @@ const getEventsDetailed = `
         'title', e.title,
         'description', e.description,
         'requirements', e.requirements,
-        'img_thumbnail', e.img_thumbnail,
+        'img_thumbnail', t.location,
         'time_start', e.time_start,
         'hosts', (
             SELECT JSON_AGG(ROW_TO_JSON(u))
@@ -44,7 +46,7 @@ const getEventsDetailed = `
             WHERE eh.event_id = e.eid
         )
     )
-    FROM events AS e
+    FROM events AS e, thumbnails AS t
     WHERE (
         COALESCE($1) = '' OR
         e.time_start >= TO_DATE($1, 'YYYY-MM-DD')
@@ -54,7 +56,8 @@ const getEventsDetailed = `
     ) AND (
         'all' = $3 OR
         e.status = $3
-    )
+    ) AND
+	t.tid = e.thumbnail_id
     ORDER BY e.time_start ASC
 `;
 
@@ -69,7 +72,7 @@ const getEvent = `
         'title', e.title,
         'description', e.description,
         'requirements', e.requirements,
-        'img_thumbnail', e.img_thumbnail,
+        'img_thumbnail', t.location
         'time_start', e.time_start,
         'hosts', (
             SELECT JSON_AGG(ROW_TO_JSON(u))
@@ -79,8 +82,8 @@ const getEvent = `
             WHERE eh.event_id = e.eid
         )
     ) AS event
-    FROM events AS e
-    WHERE e.eid = $1
+    FROM events AS e, thumbnails AS t
+    WHERE e.eid = $1 AND t.tid = e.thumbnail_id
 `;
 
 /*
@@ -89,20 +92,25 @@ const getEvent = `
  * $3:  title         <string> required
  * $4:  description   <string> required
  * $5:  requirements  <string>
- * $6:  img_thumbnail <string> required
+ * $6:  thumbnail_id  <int>    required
  * $7:  zoom_link     <string>
  * $8:  zoom_id       <string>
  * $9:  time_start    <Date>   required
  * $10: status        <string>
  */
 const createEvent = `
+    WITH thumb AS (
+	UPDATE thumbnails AS t
+	SET is_used = true
+	WHERE t.tid = $6
+    )
     INSERT INTO events (
         host_name,
         host_school,
         title,
         description,
         requirements,
-        img_thumbnail,
+        thumbnail_id,
         zoom_link,
         zoom_id,
         time_start,
