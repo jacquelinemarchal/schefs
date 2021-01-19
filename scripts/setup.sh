@@ -34,6 +34,24 @@ curl -s -o ../dev/images/p2.jpg https://firebasestorage.googleapis.com/v0/b/sche
 # get root directory
 root="$(dirname "$PWD")"
 
+# create thumbnails in PSQL
+psql -U $pguser -h $pghost -d $pgdata -c "
+    INSERT INTO thumbnails(
+        location,
+        is_used
+    )
+    VALUES (
+        '$root/dev/images/e1.jpg',
+        true
+    ), (
+        '$root/dev/images/e2.jpg',
+        true
+    ), (
+        '$root/dev/images/e3.jpg',
+        true
+    )
+"
+
 # create test users in PSQL
 psql -U $pguser -h $pghost -d $pgdata -c "
     INSERT INTO users(
@@ -103,7 +121,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
         title,
         description,
         requirements,
-        img_thumbnail,
+        thumbnail_id,
         zoom_link,
         zoom_id,
         time_start,
@@ -115,7 +133,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
         'Event 1',
         'Description 1',
         'Requirements 1',
-        '$root/dev/images/e1.jpg',
+        1,
         'www.example.com',
         '123 456 789',
         NOW(),
@@ -126,7 +144,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
         'Event 2',
         'Description 2',
         NULL,
-        '/dev/images/e2.jpg',
+        2,
         'www.example.com',
         '123 456 789',
         NOW(),
@@ -137,7 +155,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
         'Event 3',
         'Description 3',
         'Requirements 3',
-        '$root/dev/images/e3.jpg',
+        3,
         'www.example.com',
         '123 456 789',
         NOW(),

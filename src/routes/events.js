@@ -157,7 +157,7 @@ router.get('/:eid', (req, res) => {
  *    title         <string> required
  *    description   <string> required
  *    requirements  <string>
- *    img_thumbnail <string> required
+ *    thumbnail_id  <int>    required
  *    time_start    <Date>   required
  *    hosts         <array[object]> required
  *      uid         <int>    required
@@ -185,7 +185,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         req.body.title,
         req.body.description,
         req.body.requirements,
-        req.body.img_thumbnail,
+        req.body.thumbnail_id,
         '', // zoom link empty for now
         '', // zoom id empty for now
         req.body.time_start,
@@ -196,9 +196,9 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
     try {
         await client.query('BEGIN');
         console.log(JSON.stringify(values))
-        const eid = (await client.query(queries.createEvent, values)).rows[0].eid;
-        console.log(eid);
-        for (let host of req.body.hosts)
+        const eid = (await client.query(queries.createEvent, values)).rows[0].eid;	
+        for (const host of req.body.hosts)
+
             await client.query(queries.createHost, [ host.uid, eid ]);
 
         await client.query('COMMIT');

@@ -19,16 +19,22 @@ import Context from '../components/Context/context';
 import * as Yup from "yup"
 import { now } from "moment";
 
-export default function EventBuilder () {
+const EventBuilder = () => {
     const context = useContext(Context);
 
     const [preLoad, setPreLoad] = useState({
+        coHostEmail: "",
+        title: "",
+        description: "",
+        requirements: "",
         first_name: "",
         last_name: "",
         grad_year: "",
         university: "",
         major: "",
+		bio: "",
     })
+
     const fileInput = useRef(null)
     const [inCrop, setInCrop] = useState(false)
     const [crop, setCrop] = useState({x:0,y:0},)
@@ -42,12 +48,14 @@ export default function EventBuilder () {
 
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
+	const [thumbnails, setThumbnails] = useState([]);
+
     const escFunction = (event) => {
-        if(event.keyCode === 27) {
-          setIsPhotoDisplayOpen(false)
-          setIsModalOpen(false)
+        if (event.keyCode === 27) {
+      	    setIsPhotoDisplayOpen(false);
+            setIsModalOpen(false);
         }
-      };
+    };
 
     useEffect(() => {
         document.addEventListener("keydown", escFunction, false);
@@ -55,22 +63,28 @@ export default function EventBuilder () {
         if (context.profile){
             var user = context.profile;
             setPreLoad({
+                coHostEmail: "",
+				title: "",
+				description: "",
+				requirements: "",
                 first_name: user.first_name,
                 last_name: user.last_name,
                 grad_year: user.grad_year,
-                university: user.school,
+                school: user.school,
                 major: user.major,
             })
-            //console.log(preLoad)
         }
-        else{
-            // figure out behavior here
-        }
-
         return () => {
           document.removeEventListener("keydown", escFunction, false);
         };
-      }, [context.profile]);
+    }, [context.profile]);
+
+	useEffect(() => {
+		axios
+			.get('/api/thumbnails')
+			.then(res => setThumbnails([...res.data]))
+			.catch(err => console.log(err.response.data.err));
+	}, []);
 
     const makeCroppedImage = () => {
         const image = new Image()
@@ -84,24 +98,19 @@ export default function EventBuilder () {
         const ctx = canvas.getContext('2d');
       
         ctx.drawImage(
-        image,
-        croppedAreaPixels.x * scaleX,
-        croppedAreaPixels.y * scaleY,
-        croppedAreaPixels.width * scaleX,
-        croppedAreaPixels.height * scaleY,
-        0,
-        0,
-        croppedAreaPixels.width,
-        croppedAreaPixels.height,
+			image,
+			croppedAreaPixels.x * scaleX,
+			croppedAreaPixels.y * scaleY,
+			croppedAreaPixels.width * scaleX,
+			croppedAreaPixels.height * scaleY,
+			0,
+			0,
+			croppedAreaPixels.width,
+			croppedAreaPixels.height,
         );
+
         setProfilePictureURL(canvas.toDataURL('image/jpeg'));
-
-        console.log(profilePictureURL)
-
-        setInCrop(false)
-        // TASK: make image that can be sent to backend on submit, toBlob from profilePicture URL or to file
-        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
-        // https://stackoverflow.com/questions/49228118/upload-image-from-data-url-to-axios
+        setInCrop(false);
     }
 
 
@@ -111,7 +120,7 @@ export default function EventBuilder () {
         if (strLength <= 70){
             return(`${strLength} words`)
         }
-      };
+    };
 
     const charCounter = value => {
         if (value.length > 65){
@@ -136,14 +145,14 @@ export default function EventBuilder () {
     const EventBuilderSchema = Yup.object().shape({
         coHostEmail: Yup.string()
             .email('This is not a valid email'),
-        eventReq: Yup.string(),
-        firstName: Yup.string()
+        requirements: Yup.string(),
+        first_name: Yup.string()
             .required('This field is required'),
-        lastName: Yup.string()
+        last_name: Yup.string()
             .required('This field is required'),
-        university: Yup.string()
+        school: Yup.string()
             .required('This field is required'),
-        gradYear: Yup.string()
+        grad_year: Yup.string()
             .required('This field is required'),
         major: Yup.string()
             .required('This field is required'),
@@ -165,35 +174,62 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
         *      first_name  <string> required
         *      school      <string> required
         */
-       let sendHosts = [{
-           uid: '4',
-           first_name: values.firstName,
-           school: values.university, 
-       }]
-        let sendEvent = {
-            title: values.eventTitle, 
-            description: values.eventDesc,
-            img_thumbnail: "image_thumbnail",
-            time_start: new Date(),
-            hosts: sendHosts,
-        }
-        if (values.eventReq != ""){
-            sendEvent = {...sendEvent, requirements: values.eventReq}
-        }
-        console.log(JSON.stringify(sendEvent))
 
-        axios.post("/api/events", sendEvent)
-        .then((res)=>{
-	    console.log(JSON.stringify(sendEvent));
-            alert("success", res)
-        })
-        .catch((err) => alert(err.response.data.err))
+		/*
+        const sendHosts = [{
+            uid: 4,
+            first_name: values.firstName,
+            school: values.university, 
+        }];
 
-    }
-    
+		const sendEvent = new FormData();
+		for (const [key, value] in Object.entries(values))
+			sendEvent.append(key, value);
+
+		sendEvent.append('time_start', new Date()); // TODO: integrate actual start time
+		sendEvent.append('hosts', JSON.stringify(sendHosts)); // arrays must be stringified
+
+		fetch(profilePictureURL)
+			.then(res => res.blob())
+			.then(blob => {
+				sendEvent.append('img_profile'
+			});
+			axios.post("/api/events", sendEvent)
+			.then((res)=> {
+			console.log(JSON.stringify(sendEvent));
+				alert("success", res)
+			})
+			.catch((err) => alert(err.response.data.err))
+		}
+		*/
+
+		const userData = new FormData();
+		userData.append('first_name', values.first_name);
+		userData.append('last_name', values.last_name);
+		userData.append('bio', values.bio);
+		userData.append('school', values.school);
+		userData.append('major', values.major);
+		userData.append('grad_year', values.grad_year);
+
+		fetch(profilePictureURL)
+			.then(res => res.blob())
+			.then(blob => {
+				userData.append('img_profile', blob);
+
+				axios
+					.put('/api/users/' + context.profile.uid, userData, {
+						headers: { 'Content-Type': 'multipart/form-data' }
+					})
+					.then(res => console.log(res))
+					.catch(err => console.log(err.response.data.err));
+			})
+			.catch(err => console.log(err));
+	}
+
     return (
+        preLoad.first_name && context.profile ?
         <Formik
-            initialValues = {{coHostEmail: "", eventTitle: "", eventDesc: "", eventReq: "", firstName: preLoad.first_name, lastName: preLoad.last_name, university: preLoad.university, gradYear: preLoad.grad_year, major: preLoad.major, bio:""}}
+            initialValues={preLoad}
             onSubmit={handleSubmit}
             validationSchema={EventBuilderSchema}
         >
@@ -241,8 +277,12 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                                 <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
                             </div>
                             <div id="imageContainerEB" className="mx-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
-                                <img src={sampleImage1} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
-                                <img src={sampleImage2} className="hover:bg-yellow-300 cursor-pointer p-2 rounded-3xl"></img>
+								{thumbnails.length
+								  ? thumbnails.map(thumbnail =>
+									  <img src={thumbnail.location} key={thumbnail.tid} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
+								    )
+								  : null
+								}
                             </div>
                         </div> 
                     </>
@@ -274,16 +314,16 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                 <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6" onClick={() => {if (isCoHostOpen)setIsCoHostOpen(false);}}>
                     <div className="grid col-span-3">
                         <Field 
-                            name="eventTitle" 
+                            name="title" 
                             validate={charCounter}
                             className="text-left text-5xl leading-snug mb-1 focus:outline-none"
                             placeholder="My event title..."
                             onChange={e => {
-                                setFieldTouched('eventTitle');
+                                setFieldTouched('title');
                                 handleChange(e);
                             }}
                         />
-                        <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="eventTitle"></ErrorMessage>
+                        <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
                         <div>
                             You’ll be able to select your event’s date on the next page
                         </div>
@@ -293,16 +333,16 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                         <div className="items-center flex space-x-2">
                             <p>Your event description:</p>
                             <p className="text-sm pr-2 text-gray-600">70 word minimum</p>
-                            <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="eventDesc"></ErrorMessage>
+                            <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="description"></ErrorMessage>
                         </div>
                         <Field 
                             as="textarea"
                             placeholder="My event description..." 
                             className={"text-left mt-4 h-32 leading-snug mb-8 w-5/6 focus:outline-none"} 
-                            name="eventDesc" 
+                            name="description" 
                             validate={wordCounter}
                             onChange={e => {
-                                setFieldTouched('eventDesc');
+                                setFieldTouched('description');
                                 handleChange(e)
                             }}
                         />
@@ -314,7 +354,7 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                             as="textarea"   
                             placeholder="My event requirements..." 
                             className={"text-left mt-4 h-32 leading-snug mb-8 w-5/6 focus:outline-none"} 
-                            name="eventReq" 
+                            name="requirements" 
                         />
                     </div>
 
@@ -380,12 +420,12 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                                                         placeholder="First Name" 
                                                         className={"ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-visible"}
                                                         as="textarea"
-                                                        name="firstName" 
+                                                        name="first_name" 
                                                     />
                                                     <Field 
                                                         placeholder="Last Name" 
                                                         className={"ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-hidden"} 
-                                                        name="lastName" 
+                                                        name="last_name" 
                                                         as="textarea"
                                                     />
                                                 </div>
@@ -396,13 +436,13 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                                                 <Field 
                                                     placeholder="My university..." 
                                                     className={"leading-snug focus:outline-none overflow-hidden text-center"} 
-                                                    name="university" 
+                                                    name="school" 
                                                 />
                                                 <p className="mx-3">•</p>
                                                 <Field 
                                                     placeholder="My grad year..." 
                                                     className={"leading-snug focus:outline-none overflow-hidden text-center"} 
-                                                    name="gradYear" 
+                                                    name="grad_year" 
                                                 />
                                             </div>
                                             <Field 
@@ -427,5 +467,11 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                 </div>
             </Form>)}
         </Formik>
+        : <div className="text-center items-center flex flex-col">
+                You must have a Schefs account to make events
+                <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
+            </div>
     );
 };
+
+export default EventBuilder;

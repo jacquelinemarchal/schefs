@@ -1,3 +1,9 @@
+CREATE TABLE thumbnails (
+    tid           SERIAL PRIMARY KEY,
+    location      VARCHAR NOT NULL,
+    is_used       BOOLEAN NOT NULL
+);
+
 CREATE TABLE users (
     uid           SERIAL PRIMARY KEY,
     fb_uid        VARCHAR(255) UNIQUE NOT NULL,
@@ -19,7 +25,7 @@ CREATE TABLE events (
     title         VARCHAR(63) NOT NULL,
     description   VARCHAR NOT NULL,
     requirements  VARCHAR,
-    img_thumbnail VARCHAR(255) NOT NULL,
+    thumbnail_id  INT NOT NULL REFERENCES thumbnails(tid),
     zoom_link     VARCHAR(255),
     zoom_id       VARCHAR(31),
     time_start    TIMESTAMP NOT NULL,
@@ -57,4 +63,3 @@ CREATE TABLE openmind (
     body          VARCHAR(255) NOT NULL,
     time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
