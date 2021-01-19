@@ -155,14 +155,14 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), async (
 	req.body.phone,
 	req.body.first_name,
 	req.body.last_name,
-	req.file.filename,
+	req.file.img_profile,
 	req.body.bio,
 	req.body.school,
 	req.body.major,
 	req.body.grad_year,
 	req.params.uid,
     ];
-    
+
     pool.query(queries.updateUser, values, (q_err, q_res) => {
 	if (q_err) {
 	    if (q_err.code === '23505') // unique_violation

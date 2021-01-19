@@ -199,9 +199,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         >
           <Banner {...bannerProps} />
           <NavBar scrollShadow={false} />
-          <CardButton />
-	  <button onClick={() => handleToggleCard(true, false)}>left card</button>
-        
+          <CardButton />        
           <Card right={true} />
           <Card right={false} profile={{"uid":5,"email":"cyw2124@columbia.edu","phone":null,"first_name":"Christopher","last_name":"Wang","img_profile":null,"bio":null,"school":"Columbia University","major":"Math","grad_year":2022,"fb_uid":"bOBANGm9UzPWeZMymLQkqWScSbm1"}}/>
           <GreyOut />

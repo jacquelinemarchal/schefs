@@ -23,6 +23,10 @@ const EventBuilder = () => {
     const context = useContext(Context);
 
     const [preLoad, setPreLoad] = useState({
+        coHostEmail: "",
+        title: "",
+        description: "",
+        requirements: "",
         first_name: "",
         last_name: "",
         grad_year: "",
@@ -59,6 +63,10 @@ const EventBuilder = () => {
         if (context.profile){
             var user = context.profile;
             setPreLoad({
+                coHostEmail: "",
+				title: "",
+				description: "",
+				requirements: "",
                 first_name: user.first_name,
                 last_name: user.last_name,
                 grad_year: user.grad_year,
@@ -66,10 +74,6 @@ const EventBuilder = () => {
                 major: user.major,
             })
         }
-        else{
-            // figure out behavior here
-        }
-
         return () => {
           document.removeEventListener("keydown", escFunction, false);
         };
@@ -199,7 +203,6 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
 		}
 		*/
 
-
 		const userData = new FormData();
 		userData.append('first_name', values.first_name);
 		userData.append('last_name', values.last_name);
@@ -224,20 +227,9 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
 	}
 
     return (
-        context.profile ?
+        preLoad.first_name && context.profile ?
         <Formik
-            initialValues = {{
-				coHostEmail: "",
-				title: "",
-				description: "",
-				requirements: "",
-				first_name: preLoad.first_name,
-				last_name: preLoad.last_name,
-				school: preLoad.university,
-				grad_year: preLoad.grad_year,
-				major: preLoad.major,
-				bio: preLoad.bio
-			}}
+            initialValues={preLoad}
             onSubmit={handleSubmit}
             validationSchema={EventBuilderSchema}
         >
