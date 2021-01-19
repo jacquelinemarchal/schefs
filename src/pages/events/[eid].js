@@ -184,7 +184,8 @@ const EventPage = ( props ) => {
         </div>
     )
 }
-export default EventPage
+
+export default EventPage;
 
 export const getServerSideProps = async (context) => {
     const eventInfo = await new Promise((resolve, reject) => 
