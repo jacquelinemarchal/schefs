@@ -195,9 +195,10 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        const eid = (await client.query(queries.createEvent, values)).rows[0].eid;
-	
+        console.log(JSON.stringify(values))
+        const eid = (await client.query(queries.createEvent, values)).rows[0].eid;	
         for (const host of req.body.hosts)
+
             await client.query(queries.createHost, [ host.uid, eid ]);
 
         await client.query('COMMIT');

@@ -5,6 +5,7 @@ const upload = require('../utils/multer');
 const express = require('express');
 const pool = require('../utils/db');
 const queries = require('../utils/queries/users');
+const { resolveHref } = require('next/dist/next-server/lib/router/router');
 
 const router = express.Router();
 
@@ -89,6 +90,7 @@ router.post('/signup', async (req, res) => {
     } catch (err) {
         res.status(500).json({ err: 'Firebase error: ' + err });
 	return;
+
     }
 
     const values = [
@@ -169,6 +171,7 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), async (
 		res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
 	} else
 	    res.status(201).send();
+
     });
 });
 
