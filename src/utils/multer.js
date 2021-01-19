@@ -1,7 +1,10 @@
 const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
+
+const imageDir = process.env.ROOT_DIR + 'public/images/';
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, '~/'),
+    destination: (req, file, cb) => cb(null, imageDir),
     filename: (req, file, cb) => {
 	console.log(file);
 	let filetype = '';
@@ -12,7 +15,7 @@ const storage = multer.diskStorage({
 	else if (file.mimetype === 'image/jpeg')
 	    filetype = 'jpg';
 	
-	cb(null, 'image-' + Date.now() + '.' + filetype);
+	cb(null, uuidv4() + '.' + filetype);
     },
 });
 

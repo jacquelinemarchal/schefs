@@ -1,4 +1,4 @@
-import sampleImage2 from "../../dev/images/e2.jpg"
+import sampleImage2 from "../../public/images/e2.jpg"
 import WhitePillButton from "../components/Buttons/wpillbutton"
 
 export default function PostEventSubmit() {

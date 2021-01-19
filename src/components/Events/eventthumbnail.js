@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useContext} from "react";
-import thumb from "../../../dev/images/e2.jpg"
+import thumb from "../../../public/images/e2.jpg"
 import Link from 'next/link'
 import Context from '../Context/context';
 

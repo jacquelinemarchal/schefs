@@ -188,15 +188,16 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), async (
 	return;
     }
 
-    if (!req.file)
-	req.file = { filename: null };
+    let profile_path = null;
+    if (req.file)
+	profile_path = '/images/' + req.file.filename;
     
     const values = [
 	req.body.email || null,
 	req.body.phone || null,
 	req.body.first_name || null,
 	req.body.last_name || null,
-	req.file.filename || null,
+	profile_path,
 	req.body.bio || null,
 	req.body.school || null,
 	req.body.major || null,

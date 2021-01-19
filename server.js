@@ -43,7 +43,9 @@ app.prepare().then(() => {
     server.use('/api/users', routers.usersRouter);
     server.use('/api/thumbnails', routers.thumbnailsRouter);
 
-    server.use(express.static('dev'));
+    if (dev)
+	server.use(express.static('public'));
+
     server.all('*', (req, res) => {
         return handle(req, res);
     });

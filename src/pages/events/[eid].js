@@ -1,8 +1,8 @@
 import axios from "axios"
 import pool from '../../utils/db'
 import queries from "../../utils/queries/events"
-import thumb from "../../../dev/images/e2.jpg"
-import prof from "../../../dev/images/p2.jpg"
+import thumb from "../../../public/images/e2.jpg"
+import prof from "../../../public/images/p2.jpg"
 import Comment from "../../components/Events/comment"
 import WhitePillButton from "../../components/Buttons/wpillbutton" //type, size (text), text, link
 import React, { useEffect, useState } from "react"

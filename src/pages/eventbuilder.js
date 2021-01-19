@@ -4,10 +4,6 @@ import axios from "axios"
 import HighlightOff from '@material-ui/icons/HighlightOff';
 import { htmlToText } from 'html-to-text';
 import ContentEditable from 'react-contenteditable'
-import placeholder from "../../dev/images/placeholder.png"
-import sampleImage1 from "../../dev/images/e1.jpg"
-import sampleImage2 from "../../dev/images/e2.jpg"
-import sampleImage3 from "../../dev/images/e3.jpg"
 import cohost from "../assets/cohost.png"
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
@@ -119,7 +115,8 @@ const EventBuilder = () => {
 
         if (strLength <= 70){
             return(`${strLength} words`)
-        }
+        } else
+			return '';
     };
 
     const charCounter = value => {
@@ -328,7 +325,7 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                             You’ll be able to select your event’s date on the next page
                         </div>
                         <div className="mr-6 mt-2 mb-10 w-9/12">
-                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={placeholder} className="cursor-pointer rounded-3xl"></img>
+                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src="images/placeholder.png" className="cursor-pointer rounded-3xl"></img>
                         </div>
                         <div className="items-center flex space-x-2">
                             <p>Your event description:</p>

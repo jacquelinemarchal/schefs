@@ -23,16 +23,13 @@ fi
 psql -U $pguser -h $pghost -d $pgdata -f ../schema.sql
 
 # download test event images
-curl -s -o ../dev/images/e1.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-12.jpg?alt=media&token=5a12c023-bb11-421a-b089-87256c7acbc2 
-curl -s -o ../dev/images/e2.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-19.jpg?alt=media&token=85db0dc6-6cf0-4b45-9618-b64ab16dfdd7
-curl -s -o ../dev/images/e3.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-20.jpg?alt=media&token=c9100716-92b6-45fe-b7bd-5981cd463edf
+curl -s -o ../public/images/e1.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-12.jpg?alt=media&token=5a12c023-bb11-421a-b089-87256c7acbc2 
+curl -s -o ../public/images/e2.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-19.jpg?alt=media&token=85db0dc6-6cf0-4b45-9618-b64ab16dfdd7
+curl -s -o ../public/images/e3.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-1280-20.jpg?alt=media&token=c9100716-92b6-45fe-b7bd-5981cd463edf
 
 # download test profile pictures
-curl -s -o ../dev/images/p1.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/hostPictures%2F3uausku7CtfqHa629OhoLfwBSvE2%2BThe%20Individual%20Versus%20the%20Collective?alt=media&token=2e082ae4-5a99-47d8-91c8-d7b6439bb336
-curl -s -o ../dev/images/p2.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/hostPictures%2FIBA9LoBaAia8KC4Kka6AyvkmY4L2%2BSustainable%20E-Commerce?alt=media&token=3a2a3a10-b09f-47f6-88ba-99ced2ee7466
-
-# get root directory
-root="$(dirname "$PWD")"
+curl -s -o ../public/images/p1.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/hostPictures%2F3uausku7CtfqHa629OhoLfwBSvE2%2BThe%20Individual%20Versus%20the%20Collective?alt=media&token=2e082ae4-5a99-47d8-91c8-d7b6439bb336
+curl -s -o ../public/images/p2.jpg https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/hostPictures%2FIBA9LoBaAia8KC4Kka6AyvkmY4L2%2BSustainable%20E-Commerce?alt=media&token=3a2a3a10-b09f-47f6-88ba-99ced2ee7466
 
 # create thumbnails in PSQL
 psql -U $pguser -h $pghost -d $pgdata -c "
@@ -41,13 +38,13 @@ psql -U $pguser -h $pghost -d $pgdata -c "
         is_used
     )
     VALUES (
-        '$root/dev/images/e1.jpg',
+        'images/e1.jpg',
         true
     ), (
-        '$root/dev/images/e2.jpg',
+        'images/e2.jpg',
         true
     ), (
-        '$root/dev/images/e3.jpg',
+        'images/e3.jpg',
         true
     )
 "
@@ -72,7 +69,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
         '1-408-477-9572',
         'Christopher',
         'Wang',
-        '$root/dev/images/p1.jpg',
+        'images/p1.jpg',
         'I am Chris! B)',
         'Columbia University',
         'Math',
@@ -83,7 +80,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
         '6463064032',
         'Jacqueline',
         'Marchal',
-        '$root/dev/images/p2.jpg',
+        'images/p2.jpg',
         'I am Jackie!',
         'Columbia University',
         'Computer Science',
