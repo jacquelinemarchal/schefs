@@ -3,6 +3,14 @@
  */
 const getUser = `
     SELECT * FROM users
+    WHERE uid = $1
+`;
+
+/*
+ * $1: fb_uid <string> required
+ */
+const getUserFirebase = `
+    SELECT * FROM users
     WHERE fb_uid = $1
 `;
 
@@ -72,6 +80,7 @@ const updateUser = `
 
 module.exports = {
     getUser,
+    getUserFirebase,
     postSignup,
 	updateUser,
 };

@@ -171,10 +171,10 @@ router.get('/:eid', (req, res) => {
  *  500: other postgres error
  */
 router.post('', verifyFirebaseIdToken, async (req, res) => {
-   /* if (!req.body.hosts.map(host => host.uid).includes(req.uid)) {
+    if (!req.body.hosts.map(host => host.uid).includes(req.profile.uid)) {
         res.status(403).json({ err: 'Cannot make an event for someone else!' });
         return;
-    }*/
+    }
 
     const host_name = req.body.hosts.map(host => host.first_name).join(', ');
     const host_school = req.body.hosts.map(host => host.school).join(', ');
@@ -241,7 +241,12 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
         if (count > 14)
             res.status(406).json({ err: 'Event sold out: ' + req.params.eid });
         else {
-            await client.query(queries.reserveTicket, [ req.params.eid, req.uid ]);
+	    const values = [
+		req.params.eid,
+		req.profile.uid,
+	    ];
+
+            await client.query(queries.reserveTicket, values);
             await client.query('COMMIT');
             res.status(201).send();
         }

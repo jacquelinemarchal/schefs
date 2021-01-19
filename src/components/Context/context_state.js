@@ -38,12 +38,12 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     useEffect(() => {
         return firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
-                const uid = user.uid;
+                const fb_uid = user.uid;
                 const id_token = await user.getIdToken();
                 setAuthHeader(id_token);
 
                 try {
-                    const profile = (await axios.get('/api/users/' + uid)).data;
+                    const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
                     dispatchAuthReducer(ACTIONS.loginSuccess(profile));
                 } catch (err) {
                     die(err);
@@ -58,8 +58,9 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
                 dispatchAuthReducer(ACTIONS.logout());
             else {
                 if (stateAuthReducer.profile && user.uid !== stateAuthReducer.profile.uid) {
+		    const fb_uid = user.uid;
                     try {
-                        const profile = (await axios.get('/api/users/' + user.uid)).data;
+                        const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
                         dispatchAuthReducer(ACTIONS.loginSuccess(profile));
                     } catch (err) {
                         console.log(err);
@@ -122,12 +123,12 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         const user_creds = await firebase.auth().signInWithEmailAndPassword(email, password);
         const user = user_creds.user;
 
-        const uid = user.uid;
+        const fb_uid = user.uid;
         const id_token = await user.getIdToken();
         setAuthHeader(id_token);
         
         try {
-            const profile = (await axios.get('/api/users/' + uid)).data;
+            const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
             dispatchAuthReducer(ACTIONS.loginSuccess(profile));
         } catch (err) {
             die(err);
@@ -146,6 +147,16 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         await firebase.auth().signOut();
         setAuthHeader(null);
         dispatchAuthReducer(ACTIONS.logout());
+    }
+
+    const handleUpdateProfile = async (uid, updated_fields) => {
+	await axios.put('/api/users/' + uid, updated_fields);
+	try {
+	    const profile = (await axios.get('/api/users/' + uid)).data;
+	    dispatchAuthReducer(ACTIONS.updateProfile(profile));
+	} catch (err) {
+	    die(err);
+	}
     }
 
     /* Card Reducer */
@@ -195,6 +206,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             handleLoginWithEmailAndPassword,
             handleLogout,
             handleLoginWithGoogle,
+	    handleUpdateProfile,
           }}
         >
           <Banner {...bannerProps} />

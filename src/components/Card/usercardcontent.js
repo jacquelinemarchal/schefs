@@ -40,21 +40,16 @@ const CardContent = (props) => {
     };
 
     const saveUserInfo = () => {
-        var send = {
+        const uid = context.profile.uid;
+        const updated_fields = {
             first_name: userInfo.current.first_name,
             last_name: userInfo.current.last_name,
             school: userInfo.current.uni,
             grad_year: gradYear
         }
-        var uid = context.profile.uid;
 
-        axios.put(`/api/users/${uid}`, send)
-        .then((res) => {
-            console.log("Successful update", res)
-        })
-        .then ((err) => {
-            console.log(err.response.data.err)
-        })
+	context.handleUpdateProfile(uid, updated_fields);
+	setEdited(false);
     }
 
     let fakeEvent = [{

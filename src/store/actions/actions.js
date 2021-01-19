@@ -20,6 +20,11 @@ export const logout = () => ({
     type: ACTION_TYPES.LOGOUT
 });
 
+export const updateProfile = (profile) => ({
+    type: ACTION_TYPES.UPDATE_PROFILE,
+    payload: profile
+});
+
 /* CARD ACTIONS */
 
 export const openCard = () => ({

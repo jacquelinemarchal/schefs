@@ -5,10 +5,8 @@ const upload = require('../utils/multer');
 const express = require('express');
 const pool = require('../utils/db');
 const queries = require('../utils/queries/users');
-const { resolveHref } = require('next/dist/next-server/lib/router/router');
 
 const router = express.Router();
-
 
 
 /*
@@ -46,9 +44,11 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else {
-            if (req.params.uid === req.uid)
-                res.status(200).json(q_res.rows[0]);
-            else {
+            if (q_res.rows.length === 0)
+		res.status(404).json({ err: 'No such user found' });
+	    else if (parseInt(req.profile.uid) === parseInt(req.params.uid))
+		res.status(200).json(q_res.rows[0]);
+	    else {
                 delete q_res.rows[0].fb_uid;
                 delete q_res.rows[0].email;
                 delete q_res.rows[0].phone;
@@ -56,6 +56,35 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
             }
         }
     });
+});
+
+/*
+ * GET /api/users/login/{fb_uid}
+ * Login and get user information.
+ *
+ * Authorization:
+ *  Firebase ID Token
+ *
+ * Request Parameters:
+ *  path:
+ *    fb_uid <string> required
+ *
+ * Response:
+ *  200: success
+ *    uid         <int>
+ *    email       <string>
+ *    phone       <string>
+ *    first_name  <string>
+ *    last_name   <string>
+ *    img_profile <string>
+ *    bio         <string>
+ *    school      <string>
+ *    major       <string>
+ *    grad_year   <string>
+ *  500: postgres error
+ */
+router.get('/login/:fb_uid', verifyFirebaseIdToken, (req, res) => {
+    res.status(200).json(req.profile);
 });
 
 /*
@@ -149,6 +178,18 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), async (
 	res.status(406).json({ err: 'uid is required' });
     	return;
     }
+
+    if (parseInt(req.profile.uid) !== parseInt(req.params.uid)) {
+	console.log(req.profile.uid);
+	console.log(typeof req.profile.uid);
+	console.log(req.params.uid);
+	console.log(typeof req.params.uid);
+	res.status(403).json({ err: 'May not update other user profile' });
+	return;
+    }
+
+    if (!req.file)
+	req.file = { filename: null };
     
     const values = [
 	req.body.email || null,
