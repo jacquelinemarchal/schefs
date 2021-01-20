@@ -3,6 +3,7 @@ const { verifyFirebaseIdToken } = require('../middleware/auth');
 const express = require('express');
 const pool = require('../utils/db');
 const queries = require('../utils/queries/events');
+const thumbnail_queries = require('../utils/queries/thumbnails');
 
 const router = express.Router();
 
@@ -154,20 +155,23 @@ router.get('/:eid', (req, res) => {
  *
  * Request Body:
  *  <object>
- *    title         <string> required
- *    description   <string> required
+ *    title         <string>        required
+ *    description   <string>        required
  *    requirements  <string>
- *    thumbnail_id  <int>    required
- *    time_start    <Date>   required
+ *    thumbnail_id  <int>           required
+ *    host_bio      <string>        required
+ *    time_start    <Date>          required
  *    hosts         <array[object]> required
- *      uid         <int>    required
- *      first_name  <string> required
- *      school      <string> required
+ *      uid         <int>           required
+ *      first_name  <string>        required
+ *      last_name   <string>        required
+ *      school      <string>        required
  *
  * Response:
  *  201: successfully created
  *  403: attempting to create event for non-self user
  *  406: required field missing
+ *  409: thumbnail already in use
  *  500: other postgres error
  */
 router.post('', verifyFirebaseIdToken, async (req, res) => {
@@ -176,12 +180,19 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         return;
     }
 
-    const host_name = req.body.hosts.map(host => host.first_name).join(', ');
-    const host_school = req.body.hosts.map(host => host.school).join(', ');
+    let host_name, host_school;
+    if (req.body.hosts > 1) {
+        host_name = req.body.hosts.map(host => host.first_name).join(', ');
+        host_school = req.body.hosts.map(host => host.school).join(', ');
+    } else {
+        host_name = req.body.hosts[0].first_name + ' ' + req.body.hosts[0].last_name;
+        host_school = req.body.hosts[0].school;
+    }
 
     const values = [
         host_name,
         host_school,
+        req.body.host_bio,
         req.body.title,
         req.body.description,
         req.body.requirements,
@@ -195,14 +206,20 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        console.log(JSON.stringify(values))
-        const eid = (await client.query(queries.createEvent, values)).rows[0].eid;	
-        for (const host of req.body.hosts)
+        const valid_thumb = (await client.query(thumbnail_queries.checkThumbnail, [ req.body.thumbnail_id ])).rows.length > 0;
+        if (!valid_thumb) {
+            await client.query('COMMIT');
+            res.status(409).json({ err: 'Thumbnail already in use' });
+        } else {
+            await client.query(thumbnail_queries.setThumbnailUsed, [ req.body.thumbnail_id ]);
 
-            await client.query(queries.createHost, [ host.uid, eid ]);
+            const eid = (await client.query(queries.createEvent, values)).rows[0].eid;	
+            for (const host of req.body.hosts)
+                await client.query(queries.createHost, [ host.uid, eid ]);
 
-        await client.query('COMMIT');
-        res.status(201).send();
+            await client.query('COMMIT');
+            res.status(201).send();
+        }
     } catch (err) {
         await client.query('ROLLBACK');
         if (err.code === '23502') // not_null_violation
@@ -238,13 +255,14 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
     try {
         await client.query('BEGIN');
         const count = await client.query(queries.getReservedTicketsCount, [ req.params.eid ]);
-        if (count > 14)
+        if (count > 14) {
+            await client.query('COMMIT');
             res.status(406).json({ err: 'Event sold out: ' + req.params.eid });
-        else {
-	    const values = [
-		req.params.eid,
-		req.profile.uid,
-	    ];
+        } else {
+            const values = [
+                req.params.eid,
+                req.profile.uid,
+            ];
 
             await client.query(queries.reserveTicket, values);
             await client.query('COMMIT');

@@ -18,6 +18,13 @@ import { now } from "moment";
 const EventBuilder = () => {
     const context = useContext(Context);
 
+    const defaultProfilePicture = 'http://via.placeholder.com/100x100';
+    const defaultThumbnail = {
+        tid: -1,
+        location: 'images/placeholder.png',
+        is_used: true,
+    }
+
     const [preLoad, setPreLoad] = useState({
         coHostEmail: "",
         title: "",
@@ -29,14 +36,14 @@ const EventBuilder = () => {
         university: "",
         major: "",
 		bio: "",
-    })
+    });
 
     const fileInput = useRef(null)
     const [inCrop, setInCrop] = useState(false)
     const [crop, setCrop] = useState({x:0,y:0},)
     const [zoom, setZoom] = useState(1)
 
-    const [profilePictureURL, setProfilePictureURL] = useState("http://via.placeholder.com/100x100")
+    const [profilePictureURL, setProfilePictureURL] = useState(defaultProfilePicture);
 
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)    
     const [isModalOpen, setIsModalOpen] = useState(true)
@@ -45,6 +52,7 @@ const EventBuilder = () => {
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
 	const [thumbnails, setThumbnails] = useState([]);
+    const [selectedThumbnail, setSelectedThumbnail] = useState(defaultThumbnail);
 
     const escFunction = (event) => {
         if (event.keyCode === 27) {
@@ -52,6 +60,15 @@ const EventBuilder = () => {
             setIsModalOpen(false);
         }
     };
+
+    const queryThumbnails = () => {
+        axios
+            .get('/api/thumbnails')
+            .then(res => setThumbnails([...res.data]))
+            .catch(err => console.log(err.response.data.err));
+    }
+
+	useEffect(queryThumbnails, []);
 
     useEffect(() => {
         document.addEventListener("keydown", escFunction, false);
@@ -74,13 +91,6 @@ const EventBuilder = () => {
           document.removeEventListener("keydown", escFunction, false);
         };
     }, [context.profile]);
-
-	useEffect(() => {
-		axios
-			.get('/api/thumbnails')
-			.then(res => setThumbnails([...res.data]))
-			.catch(err => console.log(err.response.data.err));
-	}, []);
 
     const makeCroppedImage = () => {
         const image = new Image()
@@ -139,6 +149,76 @@ const EventBuilder = () => {
         }
     }
 
+    const handleSubmit = async (values, { setSubmitting }) => {
+        //values not yet in the endpoint= [coHostEmail, lastName, gradYear, major]
+
+        setSubmitting(false);
+
+        const eventData = {
+            title: values.title,
+            description: values.description,
+            requirements: values.requirements,
+            thumbnail_id: selectedThumbnail.tid,
+            host_bio: values.bio,
+            time_start: new Date(), // TODO: do actual start time
+            hosts: [{ ...context.profile }],
+        }
+
+        try {
+            await axios.post('/api/events', eventData);
+        } catch (err) {
+            if (err.response && err.response.status === 409) {
+                alert('Thumbnail already in use, choose a different one');
+                queryThumbnails();
+                setSelectedThumbnail(defaultThumbnail);
+            } else
+                alert(err.response.data.err)
+
+            return;
+        }
+
+		const userData = new FormData();
+		userData.append('first_name', values.first_name);
+		userData.append('last_name', values.last_name);
+		userData.append('bio', values.bio);
+		userData.append('school', values.school);
+		userData.append('major', values.major);
+		userData.append('grad_year', values.grad_year);
+
+        try {
+            const res = await fetch(profilePictureURL);
+            const blob = await res.blob();
+            
+            userData.append('img_profile', blob);
+
+            await axios.put('/api/users/' + context.profile.uid, userData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            alert('event successfully submitted');
+            window.location.href = '/';
+		} catch (err) {
+            if (err.response && err.response.data)
+                alert(err.response.data.err);
+            else
+                alert(err);
+        }
+	}
+
+    const Thumbnail = (props) => {
+        const handleSelectThumbnail = (e) => {
+            e.preventDefault();
+            setSelectedThumbnail({...props.thumbnail});
+            setIsPhotoDisplayOpen(false);
+        }
+            
+        return (
+            <button onClick={handleSelectThumbnail}>
+                <img src={props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
+            </button>
+        );
+    }
+
     const EventBuilderSchema = Yup.object().shape({
         coHostEmail: Yup.string()
             .email('This is not a valid email'),
@@ -157,72 +237,6 @@ const EventBuilder = () => {
             .required('This field is required'),
     });
 
-    const handleSubmit = (values, { setSubmitting }) => {
-        setSubmitting(false);
-/*
-values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
-        *    title         <string> required
-        *    description   <string> required
-        *    requirements  <string>
-        *    img_thumbnail <string> required
-        *    time_start    <Date>   required
-        *    hosts         <array[object]> required
-        *      uid         <int>    required
-        *      first_name  <string> required
-        *      school      <string> required
-        */
-
-		/*
-        const sendHosts = [{
-            uid: 4,
-            first_name: values.firstName,
-            school: values.university, 
-        }];
-
-		const sendEvent = new FormData();
-		for (const [key, value] in Object.entries(values))
-			sendEvent.append(key, value);
-
-		sendEvent.append('time_start', new Date()); // TODO: integrate actual start time
-		sendEvent.append('hosts', JSON.stringify(sendHosts)); // arrays must be stringified
-
-		fetch(profilePictureURL)
-			.then(res => res.blob())
-			.then(blob => {
-				sendEvent.append('img_profile'
-			});
-			axios.post("/api/events", sendEvent)
-			.then((res)=> {
-			console.log(JSON.stringify(sendEvent));
-				alert("success", res)
-			})
-			.catch((err) => alert(err.response.data.err))
-		}
-		*/
-
-		const userData = new FormData();
-		userData.append('first_name', values.first_name);
-		userData.append('last_name', values.last_name);
-		userData.append('bio', values.bio);
-		userData.append('school', values.school);
-		userData.append('major', values.major);
-		userData.append('grad_year', values.grad_year);
-
-		fetch(profilePictureURL)
-			.then(res => res.blob())
-			.then(blob => {
-				userData.append('img_profile', blob);
-
-				axios
-					.put('/api/users/' + context.profile.uid, userData, {
-						headers: { 'Content-Type': 'multipart/form-data' }
-					})
-					.then(res => console.log(res))
-					.catch(err => console.log(err.response.data.err));
-			})
-			.catch(err => console.log(err));
-	}
-
     return (
         preLoad.first_name && context.profile ?
         <Formik
@@ -232,6 +246,7 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
         >
             {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
             <Form>
+
                 {isModalOpen ? 
                     <>
                         <div className="h-screen fixed w-screen" onClick={() => setIsModalOpen(!isModalOpen)}></div>
@@ -275,9 +290,7 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                             </div>
                             <div id="imageContainerEB" className="mx-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
 								{thumbnails.length
-								  ? thumbnails.map(thumbnail =>
-									  <img src={thumbnail.location} key={thumbnail.tid} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
-								    )
+								  ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
 								  : null
 								}
                             </div>
@@ -325,7 +338,7 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                             You’ll be able to select your event’s date on the next page
                         </div>
                         <div className="mr-6 mt-2 mb-10 w-9/12">
-                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src="images/placeholder.png" className="cursor-pointer rounded-3xl"></img>
+                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
                         </div>
                         <div className="items-center flex space-x-2">
                             <p>Your event description:</p>
@@ -358,7 +371,19 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                     <div className="grid col-span-2 ">
                         <div className="sm:fixed">
                             <div className="flex space-x-2 h-8 items-center">
-                                <button disabled={!isValid || !dirty || isSubmitting} type="submit" className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }>SUBMIT</button>
+                                <button
+                                  disabled={
+                                    selectedThumbnail.tid === -1 ||
+                                    profilePictureURL === defaultProfilePicture ||
+                                    !isValid ||
+                                    !dirty ||
+                                    isSubmitting
+                                  }
+                                  type="submit"
+                                  className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                >
+                                    SUBMIT
+                                </button>
                                 <div onClick={() => {setIsModalOpen(true)}}> 
                                     <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
                                 </div>
@@ -398,7 +423,7 @@ values not yet in the endpoint= [coHostEmail, lastName, gradYear, major, bio]
                                                 />
                                         </div> 
                                         <div className="text-center">
-                                            <button onClick={() => {setInCrop(false); setProfilePictureURL("http://via.placeholder.com/400x400")}} className="justify-center items-center bg-transparent focus:outline-none px-6 text-black hover:bg-black hover:text-white border sm:border-2 border-black mr-2 rounded-full">&lt; BACK</button>
+                                            <button onClick={() => {setInCrop(false); setProfilePictureURL(defaultProfilePicture)}} className="justify-center items-center bg-transparent focus:outline-none px-6 text-black hover:bg-black hover:text-white border sm:border-2 border-black mr-2 rounded-full">&lt; BACK</button>
                                             <button onClick={makeCroppedImage} className="justify-center items-center bg-transparent focus:outline-none px-6 text-black hover:bg-black hover:text-white border sm:border-2 border-black rounded-full">CONFIRM &gt;</button>
                                         </div> 
                                     </div>

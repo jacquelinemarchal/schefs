@@ -89,24 +89,26 @@ const getEvent = `
 /*
  * $1:  host_name     <string> required
  * $2:  host_school   <string> required
- * $3:  title         <string> required
- * $4:  description   <string> required
- * $5:  requirements  <string>
- * $6:  thumbnail_id  <int>    required
- * $7:  zoom_link     <string>
- * $8:  zoom_id       <string>
- * $9:  time_start    <Date>   required
- * $10: status        <string>
+ * $3:  host_bio      <string> required
+ * $4:  title         <string> required
+ * $5:  description   <string> required
+ * $6:  requirements  <string>
+ * $7:  thumbnail_id  <int>    required
+ * $8:  zoom_link     <string>
+ * $9:  zoom_id       <string>
+ * $10: time_start    <Date>   required
+ * $11: status        <string>
  */
 const createEvent = `
     WITH thumb AS (
-	UPDATE thumbnails AS t
-	SET is_used = true
-	WHERE t.tid = $6
+        UPDATE thumbnails AS t
+        SET is_used = true
+        WHERE t.tid = $7
     )
     INSERT INTO events (
         host_name,
         host_school,
+        host_bio,
         title,
         description,
         requirements,
@@ -125,7 +127,8 @@ const createEvent = `
         $7,
         $8,
         $9,
-        $10
+        $10,
+        $11
     )
     RETURNING eid
 `;

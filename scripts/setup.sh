@@ -118,6 +118,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
     INSERT INTO events(
         host_name,
         host_school,
+        host_bio,
         title,
         description,
         requirements,
@@ -130,6 +131,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
     VALUES (
         'Christopher',
         'Columbia University',
+        'My Bio!',
         'Event 1',
         'Description 1',
         'Requirements 1',
@@ -141,6 +143,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
     ), (
         'Jacqueline',
         'Columbia University',
+        'My Bio #2!',
         'Event 2',
         'Description 2',
         NULL,
@@ -152,6 +155,7 @@ psql -U $pguser -h $pghost -d $pgdata -c "
     ), (
         'Lola & Pedro',
         'Columbia University',
+        'My Bio #3!',
         'Event 3',
         'Description 3',
         'Requirements 3',

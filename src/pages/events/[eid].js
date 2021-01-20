@@ -1,15 +1,13 @@
-import axios from "axios"
-import pool from '../../utils/db'
+import axios from 'axios';
+import pool from '../../utils/db';
 import queries from "../../utils/queries/events"
-import thumb from "../../../public/images/e2.jpg"
-import prof from "../../../public/images/p2.jpg"
 import Comment from "../../components/Events/comment"
 import WhitePillButton from "../../components/Buttons/wpillbutton" //type, size (text), text, link
 import React, { useEffect, useState } from "react"
 import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
 
-const EventPage = ( props ) => {
+const EventPage = (props) => {
     const [clientTickets, setClientTickets] = useState(props.tickets)
     const [clientComments, setClientComments] = useState(props.comments)
     const [inHover, setHover] = useState(downloadLogo);
@@ -109,7 +107,7 @@ const EventPage = ( props ) => {
                     {props.eventInfo.time_start}
                 </div>
                 <div className="mr-6 mb-4">
-                    <img src={thumb} className="sm:w-3/4 rounded-2xl"></img>
+                    <img src={'../' + props.eventInfo.img_thumbnail} className="sm:w-3/4 rounded-2xl"></img>
                 </div>
                 <div className="mb-2">
                     {props.eventInfo.description}
@@ -167,7 +165,9 @@ const EventPage = ( props ) => {
                     <div className="sm:mr-8 shadow-md sm:shadow-none mr-4 border-solid border-black border sm:border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
                         <div className="p-4 grid-rows-3">
                             <div className="row-span-1 flex">
-                                <img src={prof} className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
+                                <img src={'../' + props.eventInfo.hosts[0].img_profile
+                                //TODO: update for cohosts
+                                } className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
                                 <p className="self-center ml-4 text-3xl">{props.eventInfo.host_name}</p>
                             </div>
                             <div className="mb-8 row-span-1 text-center justify-center">
