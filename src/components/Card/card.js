@@ -1,5 +1,6 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { CSSTransition } from 'react-transition-group';
+import axios from 'axios';
 
 import HighlightOff from '@material-ui/icons/HighlightOff';
 import CardContent from './usercardcontent'
@@ -11,8 +12,9 @@ import Context from '../Context/context';
 // props.right = boolean side of screen, props.profile = profile to display, if not the current user's card
 const Card = (props) => {
     const context = useContext(Context);
+    const [cardInterior, setCardInterior] = useState("login");
+
     const handleCloseCard = () => context.handleCloseCard(!props.right, props.right);
-    const [cardInterior, setCardInterior] = useState("login")
 
     const toggle = () => {
         if (cardInterior === "login"){
@@ -22,7 +24,6 @@ const Card = (props) => {
             setCardInterior("login")
         }
     }
-
     return (
         <CSSTransition
           in={props.right ? context.rCardIsOpen : context.lCardIsOpen}
@@ -40,15 +41,15 @@ const Card = (props) => {
 
 	        {props.right
 		      ? context.profile
-			    ? <CardContent profile={context.profile} />
-                : cardInterior === "login"
-                    ? <LoginForm function={toggle} resetFunction={() => setCardInterior("password")}/> 
-                    : cardInterior === "signup" 
-                        ? <SignUpForm function={toggle} /> 
-                        : cardInterior === "password"
-                            ? <PasswordReset function={() => setCardInterior("login")}/> 
-                            : null
-		      : <CardContent profile={props.profile} />
+                  ? <CardContent profile={context.profile} />
+                  : cardInterior === "login"
+                      ? <LoginForm function={toggle} resetFunction={() => setCardInterior("password")}/> 
+                      : cardInterior === "signup" 
+                          ? <SignUpForm function={toggle} /> 
+                          : cardInterior === "password"
+                              ? <PasswordReset function={() => setCardInterior("login")}/> 
+                              : null
+              : <CardContent profile={props.profile} />
 		    }
           </div>
         </CSSTransition>
