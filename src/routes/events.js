@@ -45,10 +45,13 @@ const router = express.Router();
  *      eid           <int>
  *      host_name     <string>
  *      host_school   <string>
+ *      host_bio      <string>
  *      title         <string>
  *      description   <string>        - if type = 'detailed'
  *      requirements  <string>        - if type = 'detailed'
  *      img_thumbnail <string>
+ *      zoom_link     <string>        - if type = 'detailed'
+ *      zoom_id       <string>        - if type = 'detailed'
  *      time_start    <Date>
  *      hosts         <array[object]> - if type = 'detailed'
  *        uid         <int>
@@ -117,6 +120,7 @@ router.get('', (req, res) => {
  *      eid           <int>
  *      host_name     <string>
  *      host_school   <string>
+ *      host_bio      <string>
  *      title         <string>
  *      description   <string>
  *      requirements  <string>
@@ -326,12 +330,11 @@ router.delete('/:eid/tickets/:uid', verifyFirebaseIdToken, (req, res) => {
  * Response:
  *  200: successfully retrieved
  *    <object>
- *      count          <int>
+ *      count <int>
  *  404: event does not exist
  *  500: other postgres error
  */
 router.get('/:eid/countTickets', (req, res) => {
-    // check auth and other stuff here
     pool.query(queries.getReservedTicketsCount, [ req.params.eid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -342,19 +345,19 @@ router.get('/:eid/countTickets', (req, res) => {
 
 /*
  * GET /api/events/{eid}/{user}/ticketstatus
- * Get boolean whether or not user has reserved ticket
+ * Get boolean whether or not user has reserved ticket.
  *
  * Request Parameters:
  *  path:
  *    eid <int> required
  *    user_id <int>
-
+ *
  * Response:
  *  200: successfully retrieved
+ *    <boolean> 
  *  500: other postgres error
  */
 router.get('/:eid/:uid/ticketstatus', (req, res) => {
-    // check auth and other stuff here
     pool.query(queries.checkTicketStatus, [ req.params.eid, req.params.uid ], (q_err, q_res) => {
         if (q_err){
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -383,7 +386,9 @@ router.get('/:eid/:uid/ticketstatus', (req, res) => {
  * Response:
  *  200: successfully retrieved
  *    <object>
- *      eid           <int>
+ *      uid        <int>
+ *      first_name <string>
+ *      last_name  <string>
  *  404: event does not exist
  *  500: other postgres error
  */
@@ -393,7 +398,7 @@ router.get('/:eid/tickets', (req, res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else
-            res.status(200).json(q_res.rows[0]);
+            res.status(200).json(q_res.rows);
     });
 });
 
@@ -410,7 +415,13 @@ router.get('/:eid/tickets', (req, res) => {
  * Response:
  *  200: successfully retrieved
  *    <object>
- *      eid           <int>
+ *      cid           <int>
+ *      event_id      <int>
+ *      user_id       <int>
+ *      name          <string>
+ *      school        <string>
+ *      body          <string>
+ *      time_created  <Date>
  *  404: event does not exist
  *  500: other postgres error
  */
@@ -438,7 +449,7 @@ router.get('/:eid/comments', (req, res) => {
  *      user_id     <int> required
  *      name        <string> required
  *      body        <string> required
- *      school        <string> required
+ *      school      <string> required
  *
  * Response:
  *  201: successfully added comment

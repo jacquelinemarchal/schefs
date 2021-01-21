@@ -22,22 +22,23 @@ const router = express.Router();
  *
  * Response:
  *  200: success
- *    uid         <int>
- *    email       <string>
- *    phone       <string>
- *    first_name  <string>
- *    last_name   <string>
- *    img_profile <string>
- *    bio         <string>
- *    school      <string>
- *    major       <string>
- *    grad_year   <string>
+ *    <object>
+ *      uid         <int>
+ *      email       <string>
+ *      phone       <string>
+ *      first_name  <string>
+ *      last_name   <string>
+ *      img_profile <string>
+ *      bio         <string>
+ *      school      <string>
+ *      major       <string>
+ *      grad_year   <string>
  *  500: postgres error
  */
 router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
     if (!req.params.uid) {
-	res.status(406).json({ err: 'uid is required' });
-	return;
+        res.status(406).json({ err: 'uid is required' });
+        return;
     }
 
     pool.query(queries.getUser, [ req.params.uid ], (q_err, q_res) => {
@@ -45,10 +46,10 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else {
             if (q_res.rows.length === 0)
-		res.status(404).json({ err: 'No such user found' });
-	    else if (parseInt(req.profile.uid) === parseInt(req.params.uid))
-		res.status(200).json(q_res.rows[0]);
-	    else {
+                res.status(404).json({ err: 'No such user found' });
+            else if (parseInt(req.profile.uid) === parseInt(req.params.uid))
+                res.status(200).json(q_res.rows[0]);
+            else {
                 delete q_res.rows[0].fb_uid;
                 delete q_res.rows[0].email;
                 delete q_res.rows[0].phone;
@@ -71,20 +72,24 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
  *
  * Response:
  *  200: success
- *    uid         <int>
- *    email       <string>
- *    phone       <string>
- *    first_name  <string>
- *    last_name   <string>
- *    img_profile <string>
- *    bio         <string>
- *    school      <string>
- *    major       <string>
- *    grad_year   <string>
- *  500: postgres error
+ *    <object>
+ *      uid         <int>
+ *      email       <string>
+ *      phone       <string>
+ *      first_name  <string>
+ *      last_name   <string>
+ *      img_profile <string>
+ *      bio         <string>
+ *      school      <string>
+ *      major       <string>
+ *      grad_year   <string>
+ *  403: may only access own information
  */
 router.get('/login/:fb_uid', verifyFirebaseIdToken, (req, res) => {
-    res.status(200).json(req.profile);
+    if (req.params.fb_uid !== req.profile.fb_uid)
+        res.status(403).json({ err: 'May not access information of another user' });
+    else
+        res.status(200).json(req.profile);
 });
 
 /*
@@ -152,6 +157,9 @@ router.post('/signup', async (req, res) => {
  * PUT /api/users/{uid}
  * Update a user's information.
  *
+ * Authorization:
+ *  Firebase ID Token
+ *
  * Request Parameters
  *  path:
  *    uid <int> required
@@ -175,42 +183,111 @@ router.post('/signup', async (req, res) => {
  */
 router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), async (req, res) => {
     if (!req.params.uid) {
-	res.status(406).json({ err: 'uid is required' });
+        res.status(406).json({ err: 'uid is required' });
     	return;
     }
 
     if (parseInt(req.profile.uid) !== parseInt(req.params.uid)) {
-	res.status(403).json({ err: 'May not update other user profile' });
-	return;
+        res.status(403).json({ err: 'May not update other user profile' });
+        return;
     }
 
     let profile_path = null;
     if (req.file)
-	profile_path = '/images/' + req.file.filename;
+        profile_path = '/images/' + req.file.filename;
     
     const values = [
-	req.body.email || null,
-	req.body.phone || null,
-	req.body.first_name || null,
-	req.body.last_name || null,
-	profile_path,
-	req.body.bio || null,
-	req.body.school || null,
-	req.body.major || null,
-	req.body.grad_year || null,
-	req.params.uid,
+        req.body.email || null,
+        req.body.phone || null,
+        req.body.first_name || null,
+        req.body.last_name || null,
+        profile_path,
+        req.body.bio || null,
+        req.body.school || null,
+        req.body.major || null,
+        req.body.grad_year || null,
+        req.params.uid,
     ];
     
     pool.query(queries.updateUser, values, (q_err, q_res) => {
-	if (q_err) {
-	    if (q_err.code === '23505') // unique_violation
-		res.status(406).json({ err: 'Someone with this email already exists' });
-	    else
-		res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
-	} else
-	    res.status(201).send();
-
+        if (q_err) {
+            if (q_err.code === '23505') // unique_violation
+                res.status(406).json({ err: 'Someone with this email already exists' });
+            else
+                res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+        } else
+            res.status(201).send();
     });
 });
+
+/*
+ * GET /api/users/{uid}/events/live
+ * Get events for which a specified user has tickets as well as
+ * approved events that the user is hosting.
+ *
+ * Request Parameters:
+ *  path:
+ *    uid <int> required
+ *
+ * Response:
+ *  200: success
+ *    <array[object]>
+ *      eid           <int>
+ *      host_name     <string>
+ *      host_school   <string>
+ *      host_bio      <string>
+ *      host_id       <int>
+ *      title         <string>
+ *      img_thumbnail <string>
+ *      time_start    <Date>
+ *  500: postgres error
+ */
+router.get('/:uid/events/live', (req, res) => {
+    pool.query(queries.getUserLiveEvents, [ req.params.uid ], (q_err, q_res) => {
+        if (q_err)
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+        else
+            res.status(200).json(q_res.rows);
+    });
+});
+
+/*
+ * GET /api/users/{uid}/events/hosting
+ * Get events that a specified user has submitted or is hosting.
+ *
+ * Authorization:
+ *  Firebase ID Token
+ *
+ * Request Parameters:
+ *  path:
+ *    uid <int> required
+ *
+ * Response:
+ *  200: success
+ *    <array[object]>
+ *      eid           <int>
+ *      host_name     <string>
+ *      host_school   <string>
+ *      host_bio      <string>
+ *      title         <string>
+ *      img_thumbnail <string>
+ *      time_start    <Date>
+ *      status        <string>
+ *  500: postgres error
+ */
+router.get('/:uid/events/hosting', verifyFirebaseIdToken, (req, res) => {
+    if (parseInt(req.profile.uid) !== parseInt(req.params.uid)) {
+        res.status(403).json({ err: 'May not view private events of another user' });
+        return;
+    }
+
+    pool.query(queries.getUserHostingEvents, [ req.params.uid ], (q_err, q_res) => {
+        if (q_err)
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+        else
+            res.status(200).json(q_res.rows);
+    });
+});
+
 
 module.exports = router;

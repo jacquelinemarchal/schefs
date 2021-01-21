@@ -86,7 +86,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         return () => clearInterval(timer);
     }, []);
 
-    // missing img_profile right now
+    // TODO: missing img_profile right now
     const handleSignupWithEmailAndPassword = async (
         email,
         password,
@@ -192,6 +192,10 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             dispatchLCardReducer(ACTIONS.toggleCard());
     }
 
+    const handleSetREvents = (events) => dispatchRCardReducer(ACTIONS.setEvents(events));
+    const handleSetLEvents = (events) => dispatchLCardReducer(ACTIONS.setEvents(events));
+    const handleSetMyEvents = (events) => dispatchRCardReducer(ACTIONS.setMyEvents(events));
+
     return (
         <Context.Provider
           value={{
@@ -201,12 +205,19 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             handleCloseCard,
             handleToggleCard,
 
+            rEvents: stateRCardReducer.events,
+            lEvents: stateLCardReducer.events,
+            myEvents: stateRCardReducer.myEvents,
+            handleSetREvents,
+            handleSetLEvents,
+            handleSetMyEvents,
+
             profile: stateAuthReducer.profile,
             handleSignupWithEmailAndPassword,
             handleLoginWithEmailAndPassword,
             handleLogout,
             handleLoginWithGoogle,
-	    handleUpdateProfile,
+            handleUpdateProfile,
           }}
         >
           <Banner {...bannerProps} />

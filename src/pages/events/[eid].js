@@ -107,7 +107,7 @@ const EventPage = (props) => {
                     {props.eventInfo.time_start}
                 </div>
                 <div className="mr-6 mb-4">
-                    <img src={'../' + props.eventInfo.img_thumbnail} className="sm:w-3/4 rounded-2xl"></img>
+                    <img src={process.env.BASE_URL + props.eventInfo.img_thumbnail} className="sm:w-3/4 rounded-2xl"></img>
                 </div>
                 <div className="mb-2">
                     {props.eventInfo.description}

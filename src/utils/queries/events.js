@@ -6,8 +6,8 @@
 const getEventsSummary = `
     SELECT
         e.eid, e.host_name, e.host_school,
-        e.title, t.location AS img_thumbnail,
-    	e.time_start
+        e.host_bio, e.title, e.time_start,
+        t.location AS img_thumbnail
     FROM events AS e, thumbnails AS t
     WHERE (
         COALESCE($1) = '' OR
@@ -18,8 +18,7 @@ const getEventsSummary = `
     ) AND (
         'all' = $3 OR
         e.status = $3
-    ) AND
-	t.tid = e.thumbnail_id
+    ) AND t.tid = e.thumbnail_id
     ORDER BY e.time_start ASC
 `;
 
@@ -159,8 +158,8 @@ const getReservedTicketsCount = `
 `;
 
 /*
- * $1: event_id <int>
- * $2: user_id <int>
+ * $1: event_id <int> required
+ * $2: user_id  <int> required
  */
 const checkTicketStatus = `
     SELECT * FROM tickets
@@ -168,11 +167,12 @@ const checkTicketStatus = `
 `;
 
 /*
- * $1: eid <int>
+ * $1: eid <int> required
  */
 const getReservedTickets = `
     SELECT uid, first_name, last_name FROM users
-    LEFT JOIN tickets ON users.uid = tickets.user_id WHERE tickets.event_id = $1
+    LEFT JOIN tickets ON users.uid = tickets.user_id
+    WHERE tickets.event_id = $1
 `;
 
 /*

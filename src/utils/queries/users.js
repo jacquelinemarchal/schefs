@@ -78,9 +78,55 @@ const updateUser = `
 	WHERE uid = $10
 `;	
 
+/*
+ * $1: uid <int> required
+ */
+const getUserLiveEvents = `
+    SELECT 
+        e.eid, e.host_name, e.host_school,
+        e.host_bio, e.title, e.time_start,
+        eh.user_id AS host_id,
+        th.location AS img_thumbnail
+    FROM
+        events AS e,
+        event_hosts AS eh,
+        tickets AS t,
+        thumbnails AS th
+    WHERE
+        e.thumbnail_id = th.tid
+    AND e.eid = eh.event_id
+    AND (
+        (t.event_id = e.eid AND t.user_id = $1 AND eh.user_id != $1) OR
+        (e.status = 'approved' AND eh.user_id = $1)
+    )
+    ORDER BY e.time_start ASC
+`;
+
+/*
+ * $1: uid <int> required
+ */
+const getUserHostingEvents = `
+    SELECT 
+        e.eid, e.host_name, e.host_school,
+        e.host_bio, e.title, e.time_start,
+        th.location AS img_thumbnail,
+        e.status
+    FROM
+        events AS e,
+        event_hosts AS eh,
+        thumbnails AS th
+    WHERE
+        e.thumbnail_id = th.tid
+    AND e.eid = eh.event_id
+    AND eh.user_id = $1
+    ORDER BY e.time_start ASC
+`;
+
 module.exports = {
     getUser,
     getUserFirebase,
     postSignup,
 	updateUser,
+    getUserLiveEvents,
+    getUserHostingEvents,
 };
