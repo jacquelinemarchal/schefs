@@ -3,17 +3,46 @@ import WhitePillButton from "../Buttons/wpillbutton"
 import {useState, useContext} from "react"
 import Context from '../Context/context';
 import * as Yup from "yup"
-// TASK: if instant validation is too aggressive, check out options here https://formik.org/docs/guides/validation
+import axios from "axios"
 
-const SignUpForm = () => {
+const SignUpForm = (props) => {
 
-    const [error, setError] = useState(); //useState("This email is already in use");
+    const [error, setError] = useState();
     
     const context = useContext(Context);
      
     const handleSubmit = (values, { setSubmitting }) => {
-        alert(JSON.stringify(values, null, 2));
-        setSubmitting(false);
+
+        const userInfo = {
+            email: values.signUpEmail, 
+            password: values.signUpPassword,
+            phone: '6466466446',
+            first_name: values.firstName,
+            last_name: values.lastName,
+            img_profile: 'image_profile_url_here',
+            bio: 'are we including bio here',
+            school: values.university,
+            major: values.major,
+            grad_year: values.gradYear
+        }
+        console.log(userInfo)
+
+        axios.post("http://localhost:5000/api/users/signup", userInfo)
+        .then((res)=>{
+            alert("success making account", res)
+            context.handleLoginWithEmailAndPassword(values.signUpEmail, values.signUpPassword)
+                .then((res) =>{
+                    alert("success", res)
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+            setSubmitting(false);
+        })
+        .catch((err)=>{
+            var div = (err.response.data.err).split(':')
+            setError(div[1].concat(':', div[2]))
+        })
     }
 
     const SigninSchema = Yup.object().shape({
@@ -57,6 +86,9 @@ const SignUpForm = () => {
                             <Field placeholder="School Email" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="signUpEmail"></Field>
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="signUpEmail"></ErrorMessage>
                             <p id="emailHelp" className="text-sm text-center">A valid university email address is required.</p>
+                            
+                            <Field type="password" placeholder="Password" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="signUpPassword"></Field>
+                            <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="signUpPassword"></ErrorMessage>
 
                             <Field placeholder="University" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="university"></Field>
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="university"></ErrorMessage>
@@ -73,17 +105,14 @@ const SignUpForm = () => {
                             <Field placeholder="Major" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="major"></Field>
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="major"></ErrorMessage>
 
-                            <Field type="password" placeholder="Password" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="signUpPassword"></Field>
-                            <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="signUpPassword"></ErrorMessage>
-
-                            <div onMouseEnter={() => {console.log(isValid, dirty)}}  className="mx-auto">
+                            <div className="mx-auto">
                                 <button disabled={!isValid || !dirty || isSubmitting} type="submit" className={"flex px-16 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }>CREATE ACCOUNT</button>
                             </div>
                         </div>
                     </div>
                     <footer className="my-2 mt-6 justify-between flex">
                             <p>Already have an account?</p>
-                            <WhitePillButton text="LOG IN" link="" padding="flex mx-2 px-6"/>
+                            <WhitePillButton handleClick={props.function} text="LOG IN" link="" padding="flex mx-2 px-6"/>
                     </footer>
 
                 </Form>

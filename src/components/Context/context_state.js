@@ -38,12 +38,12 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     useEffect(() => {
         return firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
-                const uid = user.uid;
+                const fb_uid = user.uid;
                 const id_token = await user.getIdToken();
                 setAuthHeader(id_token);
 
                 try {
-                    const profile = (await axios.get('/api/users/' + uid)).data;
+                    const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
                     dispatchAuthReducer(ACTIONS.loginSuccess(profile));
                 } catch (err) {
                     die(err);
@@ -58,8 +58,9 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
                 dispatchAuthReducer(ACTIONS.logout());
             else {
                 if (stateAuthReducer.profile && user.uid !== stateAuthReducer.profile.uid) {
+		    const fb_uid = user.uid;
                     try {
-                        const profile = (await axios.get('/api/users/' + user.uid)).data;
+                        const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
                         dispatchAuthReducer(ACTIONS.loginSuccess(profile));
                     } catch (err) {
                         console.log(err);
@@ -85,7 +86,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         return () => clearInterval(timer);
     }, []);
 
-    // missing img_profile right now
+    // TODO: missing img_profile right now
     const handleSignupWithEmailAndPassword = async (
         email,
         password,
@@ -122,12 +123,12 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         const user_creds = await firebase.auth().signInWithEmailAndPassword(email, password);
         const user = user_creds.user;
 
-        const uid = user.uid;
+        const fb_uid = user.uid;
         const id_token = await user.getIdToken();
         setAuthHeader(id_token);
         
         try {
-            const profile = (await axios.get('/api/users/' + uid)).data;
+            const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
             dispatchAuthReducer(ACTIONS.loginSuccess(profile));
         } catch (err) {
             die(err);
@@ -146,6 +147,16 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         await firebase.auth().signOut();
         setAuthHeader(null);
         dispatchAuthReducer(ACTIONS.logout());
+    }
+
+    const handleUpdateProfile = async (uid, updated_fields) => {
+	await axios.put('/api/users/' + uid, updated_fields);
+	try {
+	    const profile = (await axios.get('/api/users/' + uid)).data;
+	    dispatchAuthReducer(ACTIONS.updateProfile(profile));
+	} catch (err) {
+	    die(err);
+	}
     }
 
     /* Card Reducer */
@@ -181,6 +192,10 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             dispatchLCardReducer(ACTIONS.toggleCard());
     }
 
+    const handleSetREvents = (events) => dispatchRCardReducer(ACTIONS.setEvents(events));
+    const handleSetLEvents = (events) => dispatchLCardReducer(ACTIONS.setEvents(events));
+    const handleSetMyEvents = (events) => dispatchRCardReducer(ACTIONS.setMyEvents(events));
+
     return (
         <Context.Provider
           value={{
@@ -190,23 +205,29 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             handleCloseCard,
             handleToggleCard,
 
+            rEvents: stateRCardReducer.events,
+            lEvents: stateLCardReducer.events,
+            myEvents: stateRCardReducer.myEvents,
+            handleSetREvents,
+            handleSetLEvents,
+            handleSetMyEvents,
+
             profile: stateAuthReducer.profile,
             handleSignupWithEmailAndPassword,
             handleLoginWithEmailAndPassword,
             handleLogout,
+            handleLoginWithGoogle,
+            handleUpdateProfile,
           }}
         >
           <Banner {...bannerProps} />
           <NavBar scrollShadow={false} />
-          <CardButton />
-	  <button onClick={() => handleToggleCard(true, false)}>left card</button>
-        
+          <CardButton />        
           <Card right={true} />
           <Card right={false} profile={{"uid":5,"email":"cyw2124@columbia.edu","phone":null,"first_name":"Christopher","last_name":"Wang","img_profile":null,"bio":null,"school":"Columbia University","major":"Math","grad_year":2022,"fb_uid":"bOBANGm9UzPWeZMymLQkqWScSbm1"}}/>
           <GreyOut />
 
-          <div className={(stateRCardReducer.isOpen ? 'overflow-hidden fixed' : '')}>
-            <button onClick={handleLoginWithGoogle}>test</button>
+          <div className={(stateRCardReducer.isOpen ? 'overflow-hidden fixed w-full' : '')}>
             <Component {...pageProps}/>
           </div>
         </Context.Provider>

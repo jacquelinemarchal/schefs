@@ -12,7 +12,9 @@ module.exports = withImages({
         FB_STORAGE_BUCKET: 'schefs.appspot.com',
         FB_MESSAGING_SENDER_ID: '1078198186854',
         FB_APP_ID: '1:1078198186854:web:4928cdbed5f459a68fcea7',
-        FB_MEASUREMENT_ID: "G-SFQEPY2PRN"
+        FB_MEASUREMENT_ID: 'G-SFQEPY2PRN',
+
+        BASE_URL: 'http://localhost:5000/',
     },
 
     webpack: (config) => {

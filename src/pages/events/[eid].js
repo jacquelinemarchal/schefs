@@ -1,15 +1,13 @@
-import axios from "axios"
-import pool from '../../utils/db'
+import axios from 'axios';
+import pool from '../../utils/db';
 import queries from "../../utils/queries/events"
-import thumb from "../../../dev/images/e2.jpg"
-import prof from "../../../dev/images/p2.jpg"
 import Comment from "../../components/Events/comment"
 import WhitePillButton from "../../components/Buttons/wpillbutton" //type, size (text), text, link
 import React, { useEffect, useState } from "react"
 import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
 
-const EventPage = ( props ) => {
+const EventPage = (props) => {
     const [clientTickets, setClientTickets] = useState(props.tickets)
     const [clientComments, setClientComments] = useState(props.comments)
     const [inHover, setHover] = useState(downloadLogo);
@@ -109,7 +107,7 @@ const EventPage = ( props ) => {
                     {props.eventInfo.time_start}
                 </div>
                 <div className="mr-6 mb-4">
-                    <img src={thumb} className="sm:w-3/4 rounded-2xl"></img>
+                    <img src={process.env.BASE_URL + props.eventInfo.img_thumbnail} className="sm:w-3/4 rounded-2xl"></img>
                 </div>
                 <div className="mb-2">
                     {props.eventInfo.description}
@@ -142,7 +140,6 @@ const EventPage = ( props ) => {
                             {clientTickets > 14 ? <button className={"flex justify-center items-center focus:outline-none text-xl text-gray-500 border sm:border-2 border-gray-500 px-4 cursor-default rounded-full"}>SOLD OUT</button>  : reservedTicket 
                                 ? <button className={"flex justify-center items-center bg-yellow-300 focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-default rounded-full"}>RESERVED</button> 
                                 : <form onSubmit={reserveTicket}><WhitePillButton {...reserveButton} /></form>}
-                            {}
                             <button onMouseEnter={() => setHover(downloadHoverLogo)} onMouseLeave={() => setHover(downloadLogo)} onClick={copyLink} className="ml-2 flex space-x-2 text-gray-700 items-center h-8 w-8 bg-gray-400 rounded-full focus:outline-none">
                                 <img src={inHover} className="p-2"></img><p>{copyStatus}</p>
                             </button>
@@ -168,7 +165,9 @@ const EventPage = ( props ) => {
                     <div className="sm:mr-8 shadow-md sm:shadow-none mr-4 border-solid border-black border sm:border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
                         <div className="p-4 grid-rows-3">
                             <div className="row-span-1 flex">
-                                <img src={prof} className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
+                                <img src={'../' + props.eventInfo.hosts[0].img_profile
+                                //TODO: update for cohosts
+                                } className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
                                 <p className="self-center ml-4 text-3xl">{props.eventInfo.host_name}</p>
                             </div>
                             <div className="mb-8 row-span-1 text-center justify-center">
@@ -185,7 +184,8 @@ const EventPage = ( props ) => {
         </div>
     )
 }
-export default EventPage
+
+export default EventPage;
 
 export const getServerSideProps = async (context) => {
     const eventInfo = await new Promise((resolve, reject) => 
@@ -212,4 +212,4 @@ export const getServerSideProps = async (context) => {
             comments: commentSerialized,
         },
     }
-  }
+}

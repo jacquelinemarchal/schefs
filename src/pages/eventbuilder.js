@@ -4,10 +4,6 @@ import axios from "axios"
 import HighlightOff from '@material-ui/icons/HighlightOff';
 import { htmlToText } from 'html-to-text';
 import ContentEditable from 'react-contenteditable'
-import placeholder from "../../dev/images/placeholder.png"
-import sampleImage1 from "../../dev/images/e1.jpg"
-import sampleImage2 from "../../dev/images/e2.jpg"
-import sampleImage3 from "../../dev/images/e3.jpg"
 import cohost from "../assets/cohost.png"
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
@@ -17,17 +13,37 @@ import Cropper from 'react-easy-crop'
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import Context from '../components/Context/context';
 import * as Yup from "yup"
+import { now } from "moment";
 
-export default function EventBuilder () {
+const EventBuilder = () => {
     const context = useContext(Context);
+
+    const defaultProfilePicture = 'http://via.placeholder.com/100x100';
+    const defaultThumbnail = {
+        tid: -1,
+        location: 'images/placeholder.png',
+        is_used: true,
+    }
+
+    const [preLoad, setPreLoad] = useState({
+        coHostEmail: "",
+        title: "",
+        description: "",
+        requirements: "",
+        first_name: "",
+        last_name: "",
+        grad_year: "",
+        university: "",
+        major: "",
+		bio: "",
+    });
 
     const fileInput = useRef(null)
     const [inCrop, setInCrop] = useState(false)
     const [crop, setCrop] = useState({x:0,y:0},)
     const [zoom, setZoom] = useState(1)
 
-    const [profilePicture, setProfilePicture] = useState(null)
-    const [profilePictureURL, setProfilePictureURL] = useState("http://via.placeholder.com/100x100")
+    const [profilePictureURL, setProfilePictureURL] = useState(defaultProfilePicture);
 
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)    
     const [isModalOpen, setIsModalOpen] = useState(true)
@@ -35,30 +51,48 @@ export default function EventBuilder () {
 
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
+	const [thumbnails, setThumbnails] = useState([]);
+    const [selectedThumbnail, setSelectedThumbnail] = useState(defaultThumbnail);
+
     const escFunction = (event) => {
-        if(event.keyCode === 27) {
-          setIsPhotoDisplayOpen(false)
-          setIsModalOpen(false)
+        if (event.keyCode === 27) {
+      	    setIsPhotoDisplayOpen(false);
+            setIsModalOpen(false);
         }
-      };
-    useEffect(() => {
-        if (isPhotoDisplayOpen){
-           // document.body.setAttribute('style', 'position:fixed;')
-        }
-        if (!isPhotoDisplayOpen){
-          //  document.body.setAttribute('', '')
-        };
-      }, [isPhotoDisplayOpen]);
+    };
+
+    const queryThumbnails = () => {
+        axios
+            .get('/api/thumbnails')
+            .then(res => setThumbnails([...res.data]))
+            .catch(err => console.log(err.response.data.err));
+    }
+
+	useEffect(queryThumbnails, []);
 
     useEffect(() => {
         document.addEventListener("keydown", escFunction, false);
+
+        if (context.profile){
+            var user = context.profile;
+            setPreLoad({
+                coHostEmail: "",
+				title: "",
+				description: "",
+				requirements: "",
+                first_name: user.first_name,
+                last_name: user.last_name,
+                grad_year: user.grad_year,
+                school: user.school,
+                major: user.major,
+            })
+        }
         return () => {
           document.removeEventListener("keydown", escFunction, false);
         };
-      }, []);
+    }, [context.profile]);
 
     const makeCroppedImage = () => {
-        typeof(profilePicture)
         const image = new Image()
         image.src=profilePictureURL;
 
@@ -70,24 +104,19 @@ export default function EventBuilder () {
         const ctx = canvas.getContext('2d');
       
         ctx.drawImage(
-        image,
-        croppedAreaPixels.x * scaleX,
-        croppedAreaPixels.y * scaleY,
-        croppedAreaPixels.width * scaleX,
-        croppedAreaPixels.height * scaleY,
-        0,
-        0,
-        croppedAreaPixels.width,
-        croppedAreaPixels.height,
+			image,
+			croppedAreaPixels.x * scaleX,
+			croppedAreaPixels.y * scaleY,
+			croppedAreaPixels.width * scaleX,
+			croppedAreaPixels.height * scaleY,
+			0,
+			0,
+			croppedAreaPixels.width,
+			croppedAreaPixels.height,
         );
+
         setProfilePictureURL(canvas.toDataURL('image/jpeg'));
-
-        console.log(profilePictureURL)
-
-        setInCrop(false)
-        // TASK: make image that can be sent to backend on submit, toBlob from profilePicture URL or to file
-        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
-        // https://stackoverflow.com/questions/49228118/upload-image-from-data-url-to-axios
+        setInCrop(false);
     }
 
 
@@ -96,8 +125,9 @@ export default function EventBuilder () {
 
         if (strLength <= 70){
             return(`${strLength} words`)
-        }
-      };
+        } else
+			return '';
+    };
 
     const charCounter = value => {
         if (value.length > 65){
@@ -107,8 +137,6 @@ export default function EventBuilder () {
 
     const fileEventHandler = e => {
         const file = e.target.files[0]
-        setProfilePicture(file)
-
         var reader = new FileReader();
 
         reader.onload = (e) => {
@@ -121,23 +149,87 @@ export default function EventBuilder () {
         }
     }
 
-    const fileUploadHandler = () => {
-        const fd = new FormData();
-        fd.append('image', profilePicture)
-       // axios.post('api...')
+    const handleSubmit = async (values, { setSubmitting }) => {
+        //values not yet in the endpoint= [coHostEmail, lastName, gradYear, major]
+
+        setSubmitting(false);
+
+        const eventData = {
+            title: values.title,
+            description: values.description,
+            requirements: values.requirements,
+            thumbnail_id: selectedThumbnail.tid,
+            host_bio: values.bio,
+            time_start: new Date(), // TODO: do actual start time
+            hosts: [{ ...context.profile }],
+        }
+
+        try {
+            await axios.post('/api/events', eventData);
+        } catch (err) {
+            if (err.response && err.response.status === 409) {
+                alert('Thumbnail already in use, choose a different one');
+                queryThumbnails();
+                setSelectedThumbnail(defaultThumbnail);
+            } else
+                alert(err.response.data.err)
+
+            return;
+        }
+
+		const userData = new FormData();
+		userData.append('first_name', values.first_name);
+		userData.append('last_name', values.last_name);
+		userData.append('bio', values.bio);
+		userData.append('school', values.school);
+		userData.append('major', values.major);
+		userData.append('grad_year', values.grad_year);
+
+        try {
+            const res = await fetch(profilePictureURL);
+            const blob = await res.blob();
+            
+            userData.append('img_profile', blob);
+
+            await axios.put('/api/users/' + context.profile.uid, userData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            alert('event successfully submitted');
+            window.location.href = '/';
+		} catch (err) {
+            if (err.response && err.response.data)
+                alert(err.response.data.err);
+            else
+                alert(err);
+        }
+	}
+
+    const Thumbnail = (props) => {
+        const handleSelectThumbnail = (e) => {
+            e.preventDefault();
+            setSelectedThumbnail({...props.thumbnail});
+            setIsPhotoDisplayOpen(false);
+        }
+            
+        return (
+            <button onClick={handleSelectThumbnail}>
+                <img src={props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
+            </button>
+        );
     }
 
     const EventBuilderSchema = Yup.object().shape({
         coHostEmail: Yup.string()
             .email('This is not a valid email'),
-        eventReq: Yup.string(),
-        firstName: Yup.string()
+        requirements: Yup.string(),
+        first_name: Yup.string()
             .required('This field is required'),
-        lastName: Yup.string()
+        last_name: Yup.string()
             .required('This field is required'),
-        university: Yup.string()
+        school: Yup.string()
             .required('This field is required'),
-        gradYear: Yup.string()
+        grad_year: Yup.string()
             .required('This field is required'),
         major: Yup.string()
             .required('This field is required'),
@@ -145,19 +237,16 @@ export default function EventBuilder () {
             .required('This field is required'),
     });
 
-    const handleSubmit = (values, { setSubmitting }) => {
-        alert(JSON.stringify(values, null, 2));
-        setSubmitting(false);
-    }
-
     return (
+        preLoad.first_name && context.profile ?
         <Formik
-            initialValues = {{coHostEmail: "", eventTitle: "", eventDesc: "", eventReq: "", firstName:"", lastName:"", university: "", gradYear:"", major:"", bio:""}}
+            initialValues={preLoad}
             onSubmit={handleSubmit}
             validationSchema={EventBuilderSchema}
         >
             {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
             <Form>
+
                 {isModalOpen ? 
                     <>
                         <div className="h-screen fixed w-screen" onClick={() => setIsModalOpen(!isModalOpen)}></div>
@@ -200,8 +289,10 @@ export default function EventBuilder () {
                                 <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
                             </div>
                             <div id="imageContainerEB" className="mx-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
-                                <img src={sampleImage1} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
-                                <img src={sampleImage2} className="hover:bg-yellow-300 cursor-pointer p-2 rounded-3xl"></img>
+								{thumbnails.length
+								  ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
+								  : null
+								}
                             </div>
                         </div> 
                     </>
@@ -233,35 +324,35 @@ export default function EventBuilder () {
                 <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6" onClick={() => {if (isCoHostOpen)setIsCoHostOpen(false);}}>
                     <div className="grid col-span-3">
                         <Field 
-                            name="eventTitle" 
+                            name="title" 
                             validate={charCounter}
                             className="text-left text-5xl leading-snug mb-1 focus:outline-none"
                             placeholder="My event title..."
                             onChange={e => {
-                                setFieldTouched('eventTitle');
+                                setFieldTouched('title');
                                 handleChange(e);
                             }}
                         />
-                        <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="eventTitle"></ErrorMessage>
+                        <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
                         <div>
                             You’ll be able to select your event’s date on the next page
                         </div>
                         <div className="mr-6 mt-2 mb-10 w-9/12">
-                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={placeholder} className="cursor-pointer rounded-3xl"></img>
+                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
                         </div>
                         <div className="items-center flex space-x-2">
                             <p>Your event description:</p>
                             <p className="text-sm pr-2 text-gray-600">70 word minimum</p>
-                            <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="eventDesc"></ErrorMessage>
+                            <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="description"></ErrorMessage>
                         </div>
                         <Field 
                             as="textarea"
                             placeholder="My event description..." 
                             className={"text-left mt-4 h-32 leading-snug mb-8 w-5/6 focus:outline-none"} 
-                            name="eventDesc" 
+                            name="description" 
                             validate={wordCounter}
                             onChange={e => {
-                                setFieldTouched('eventDesc');
+                                setFieldTouched('description');
                                 handleChange(e)
                             }}
                         />
@@ -273,14 +364,26 @@ export default function EventBuilder () {
                             as="textarea"   
                             placeholder="My event requirements..." 
                             className={"text-left mt-4 h-32 leading-snug mb-8 w-5/6 focus:outline-none"} 
-                            name="eventReq" 
+                            name="requirements" 
                         />
                     </div>
 
                     <div className="grid col-span-2 ">
                         <div className="sm:fixed">
                             <div className="flex space-x-2 h-8 items-center">
-                                <button disabled={!isValid || !dirty || isSubmitting} type="submit" className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }>SUBMIT</button>
+                                <button
+                                  disabled={
+                                    selectedThumbnail.tid === -1 ||
+                                    profilePictureURL === defaultProfilePicture ||
+                                    !isValid ||
+                                    !dirty ||
+                                    isSubmitting
+                                  }
+                                  type="submit"
+                                  className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                >
+                                    SUBMIT
+                                </button>
                                 <div onClick={() => {setIsModalOpen(true)}}> 
                                     <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
                                 </div>
@@ -320,7 +423,7 @@ export default function EventBuilder () {
                                                 />
                                         </div> 
                                         <div className="text-center">
-                                            <button onClick={() => {setInCrop(false); setProfilePictureURL("http://via.placeholder.com/400x400")}} className="justify-center items-center bg-transparent focus:outline-none px-6 text-black hover:bg-black hover:text-white border sm:border-2 border-black mr-2 rounded-full">&lt; BACK</button>
+                                            <button onClick={() => {setInCrop(false); setProfilePictureURL(defaultProfilePicture)}} className="justify-center items-center bg-transparent focus:outline-none px-6 text-black hover:bg-black hover:text-white border sm:border-2 border-black mr-2 rounded-full">&lt; BACK</button>
                                             <button onClick={makeCroppedImage} className="justify-center items-center bg-transparent focus:outline-none px-6 text-black hover:bg-black hover:text-white border sm:border-2 border-black rounded-full">CONFIRM &gt;</button>
                                         </div> 
                                     </div>
@@ -331,7 +434,7 @@ export default function EventBuilder () {
                                                 <div className="col-span-1 h-24 w-24 ">
                                                     <input className="hidden" ref={fileInput} type="file" onChange={fileEventHandler} accept={"image/*"} multiple={false} />
                                                     <div onClick={() => {fileInput.current.click()}}>
-                                                        <img src={profilePictureURL} onClick={fileUploadHandler} className="rounded-full p-2 items-center cursor-pointer justify-center"></img>
+                                                        <img src={profilePictureURL} className="rounded-full p-2 items-center cursor-pointer justify-center"></img>
                                                     </div>
                                                 </div>
                                                 <div className="col-span-2 my-auto">
@@ -339,12 +442,12 @@ export default function EventBuilder () {
                                                         placeholder="First Name" 
                                                         className={"ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-visible"}
                                                         as="textarea"
-                                                        name="firstName" 
+                                                        name="first_name" 
                                                     />
                                                     <Field 
                                                         placeholder="Last Name" 
                                                         className={"ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-hidden"} 
-                                                        name="lastName" 
+                                                        name="last_name" 
                                                         as="textarea"
                                                     />
                                                 </div>
@@ -355,13 +458,13 @@ export default function EventBuilder () {
                                                 <Field 
                                                     placeholder="My university..." 
                                                     className={"leading-snug focus:outline-none overflow-hidden text-center"} 
-                                                    name="university" 
+                                                    name="school" 
                                                 />
                                                 <p className="mx-3">•</p>
                                                 <Field 
                                                     placeholder="My grad year..." 
                                                     className={"leading-snug focus:outline-none overflow-hidden text-center"} 
-                                                    name="gradYear" 
+                                                    name="grad_year" 
                                                 />
                                             </div>
                                             <Field 
@@ -386,5 +489,11 @@ export default function EventBuilder () {
                 </div>
             </Form>)}
         </Formik>
+        : <div className="text-center items-center flex flex-col">
+                You must have a Schefs account to make events
+                <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
+            </div>
     );
 };
+
+export default EventBuilder;

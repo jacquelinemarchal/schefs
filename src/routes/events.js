@@ -3,6 +3,7 @@ const { verifyFirebaseIdToken } = require('../middleware/auth');
 const express = require('express');
 const pool = require('../utils/db');
 const queries = require('../utils/queries/events');
+const thumbnail_queries = require('../utils/queries/thumbnails');
 
 const router = express.Router();
 
@@ -44,10 +45,13 @@ const router = express.Router();
  *      eid           <int>
  *      host_name     <string>
  *      host_school   <string>
+ *      host_bio      <string>
  *      title         <string>
  *      description   <string>        - if type = 'detailed'
  *      requirements  <string>        - if type = 'detailed'
  *      img_thumbnail <string>
+ *      zoom_link     <string>        - if type = 'detailed'
+ *      zoom_id       <string>        - if type = 'detailed'
  *      time_start    <Date>
  *      hosts         <array[object]> - if type = 'detailed'
  *        uid         <int>
@@ -59,7 +63,7 @@ const router = express.Router();
  *        bio         <string>
  *        school      <string>
  *        major       <string>
- *        grad_year   <int>
+ *        grad_year   <string>
  *  400: invalid value for 'status' or 'type'
  *  500: other postgres error
  */
@@ -116,6 +120,7 @@ router.get('', (req, res) => {
  *      eid           <int>
  *      host_name     <string>
  *      host_school   <string>
+ *      host_bio      <string>
  *      title         <string>
  *      description   <string>
  *      requirements  <string>
@@ -131,7 +136,7 @@ router.get('', (req, res) => {
  *        bio         <string>
  *        school      <string>
  *        major       <string>
- *        grad_year   <int>
+ *        grad_year   <string>
  *  404: event does not exist
  *  500: other postgres error
  */
@@ -154,38 +159,48 @@ router.get('/:eid', (req, res) => {
  *
  * Request Body:
  *  <object>
- *    title         <string> required
- *    description   <string> required
+ *    title         <string>        required
+ *    description   <string>        required
  *    requirements  <string>
- *    img_thumbnail <string> required
- *    time_start    <Date>   required
+ *    thumbnail_id  <int>           required
+ *    host_bio      <string>        required
+ *    time_start    <Date>          required
  *    hosts         <array[object]> required
- *      uid         <int>    required
- *      first_name  <string> required
- *      school      <string> required
+ *      uid         <int>           required
+ *      first_name  <string>        required
+ *      last_name   <string>        required
+ *      school      <string>        required
  *
  * Response:
  *  201: successfully created
  *  403: attempting to create event for non-self user
  *  406: required field missing
+ *  409: thumbnail already in use
  *  500: other postgres error
  */
 router.post('', verifyFirebaseIdToken, async (req, res) => {
-    if (!req.body.hosts.map(host => host.uid).includes(req.uid)) {
+    if (!req.body.hosts.map(host => host.uid).includes(req.profile.uid)) {
         res.status(403).json({ err: 'Cannot make an event for someone else!' });
         return;
     }
 
-    const host_name = req.body.hosts.map(host => host.first_name).join(', ');
-    const host_school = req.body.hosts.map(host => host.school).join(', ');
+    let host_name, host_school;
+    if (req.body.hosts > 1) {
+        host_name = req.body.hosts.map(host => host.first_name).join(', ');
+        host_school = req.body.hosts.map(host => host.school).join(', ');
+    } else {
+        host_name = req.body.hosts[0].first_name + ' ' + req.body.hosts[0].last_name;
+        host_school = req.body.hosts[0].school;
+    }
 
     const values = [
         host_name,
         host_school,
+        req.body.host_bio,
         req.body.title,
         req.body.description,
         req.body.requirements,
-        req.body.img_thumbnail,
+        req.body.thumbnail_id,
         '', // zoom link empty for now
         '', // zoom id empty for now
         req.body.time_start,
@@ -195,11 +210,20 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        const eid = await client.query(queries.createEvent, values);
-        for (let host of req.body.hosts)
-            await client.query(queries.createHost, [ host.uid, eid ]);
-        await client.query('COMMIT');
-        res.status(201).send();
+        const valid_thumb = (await client.query(thumbnail_queries.checkThumbnail, [ req.body.thumbnail_id ])).rows.length > 0;
+        if (!valid_thumb) {
+            await client.query('COMMIT');
+            res.status(409).json({ err: 'Thumbnail already in use' });
+        } else {
+            await client.query(thumbnail_queries.setThumbnailUsed, [ req.body.thumbnail_id ]);
+
+            const eid = (await client.query(queries.createEvent, values)).rows[0].eid;	
+            for (const host of req.body.hosts)
+                await client.query(queries.createHost, [ host.uid, eid ]);
+
+            await client.query('COMMIT');
+            res.status(201).send();
+        }
     } catch (err) {
         await client.query('ROLLBACK');
         if (err.code === '23502') // not_null_violation
@@ -235,10 +259,16 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
     try {
         await client.query('BEGIN');
         const count = await client.query(queries.getReservedTicketsCount, [ req.params.eid ]);
-        if (count > 14)
+        if (count > 14) {
+            await client.query('COMMIT');
             res.status(406).json({ err: 'Event sold out: ' + req.params.eid });
-        else {
-            await client.query(queries.reserveTicket, [ req.params.eid, req.uid ]);
+        } else {
+            const values = [
+                req.params.eid,
+                req.profile.uid,
+            ];
+
+            await client.query(queries.reserveTicket, values);
             await client.query('COMMIT');
             res.status(201).send();
         }
@@ -300,12 +330,11 @@ router.delete('/:eid/tickets/:uid', verifyFirebaseIdToken, (req, res) => {
  * Response:
  *  200: successfully retrieved
  *    <object>
- *      count          <int>
+ *      count <int>
  *  404: event does not exist
  *  500: other postgres error
  */
 router.get('/:eid/countTickets', (req, res) => {
-    // check auth and other stuff here
     pool.query(queries.getReservedTicketsCount, [ req.params.eid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -316,19 +345,19 @@ router.get('/:eid/countTickets', (req, res) => {
 
 /*
  * GET /api/events/{eid}/{user}/ticketstatus
- * Get boolean whether or not user has reserved ticket
+ * Get boolean whether or not user has reserved ticket.
  *
  * Request Parameters:
  *  path:
  *    eid <int> required
  *    user_id <int>
-
+ *
  * Response:
  *  200: successfully retrieved
+ *    <boolean> 
  *  500: other postgres error
  */
 router.get('/:eid/:uid/ticketstatus', (req, res) => {
-    // check auth and other stuff here
     pool.query(queries.checkTicketStatus, [ req.params.eid, req.params.uid ], (q_err, q_res) => {
         if (q_err){
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -357,7 +386,9 @@ router.get('/:eid/:uid/ticketstatus', (req, res) => {
  * Response:
  *  200: successfully retrieved
  *    <object>
- *      eid           <int>
+ *      uid        <int>
+ *      first_name <string>
+ *      last_name  <string>
  *  404: event does not exist
  *  500: other postgres error
  */
@@ -367,7 +398,7 @@ router.get('/:eid/tickets', (req, res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else
-            res.status(200).json(q_res.rows[0]);
+            res.status(200).json(q_res.rows);
     });
 });
 
@@ -384,7 +415,13 @@ router.get('/:eid/tickets', (req, res) => {
  * Response:
  *  200: successfully retrieved
  *    <object>
- *      eid           <int>
+ *      cid           <int>
+ *      event_id      <int>
+ *      user_id       <int>
+ *      name          <string>
+ *      school        <string>
+ *      body          <string>
+ *      time_created  <Date>
  *  404: event does not exist
  *  500: other postgres error
  */
@@ -412,7 +449,7 @@ router.get('/:eid/comments', (req, res) => {
  *      user_id     <int> required
  *      name        <string> required
  *      body        <string> required
- *      school        <string> required
+ *      school      <string> required
  *
  * Response:
  *  201: successfully added comment

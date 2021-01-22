@@ -41,6 +41,10 @@ app.prepare().then(() => {
     server.use('/api/events', routers.eventsRouter);
     server.use('/api/openmind', routers.openMindRouter);
     server.use('/api/users', routers.usersRouter);
+    server.use('/api/thumbnails', routers.thumbnailsRouter);
+
+    if (dev)
+	server.use(express.static('public'));
 
     server.all('*', (req, res) => {
         return handle(req, res);

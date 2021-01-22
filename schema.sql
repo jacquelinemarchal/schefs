@@ -1,3 +1,9 @@
+CREATE TABLE thumbnails (
+    tid           SERIAL PRIMARY KEY,
+    location      VARCHAR NOT NULL,
+    is_used       BOOLEAN NOT NULL
+);
+
 CREATE TABLE users (
     uid           SERIAL PRIMARY KEY,
     fb_uid        VARCHAR(255) UNIQUE NOT NULL,
@@ -9,17 +15,18 @@ CREATE TABLE users (
     bio           VARCHAR,
     school        VARCHAR(255) NOT NULL,
     major         VARCHAR(255) NOT NULL,
-    grad_year     INT NOT NULL
+    grad_year     VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE events (
     eid           SERIAL PRIMARY KEY,
     host_name     VARCHAR(255) NOT NULL,
     host_school   VARCHAR(255) NOT NULL,
-    title         VARCHAR(63) NOT NULL,
+    host_bio      VARCHAR NOT NULL,
+    title         VARCHAR(255) NOT NULL,
     description   VARCHAR NOT NULL,
     requirements  VARCHAR,
-    img_thumbnail VARCHAR(255) NOT NULL,
+    thumbnail_id  INT NOT NULL REFERENCES thumbnails(tid),
     zoom_link     VARCHAR(255),
     zoom_id       VARCHAR(31),
     time_start    TIMESTAMP NOT NULL,
@@ -57,4 +64,3 @@ CREATE TABLE openmind (
     body          VARCHAR(255) NOT NULL,
     time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-

@@ -20,6 +20,11 @@ export const logout = () => ({
     type: ACTION_TYPES.LOGOUT
 });
 
+export const updateProfile = (profile) => ({
+    type: ACTION_TYPES.UPDATE_PROFILE,
+    payload: profile
+});
+
 /* CARD ACTIONS */
 
 export const openCard = () => ({
@@ -32,4 +37,14 @@ export const closeCard = () => ({
 
 export const toggleCard = () => ({
     type: ACTION_TYPES.TOGGLE_CARD,
+});
+
+export const setEvents = (events) => ({
+    type: ACTION_TYPES.SET_EVENTS,
+    payload: events,
+});
+
+export const setMyEvents = (events) => ({
+    type: ACTION_TYPES.SET_MY_EVENTS,
+    payload: events,
 });
