@@ -1,4 +1,3 @@
-import sampleImage2 from "../../public/images/e2.jpg"
 import WhitePillButton from "../components/Buttons/wpillbutton"
 
 export default function PostEventSubmit() {
@@ -19,7 +18,7 @@ In the meanwhile, why not sign up for other events?
             <div className="sm:grid sm:col-span-1 ml-6">
                 <div>
                     <p className="text-gray-400">Pending approval</p>
-                    <img src={sampleImage2} className="bg-yellow-300 mb-10 p-2 rounded-3xl opacity-75 h-64 "></img>
+                    <img src={"https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fschefsoctober-640.jpg?alt=media&token=6cb1ea66-86d2-4344-80b5-c33915284ff0"} className="bg-yellow-300 mb-10 p-2 rounded-3xl opacity-75 h-64 "></img>
                     <WhitePillButton link="/eventbuilder" text="SUBMIT ANOTHER EVENT" padding="inline px-6 mr-2"/>
                     <WhitePillButton link="www.instagram.com/schefs.us" text="FOLLOW SCHEFS" padding="inline px-6"/>
                 </div>

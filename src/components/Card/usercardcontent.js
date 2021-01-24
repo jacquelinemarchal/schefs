@@ -108,7 +108,6 @@ const CardContent = (props) => {
 
     return (       
         <>
-<<<<<<< HEAD
         <div className="md-shadow sm:px-8 px-6 pb-0 pt-2 rounded-2xl">
             <ContentEditable
                 disabled={disabled}
@@ -184,7 +183,7 @@ const CardContent = (props) => {
                         {myEvents.length
                           ? <div className="mt-4 text-sm">
                                 <>Events I'm hosting:</>
-                                <div id="innerCardContainer" className="overflow-scroll mt-2" style={{height: "333px"}}>
+                                <div id="innerCardContainer" className="overflow-scroll mt-2">
                                     <EventGrid events={myEvents} style="mr-12" gridNum="1"/>
                                 </div>
                             </div>
@@ -210,7 +209,7 @@ const CardContent = (props) => {
                                     ? <>{props.profile.first_name}'s upcoming events:</>
                                     : <>My upcoming events:</>
                                 }
-                                <div id="innerCardContainer" className="overflow-scroll mt-2" style={{height: "333px"}}>
+                                <div id="innerCardContainer" className="overflow-scroll mt-2">
                                     <EventGrid events={events} style="mr-12" gridNum="1"/>
                                 </div>
                             </div>
