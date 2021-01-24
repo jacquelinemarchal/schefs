@@ -31,7 +31,7 @@ const Card = (props) => {
           classNames={props.right ? 'rcard' : 'lcard'}
           unmountOnExit
         >
-          <div className={'fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20 ' + (props.right ? 'right-0' : 'left-0')} style={{width: "430px", minHeight: "600px",}}>
+          <div id="cardSize" className={'fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20 ' + (props.right ? 'right-0' : 'left-0')}>
             <div className="flex justify-end">
               <button onClick={handleCloseCard} className="focus:outline-none p-2">
                 <HighlightOff/>
