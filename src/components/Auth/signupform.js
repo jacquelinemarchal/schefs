@@ -4,6 +4,7 @@ import {useState, useContext} from "react"
 import Context from '../Context/context';
 import * as Yup from "yup"
 import axios from "axios"
+const firebase = require('../../utils/firebase_client');
 
 const SignUpForm = (props) => {
 
@@ -29,10 +30,17 @@ const SignUpForm = (props) => {
 
         axios.post("http://localhost:5000/api/users/signup", userInfo)
         .then((res)=>{
-            alert("success making account", res)
+            console.log("success making account", res)
             context.handleLoginWithEmailAndPassword(values.signUpEmail, values.signUpPassword)
                 .then((res) =>{
-                    alert("success", res)
+                    console.log("success logging in", res)
+                    // send verification email
+                    var user = firebase.auth().currentUser;
+                    user.sendEmailVerification().then(() => {
+                    }).catch(function(error) {
+                        console.log(error)
+                    });
+                    
                 })
                 .catch((err) => {
                     console.log(err)

@@ -108,6 +108,7 @@ const CardContent = (props) => {
 
     return (       
         <>
+<<<<<<< HEAD
         <div className="md-shadow sm:px-8 px-6 pb-0 pt-2 rounded-2xl">
             <ContentEditable
                 disabled={disabled}
@@ -123,6 +124,12 @@ const CardContent = (props) => {
                 placeholder={"Last Name"}
                 className="text-5xl leading-none mb-4 focus:outline-none"
             />
+
+            {context.profile.isVerified
+            ? null
+            : <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
+            }
+
             <ContentEditable
                 disabled={disabled}
                 html={userInfo.current.uni}
@@ -131,20 +138,20 @@ const CardContent = (props) => {
                 className="focus:outline-none text-sm"
             />
             <div className="relative inline-block text-left text-sm">
-            <div>
-            <span className="rounded-md">
-                {disabled
-                  ? <>{gradYear}</>
-                  : <button id="gradYear" type="button" onClick={toggleDropDown} className="inline-flex justify-center w-full rounded-md bg-white leading-5 hover:text-gray-500 focus:outline-none active:bg-gray-50 active:text-gray-800 transition ease-in-out text-sm duration-150" id="options-menu" aria-haspopup="true" aria-expanded="true" disabled={disabled}>
-                        {gradYear}
-                        <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                    </button>
-                }
-            </span>
-        </div>
-        </div>
+                <div>
+                    <span className="rounded-md">
+                        {disabled
+                          ? <>{gradYear}</>
+                          : <button id="gradYear" type="button" onClick={toggleDropDown} className="inline-flex justify-center w-full rounded-md bg-white leading-5 hover:text-gray-500 focus:outline-none active:bg-gray-50 active:text-gray-800 transition ease-in-out text-sm duration-150" id="options-menu" aria-haspopup="true" aria-expanded="true" disabled={disabled}>
+                                {gradYear}
+                                <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+                        }
+                    </span>
+                </div>
+            </div>
             <div className={(dropDown ? 'block' : 'hidden') + " w-40 absolute mt-1 rounded-md shadow-lg"}>
                 <div className="rounded-md bg-white shadow-xs">
                     <div tabIndex="0" onBlur={() => setDropDown(false)} role="menu" className="focus:outline-none" aria-orientation="vertical" aria-labelledby="options-menu">
