@@ -41,7 +41,8 @@
         height: ""
     }
     #cardSize{
-        width: 80vw;
+        min-width: 80vw;
+        max-width: 90vw;
         min-height: 80vh;
     }
 }
