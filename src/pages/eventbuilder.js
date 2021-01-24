@@ -18,7 +18,7 @@ import { now } from "moment";
 const EventBuilder = () => {
     const context = useContext(Context);
 
-    const defaultProfilePicture = 'http://via.placeholder.com/100x100';
+    const defaultProfilePicture = 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2FScreen%20Shot%202021-01-24%20at%2010.57.18%20AM.jpeg?alt=media&token=a88fcb5e-4919-4bc6-b792-23d725324040';
     const defaultThumbnail = {
         tid: -1,
         location: 'images/placeholder.png',
@@ -53,6 +53,7 @@ const EventBuilder = () => {
 
 	const [thumbnails, setThumbnails] = useState([]);
     const [selectedThumbnail, setSelectedThumbnail] = useState(defaultThumbnail);
+    const [isLoading, setIsLoading] = useState(true)
 
     const escFunction = (event) => {
         if (event.keyCode === 27) {
@@ -68,7 +69,14 @@ const EventBuilder = () => {
             .catch(err => console.log(err.response.data.err));
     }
 
-	useEffect(queryThumbnails, []);
+    useEffect(queryThumbnails, []);
+    
+    useEffect(() => {
+        setTimeout(
+            () => {setIsLoading(false); console.log("thinking")},
+            1000
+        );
+    }, []);
 
     useEffect(() => {
         document.addEventListener("keydown", escFunction, false);
@@ -238,7 +246,7 @@ const EventBuilder = () => {
     });
 
     return (
-        preLoad.first_name && context.profile ?
+        preLoad.first_name && context.profile && !isLoading ?
         <Formik
             initialValues={preLoad}
             onSubmit={handleSubmit}
@@ -513,7 +521,7 @@ const EventBuilder = () => {
         : <div className="text-center items-center flex flex-col mt-12">
                 You must have a Schefs account to make events
                 <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
-            </div>
+         </div>
     );
 };
 
