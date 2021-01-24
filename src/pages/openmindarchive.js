@@ -28,7 +28,7 @@ export default function OMA () {
                 user_id: context.profile.uid,
                 body:topic,
             }
-            axios.post("http://localhost:5000/api/openmind", sendTopic)
+            axios.post("/api/openmind", sendTopic)
             .then((res)=>{
                 setTopic("")
                 getTopics(-1)
@@ -47,7 +47,7 @@ export default function OMA () {
                     last_id: lastId
             }
         }
-        axios.get("http://localhost:5000/api/openmind", getRecentTopics)
+        axios.get("/api/openmind", getRecentTopics)
         .then((res)=>{
             setAllTopics([...res.data])
             scroll.scrollToBottom({

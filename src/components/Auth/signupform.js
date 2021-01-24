@@ -28,7 +28,7 @@ const SignUpForm = (props) => {
         }
         console.log(userInfo)
 
-        axios.post("http://localhost:5000/api/users/signup", userInfo)
+        axios.post("/api/users/signup", userInfo)
         .then((res)=>{
             console.log("success making account", res)
             context.handleLoginWithEmailAndPassword(values.signUpEmail, values.signUpPassword)

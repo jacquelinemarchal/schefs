@@ -20,14 +20,14 @@ const EventPage = (props) => {
     /* Get comments and new tickets for event every 10 seconds*/ 
     useEffect(() => {
         const interval = setInterval(() => {
-            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`)
+            axios.get(`/api/events/${props.eventInfo.eid}/countTickets`)
             .then(res => {
                 (res.data.count === "0" ? setClientTickets(0) : setClientTickets(parseInt(res.data.count, 10)))
             })
             .catch(err => {
                 console.log(err)
             })
-            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/comments`)
+            axios.get(`/api/events/${props.eventInfo.eid}/comments`)
             .then(res => {
                 setClientComments(res.data)
             })
@@ -40,7 +40,7 @@ const EventPage = (props) => {
       
     useEffect(() => {
         if (context.profile){
-            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/${context.profile.uid}/ticketstatus`)
+            axios.get(`/api/events/${props.eventInfo.eid}/${context.profile.uid}/ticketstatus`)
             .then(res => {
                 setReservedTicket(res.data)
             })
@@ -78,7 +78,7 @@ const EventPage = (props) => {
                     body:commentBody,
                     school: context.profile.school,
                 }
-                axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/comment`, sendComment)
+                axios.post(`/api/events/${props.eventInfo.eid}/comment`, sendComment)
                 .then((res)=>{
                     setCommentBody("")
                     console.log(res)
@@ -98,7 +98,7 @@ const EventPage = (props) => {
                 user_id: context.profile.uid,
             }
             setClientTickets(clientTickets + 1)
-            axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`, userContent)
+            axios.post(`/api/events/${props.eventInfo.eid}/tickets`, userContent)
             .then(() => {
                 setReservedTicket(true)
             })
