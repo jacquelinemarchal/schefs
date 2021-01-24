@@ -86,6 +86,10 @@ const CardContent = (props) => {
                         placeholder={"Last Name"}
                         className="text-5xl leading-none mb-4 focus:outline-none"
                 />
+                {context.profile.isVerified
+                ? null
+                : <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
+                }
                 <ContentEditable
                         disabled={disabled}
                         html={userInfo.current.uni}
@@ -138,7 +142,7 @@ const CardContent = (props) => {
                     ? <>{props.profile.first_name}'s upcoming events:</>
                     : <>My upcoming events:</>
                     }
-                    <div id="innerCardContainer" className="overflow-scroll mt-2" style={{height: "333px"}}>
+                    <div id="innerCardContainer" className="overflow-scroll mt-2" style={{height: "300px"}}>
                         <EventThumbnail events={fakeEvent} style="mr-12" gridNum="1"/>
                     </div>
                 </div>
