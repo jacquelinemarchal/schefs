@@ -18,7 +18,7 @@ import { now } from "moment";
 const EventBuilder = () => {
     const context = useContext(Context);
 
-    const defaultProfilePicture = 'http://via.placeholder.com/100x100';
+    const defaultProfilePicture = 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2FScreen%20Shot%202021-01-24%20at%2010.57.18%20AM.jpeg?alt=media&token=a88fcb5e-4919-4bc6-b792-23d725324040';
     const defaultThumbnail = {
         tid: -1,
         location: 'images/placeholder.png',
@@ -53,6 +53,7 @@ const EventBuilder = () => {
 
 	const [thumbnails, setThumbnails] = useState([]);
     const [selectedThumbnail, setSelectedThumbnail] = useState(defaultThumbnail);
+    const [isLoading, setIsLoading] = useState(true)
 
     const escFunction = (event) => {
         if (event.keyCode === 27) {
@@ -68,7 +69,14 @@ const EventBuilder = () => {
             .catch(err => console.log(err.response.data.err));
     }
 
-	useEffect(queryThumbnails, []);
+    useEffect(queryThumbnails, []);
+    
+    useEffect(() => {
+        setTimeout(
+            () => {setIsLoading(false); console.log("thinking")},
+            1000
+        );
+    }, []);
 
     useEffect(() => {
         document.addEventListener("keydown", escFunction, false);
@@ -238,7 +246,7 @@ const EventBuilder = () => {
     });
 
     return (
-        preLoad.first_name && context.profile ?
+        preLoad.first_name && context.profile && !isLoading ?
         <Formik
             initialValues={preLoad}
             onSubmit={handleSubmit}
@@ -370,7 +378,7 @@ const EventBuilder = () => {
 
                     <div className="grid col-span-2 ">
                         <div className="sm:fixed">
-                            <div className="flex space-x-2 h-8 items-center">
+                            <div className="hidden sm:flex space-x-2 h-8 items-center">
                                 <button
                                   disabled={
                                     selectedThumbnail.tid === -1 ||
@@ -388,11 +396,11 @@ const EventBuilder = () => {
                                     <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
                                 </div>
                             </div>
-                            <div className="flex justify-between text-sm my-2 mt-20" style={{ maxWidth: "300px"}}>
+                            <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-20" style={{ maxWidth: "300px"}}>
                                 <p>Hosted by:</p>
                                 <p className="cursor-pointer hover:underline hover:text-blue-900" onClick={() => setIsCoHostOpen(!isCoHostOpen)}>Add a co-host</p>
                             </div>
-                            <div className="sm:mr-8 shadow-md sm:shadow-none mr-4 border-solid border-black border sm:border-2 rounded-2xl" style={{ maxWidth: "300px"}}>
+                            <div className="mx-auto ml-20 mb-16 sm:ml-0 sm:mb-0 sm:mr-8 shadow-md sm:shadow-none border-solid border-black border sm:border-2 rounded-2xl" style={{ maxWidth: "300px"}}>
                                 <div className="p-4 grid-rows-3">
                                     {inCrop  // add to second outer div for consistent w/h style={{minWidth: "500px", minHeight: "320px"}}
                                     ? 
@@ -484,15 +492,36 @@ const EventBuilder = () => {
                                     </>}
                                 </div>
                             </div> 
+
+                            <div className="h-8">
+                                <footer className="bg-white sm:hidden inset-x-0 fixed bottom-0 flex justify-around items-center">
+                                        <button
+                                        disabled={
+                                            selectedThumbnail.tid === -1 ||
+                                            profilePictureURL === defaultProfilePicture ||
+                                            !isValid ||
+                                            !dirty ||
+                                            isSubmitting
+                                        }
+                                        type="submit"
+                                        className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                        >
+                                            SET DATE &amp; SUBMIT
+                                        </button>
+                                        <div onClick={() => {setIsModalOpen(true)}}> 
+                                            <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
+                                        </div>
+                                </footer>
+                            </div>
                         </div>
                     </div>
                 </div>
             </Form>)}
         </Formik>
-        : <div className="text-center items-center flex flex-col">
+        : <div className="text-center items-center flex flex-col mt-12">
                 You must have a Schefs account to make events
                 <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
-            </div>
+         </div>
     );
 };
 

@@ -3,7 +3,8 @@ import pool from '../../utils/db';
 import queries from "../../utils/queries/events"
 import Comment from "../../components/Events/comment"
 import WhitePillButton from "../../components/Buttons/wpillbutton" //type, size (text), text, link
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useContext, useState } from "react"
+import Context from '../../components/Context/context';
 import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
 
@@ -14,17 +15,11 @@ const EventPage = (props) => {
     const [copyStatus, setCopyStatus] = useState("")
     const [commentBody, setCommentBody] = useState("")
     const [reservedTicket, setReservedTicket] = useState(false)
+    const context = useContext(Context);
 
-    /* Get comments for event every 10 seconds*/ 
+    /* Get comments and new tickets for event every 10 seconds*/ 
     useEffect(() => {
         const interval = setInterval(() => {
-            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/1/ticketstatus`)
-            .then(res => {
-                setReservedTicket(res.data)
-            })
-            .catch(err => {
-                console.log(err)
-            })
             axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`)
             .then(res => {
                 (res.data.count === "0" ? setClientTickets(0) : setClientTickets(parseInt(res.data.count, 10)))
@@ -42,13 +37,21 @@ const EventPage = (props) => {
         }, 10000);
         return () => clearInterval(interval);
       }, []); /*    necessary? [clientComments, clientTickets]);    */
-
-    let reserveButton = {
-        type:"submit", 
-        size:"xl",
-        padding:"px-4 flex",
-        text:"RESERVE FOR ZOOM",
-    }
+      
+    useEffect(() => {
+        if (context.profile){
+            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/${context.profile.uid}/ticketstatus`)
+            .then(res => {
+                setReservedTicket(res.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        }
+        else{
+            setReservedTicket(false)
+        }
+    }, [context.profile]);
 
     const copyLink = (e) => {{
         navigator.clipboard.writeText(`schefs.us/events/${props.eventInfo.eid}`)}
@@ -58,43 +61,55 @@ const EventPage = (props) => {
         },2000); 
       };
     
-    const handleSubmit = (e) => { 
+    const handleCommentSubmit = (e) => {
         e.preventDefault();
-        if (commentBody.replace(/\s/g, '').length) {
-            setClientComments([...clientComments, {
-                time_created: Date.now(),
-                name: "Test Name",
-                school: "Test School", 
-                body: commentBody
-            }])
-            let sendComment = {
-                user_id: 1, // ADD AUTH
-                name: "Test Name",
-                body:commentBody,
-                school: "Test School",
+        console.log("HI")
+        if (context.profile){
+            if (commentBody.replace(/\s/g, '').length) {
+                setClientComments([...clientComments, {
+                    time_created: Date.now(),
+                    name: context.profile.first_name.concat(" ", context.profile.last_name),
+                    school: context.profile.school, 
+                    body: commentBody
+                }])
+                let sendComment = {
+                    user_id: context.profile.uid, // ADD AUTH
+                    name: context.profile.first_name.concat(" ", context.profile.last_name),
+                    body:commentBody,
+                    school: context.profile.school,
+                }
+                axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/comment`, sendComment)
+                .then((res)=>{
+                    setCommentBody("")
+                    console.log(res)
+                })
+                .catch((err)=>{alert(err)})
             }
-            axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/comment`, sendComment)
-            .then((res)=>{
-                setCommentBody("")
-                console.log(res)
-            })
-            .catch((err)=>{alert(err)})
         }
+        else{
+            context.handleToggleCard(false, true)
+        }
+        
     }
     const reserveTicket = (e) => {
         e.preventDefault()
-        let userContent = {
-            // TASK: add auth
-            user_id: 1,
+        if (context.profile){
+            let userContent = {
+                user_id: context.profile.uid,
+            }
+            setClientTickets(clientTickets + 1)
+            axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`, userContent)
+            .then(() => {
+                setReservedTicket(true)
+            })
+            .catch((err) => {
+                console.log(JSON.stringify(err))
+            })
         }
-        setClientTickets(clientTickets + 1)
-        axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`, userContent)
-        .then(() => {
-            setReservedTicket(true)
-        })
-        .catch((err) => {
-            console.log(JSON.stringify(err))
-        })
+        else{
+            context.handleToggleCard(false, true)
+        }
+        
     }
 
     return (
@@ -122,9 +137,9 @@ const EventPage = (props) => {
                 <div className="my-4 text-2xl">
                     Thoughts:
                 </div>
-                <form className="flex row-span-1 items-end justify-center" onSubmit={handleSubmit}>
+                <form className="flex row-span-1 items-end justify-center">
                     <input className="w-full border-b border-black focus:outline-none" value={commentBody} onChange={(e) => setCommentBody(e.target.value)} type="text" placeholder="Share your thought here" aria-label="Add a comment" />
-                    <WhitePillButton padding="px-4 flex" type="submit" text="POST" size="lg" />
+                    <WhitePillButton handleClick={handleCommentSubmit} padding="px-4 flex" type="submit" text="POST" size="lg" />
                 </form>
                 <div className="">
                     {clientComments.length
@@ -137,15 +152,19 @@ const EventPage = (props) => {
                 <div className="sm:fixed">
                     <div className="hidden sm:inline-block">
                         <div className="flex">
-                            {clientTickets > 14 ? <button className={"flex justify-center items-center focus:outline-none text-xl text-gray-500 border sm:border-2 border-gray-500 px-4 cursor-default rounded-full"}>SOLD OUT</button>  : reservedTicket 
-                                ? <button className={"flex justify-center items-center bg-yellow-300 focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-default rounded-full"}>RESERVED</button> 
-                                : <form onSubmit={reserveTicket}><WhitePillButton {...reserveButton} /></form>}
+                            {clientTickets > 14 
+                                ? <button className={"flex justify-center items-center focus:outline-none text-xl text-gray-500 border sm:border-2 border-gray-500 px-4 cursor-default rounded-full"}>SOLD OUT</button>  
+                                : reservedTicket 
+                                    ? <button className={"flex justify-center items-center bg-yellow-300 focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-not-allowed rounded-full"}>RESERVED</button> 
+                                    : <form onSubmit={reserveTicket}><WhitePillButton type = "submit" size="xl" padding="px-4 flex" text="RESERVE FOR ZOOM" handleClick= {reserveTicket}/></form>}
                             <button onMouseEnter={() => setHover(downloadHoverLogo)} onMouseLeave={() => setHover(downloadLogo)} onClick={copyLink} className="ml-2 flex space-x-2 text-gray-700 items-center h-8 w-8 bg-gray-400 rounded-full focus:outline-none">
                                 <img src={inHover} className="p-2"></img><p>{copyStatus}</p>
                             </button>
                         </div>
                         <div className="text-gray-500 mt-2">
-                            {7-clientTickets} / 7 spots available
+                            {clientTickets > 5 
+                            ? <> 6 / 7 spots available</>
+                            : <>{7-clientTickets} / 7 spots available</>}
                         </div>
                     </div>
                     <div className="sm:hidden inline-block">

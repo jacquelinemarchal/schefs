@@ -50,8 +50,6 @@ const LoginForm = (props) => {
                 </div>
             </div>
         </div>
-        <button onClick={context.handleLoginWithGoogle} className="w-full flex mt-4 mb-2 py-1 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white"><img className="h-5 pr-4" src={google}></img>LOG IN WITH GOOGLE</button>
-        <p className="text-sm m-0 p-0 text-center">or</p>
         <Formik
             initialValues = {{email: "", password: ""}}
             onSubmit={handleSubmit}
@@ -60,13 +58,13 @@ const LoginForm = (props) => {
         >
             {({isValid, dirty}) => (
             <Form>
-                <div className="grid">
+                <div className="grid my-4">
                     <p className="text-red-500 text-sm">{error[1]}</p>
                     <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="email"></ErrorMessage>
                     <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="password"></ErrorMessage>
                         <div className="flex flex-col">          
                                 <Field placeholder="School Email" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 " + error[2]} name="email"></Field>
-                                <Field type="password" placeholder="Password" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 " + error[3]} name="password"></Field>
+                                <Field type="password" placeholder="Password" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 mb-3 py-1 " + error[3]} name="password"></Field>
                             <div className="mx-auto">
                                 <button disabled={!isValid || !dirty} type="submit" className={"flex px-16 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white") }>LOG IN</button>
                             </div>
@@ -84,3 +82,5 @@ const LoginForm = (props) => {
     );
 }
 export default LoginForm;
+/*         <button onClick={context.handleLoginWithGoogle} className="w-full flex mt-4 mb-2 py-1 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white"><img className="h-5 pr-4" src={google}></img>LOG IN WITH GOOGLE</button>
+        <p className="text-sm m-0 p-0 text-center">or</p> */
