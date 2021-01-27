@@ -48,3 +48,10 @@ export const setMyEvents = (events) => ({
     type: ACTION_TYPES.SET_MY_EVENTS,
     payload: events,
 });
+
+/* EVENTS ACTIONS */
+
+export const setHomeEvents = (events) => ({
+    type: ACTION_TYPES.SET_HOME_EVENTS,
+    payload: events,
+});
