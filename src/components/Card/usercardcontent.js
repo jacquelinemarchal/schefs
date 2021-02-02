@@ -108,7 +108,6 @@ const CardContent = (props) => {
 
     return (       
         <>
-<<<<<<< HEAD
         <div className="md-shadow sm:px-8 px-6 pb-0 pt-2 rounded-2xl">
             <ContentEditable
                 disabled={disabled}

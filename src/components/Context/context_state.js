@@ -5,6 +5,7 @@ import axios from 'axios';
 import * as ACTIONS from '../../store/actions/actions';
 import * as CardReducer from '../../store/reducers/card_reducer';
 import * as AuthReducer from '../../store/reducers/auth_reducer';
+import * as EventsReducer from '../../store/reducers/events_reducer';
 import Context from './context';
 import NavBar from '../Banners/navbar';
 import Banner from '../Banners/banner';
@@ -196,6 +197,17 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     const handleSetLEvents = (events) => dispatchLCardReducer(ACTIONS.setEvents(events));
     const handleSetMyEvents = (events) => dispatchRCardReducer(ACTIONS.setMyEvents(events));
 
+    /* EVENTS REDUCER */
+
+    const [stateEventsReducer, dispatchEventsReducer] = useReducer(
+        EventsReducer.EventsReducer,
+        EventsReducer.initialState,
+    );
+
+    const setHomeEvents = (events) => {
+        dispatchEventsReducer(ACTIONS.setHomeEvents(events));
+    }
+
     return (
         <Context.Provider
           value={{
@@ -218,6 +230,9 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             handleLogout,
             handleLoginWithGoogle,
             handleUpdateProfile,
+
+            events: stateEventsReducer.events,
+            setHomeEvents,
           }}
         >
           <Banner {...bannerProps} />
