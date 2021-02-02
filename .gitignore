@@ -41,3 +41,4 @@ yarn-error.log*
 *.png
 *.gif
 images/*
+public/images/*
