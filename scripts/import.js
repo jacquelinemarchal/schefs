@@ -5,10 +5,12 @@ const { Pool } = require('pg');
 const { createEvent, reserveTicket, createHost } = require('../src/utils/queries/events');
 const { uploadThumbnail } = require('../src/utils/queries/thumbnails');
 const { getUserFirebase, postSignup } = require('../src/utils/queries/users');
+const { postOpenMind } = require('../src/utils/queries/openmind');
 
 // initialize firebase
 const admin = require('firebase-admin');
-const serviceAccount = require('/Users/Chris 1/schefs/firebase-credentials.json');
+const serviceAccount = require('/Users/jacquelinemarchal/Documents/code/schefs/firebase-credentials.json');
+
 admin.initializeApp({
     credential: admin.credential.cert({
         privateKey: serviceAccount.private_key,
@@ -21,6 +23,7 @@ admin.initializeApp({
 const firestore = admin.firestore();
 const storage = admin.storage().bucket('schefs.appspot.com');
 
+/*
 // initialize postgres
 const pool = new Pool({
     user: 'Chris',
@@ -28,7 +31,16 @@ const pool = new Pool({
     database: 'schefs',
     password: 'mxUS4Cen',
     port: 5432,
+});*/
+
+const pool = new Pool({
+    user: 'jacquelinemarchal',
+    host: 'localhost',
+    database: 'schefs',
+    password: 'phoebe tonkin',
+    port: 5432,
 });
+/*
 
 const downloadImage = async (file) => {
     const fileurl = file.publicUrl();
@@ -128,5 +140,24 @@ firestore.collection('users').get().then((snap) => {
                 console.log(doc.id);
             }
         });
+    });
+});
+*/
+firestore.collection('openmind').get().then((snap) => {
+    snap.forEach(async (doc) => {
+        try {
+            const data = doc.data();
+            const user_id = (await pool.query(getUserFirebase, [ data.uid ])).rows[0].uid;
+            console.log(user_id)
+            // insert user into postgres
+            const values = [
+                user_id,
+                data.topic,
+            ];
+
+            await pool.query(postOpenMind, values);
+        } catch (err) {
+            console.log(err);
+        }
     });
 });
