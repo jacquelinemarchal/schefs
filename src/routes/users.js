@@ -170,7 +170,7 @@ router.post('/signup', async (req, res) => {
  *    phone         <string>
  *    first_name    <string>
  *    last_name     <string>
- *    img_profile   <string>
+ *    img_profile   <File>
  *    bio           <string>
  *    school        <string>
  *    major         <string>
@@ -181,7 +181,7 @@ router.post('/signup', async (req, res) => {
  *  406: uid missing and/or email already exists
  *  500: other postgres error
  */
-router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), async (req, res) => {
+router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), (req, res) => {
     if (!req.params.uid) {
         res.status(406).json({ err: 'uid is required' });
     	return;

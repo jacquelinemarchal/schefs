@@ -21,8 +21,21 @@ const setThumbnailUsed = `
     WHERE tid = $1
 `;
 
+/*
+ * $1: location <string> required
+ */
+const uploadThumbnail = `
+    INSERT INTO thumbnails(
+        location,
+        is_used
+    )
+    VALUES ($1, false)
+    RETURNING tid
+`;
+
 module.exports = {
 	getThumbnails,
     checkThumbnail,
     setThumbnailUsed,
+    uploadThumbnail,
 };

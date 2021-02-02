@@ -17,3 +17,5 @@ export const AUTH_FAILURE = 'AUTH_FAILURE';
 export const LOGOUT = 'LOGOUT';
 
 export const UPDATE_PROFILE = 'UPDATE_PROFILE';
+
+export const SET_HOME_EVENTS = 'SET_HOME_EVENTS';
