@@ -53,6 +53,8 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
                 delete q_res.rows[0].fb_uid;
                 delete q_res.rows[0].email;
                 delete q_res.rows[0].phone;
+                delete q_res.rows[0].is_verified;
+                delete q_res.rows[0].is_admin;
                 res.status(200).json(q_res.rows[0]);
             }
         }
