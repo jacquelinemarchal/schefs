@@ -21,7 +21,7 @@ admin.initializeApp({
 });
 
 const firestore = admin.firestore();
-const storage = admin.storage().bucket('schefs.appspot.com');
+
 
 /*
 // initialize postgres
@@ -29,7 +29,7 @@ const pool = new Pool({
     user: 'Chris',
     host: 'localhost',
     database: 'schefs',
-    password: 'mxUS4Cen',
+    password: '',
     port: 5432,
 });*/
 
@@ -40,8 +40,8 @@ const pool = new Pool({
     password: 'phoebe tonkin',
     port: 5432,
 });
-/*
 
+/*
 const downloadImage = async (file) => {
     const fileurl = file.publicUrl();
     const filename = uuidv4();
@@ -128,7 +128,6 @@ firestore.collection('users').get().then((snap) => {
                 tickets_snap.forEach(async (ticket_doc) => {
                     try {
                         const ticket_user_id = await pool.query(getUserFirebase, [ ticket_doc.id ]);
-                        console.log(ticket_user_id.rows[0]);
                         await pool.query(reserveTicket, [ event_id, ticket_user_id.rows[0].uid ]);
                     } catch (err) {
                         console.log(err);
@@ -136,28 +135,30 @@ firestore.collection('users').get().then((snap) => {
                 });
             } catch (err) {
                 console.log(err);
-                console.log(doc.data());
+                //console.log(doc.data());
                 console.log(doc.id);
             }
         });
     });
-});
-*/
-firestore.collection('openmind').get().then((snap) => {
-    snap.forEach(async (doc) => {
-        try {
-            const data = doc.data();
-            const user_id = (await pool.query(getUserFirebase, [ data.uid ])).rows[0].uid;
-            console.log(user_id)
-            // insert user into postgres
-            const values = [
-                user_id,
-                data.topic,
-            ];
+})*/
 
-            await pool.query(postOpenMind, values);
-        } catch (err) {
-            console.log(err);
-        }
+    firestore.collection('openmind').get().then((snap) => {
+        snap.forEach(async (doc) => {
+            try {
+                const data = doc.data();
+                const user_id = (await pool.query(getUserFirebase, [ data.uid ])).rows[0].uid;
+               
+                // insert user into postgres
+                const values = [
+                    user_id,
+                    data.topic,
+                ];
+
+                await pool.query(postOpenMind, values);
+            } catch (err) {
+                console.log(err);
+            }
+        });
     });
-});
+
+
