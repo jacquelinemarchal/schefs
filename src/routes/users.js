@@ -5,6 +5,7 @@ const upload = require('../utils/multer');
 const express = require('express');
 const pool = require('../utils/db');
 const queries = require('../utils/queries/users');
+const emails = require('../utils/emails');
 
 const router = express.Router();
 
@@ -153,6 +154,9 @@ router.post('/signup', async (req, res) => {
                 res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         } else
             res.status(201).send();
+
+        // send email
+        emails.sendWelcomeEmail(req.body.email, req.body.first_name);
     });
 });
 

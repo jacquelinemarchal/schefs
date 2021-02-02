@@ -103,7 +103,7 @@ const EventPage = (props) => {
                 setReservedTicket(true)
             })
             .catch((err) => {
-                console.log(JSON.stringify(err))
+                console.log(err.response.data.err);
             })
         }
         else{
@@ -209,7 +209,12 @@ export default EventPage;
 export const getServerSideProps = async (context) => {
     const eventInfo = await new Promise((resolve, reject) => 
         pool.query(queries.getEvent, [ context.params.eid ], (err, results) => {
-            (err ? reject(err) : resolve((results.rows[0].event)))
+            if (err)
+                reject(err);
+            else if (results.rows.length == 0)
+                reject({ err: 'No such event' });
+            else
+                resolve((results.rows[0].event));
         })
     )
     const tickets = await new Promise((resolve, reject) =>

@@ -45,7 +45,7 @@ const CardContent = (props) => {
                     context.handleSetREvents(res.data);
                 })
                 .catch(err => console.log(err.response.data.err));
-        } else if (!context.rEvents) {
+        } else if (!context.lEvents) {
             axios
                 .get(`/api/users/${props.profile.uid}/events/live`)
                 .then(res => {
@@ -66,7 +66,7 @@ const CardContent = (props) => {
                 .catch(err => console.log(err.response.data.err));
         }
 
-        if (context.profile && context.profile.uid === props.profile.uid && context.rEvents) 
+        if (context.profile && context.profile.uid === props.profile.uid && context.rEvents)
             setEvents([...context.rEvents]);
         else if (context.lEvents)
             setEvents([...context.lEvents]);
@@ -195,7 +195,7 @@ const CardContent = (props) => {
               : events
                   ? <>
                         {events.length === 0
-                          ? <div className="text-gray-500 mt-6 text-sm hidden">
+                          ? <div className="text-gray-500 mt-6 text-sm">
                                 Your upcoming events will be displayed here... so go start reserving tickets already!
                             </div>
                           : null
