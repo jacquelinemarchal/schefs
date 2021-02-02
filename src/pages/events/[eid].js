@@ -184,7 +184,7 @@ const EventPage = (props) => {
                     <div className="sm:mr-8 shadow-md sm:shadow-none mr-4 border-solid border-black border sm:border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
                         <div className="p-4 grid-rows-3">
                             <div className="row-span-1 flex">
-                                <img src={'../' + props.eventInfo.hosts[0].img_profile
+                                <img src={process.env.BASE_URL + props.eventInfo.hosts[0].img_profile
                                 //TODO: update for cohosts
                                 } className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
                                 <p className="self-center ml-4 text-3xl">{props.eventInfo.host_name}</p>

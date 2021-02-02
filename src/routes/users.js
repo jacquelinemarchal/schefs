@@ -85,6 +85,8 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
  *      school      <string>
  *      major       <string>
  *      grad_year   <string>
+ *      is_verified <boolean>
+ *      is_admin    <boolean>
  *  403: may only access own information
  */
 router.get('/login/:fb_uid', verifyFirebaseIdToken, (req, res) => {
@@ -125,8 +127,7 @@ router.post('/signup', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ err: 'Firebase error: ' + err });
-	return;
-
+        return;
     }
 
     const values = [

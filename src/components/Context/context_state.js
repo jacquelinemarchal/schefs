@@ -151,13 +151,13 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     }
 
     const handleUpdateProfile = async (uid, updated_fields) => {
-	await axios.put('/api/users/' + uid, updated_fields);
-	try {
-	    const profile = (await axios.get('/api/users/' + uid)).data;
-	    dispatchAuthReducer(ACTIONS.updateProfile(profile));
-	} catch (err) {
-	    die(err);
-	}
+        try {
+            await axios.put('/api/users/' + uid, updated_fields);
+            const profile = (await axios.get('/api/users/' + uid)).data;
+            dispatchAuthReducer(ACTIONS.updateProfile(profile));
+        } catch (err) {
+            console.log(err.response.data.err);
+        }
     }
 
     /* Card Reducer */

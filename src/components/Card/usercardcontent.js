@@ -45,7 +45,7 @@ const CardContent = (props) => {
                     context.handleSetREvents(res.data);
                 })
                 .catch(err => console.log(err.response.data.err));
-        } else if (!context.lEvents) {
+        } else if (!context.rEvents) {
             axios
                 .get(`/api/users/${props.profile.uid}/events/live`)
                 .then(res => {
@@ -73,6 +73,7 @@ const CardContent = (props) => {
 
         if (context.profile && context.profile.uid === props.profile.uid && context.myEvents)
             setMyEvents([...context.myEvents]);
+
     }, [props.profile, context.profile, context.lEvents, context.rEvents, context.myEvents]);
 
     const toggleDropDown = () => {
@@ -125,8 +126,8 @@ const CardContent = (props) => {
             />
 
             {context.profile.isVerified
-            ? null
-            : <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
+                ? null
+                : <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
             }
 
             <ContentEditable
@@ -195,7 +196,7 @@ const CardContent = (props) => {
                   ? <>
                         {events.length === 0
                           ? <div className="text-gray-500 mt-6 text-sm hidden">
-                                Your upcoming events will be displayed here… so go start reserving tickets already!
+                                Your upcoming events will be displayed here... so go start reserving tickets already!
                             </div>
                           : null
                         }
