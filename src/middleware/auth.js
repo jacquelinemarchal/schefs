@@ -11,9 +11,9 @@ const verifyFirebaseIdToken = async (req, res, next) => {
 
 	pool.query(getUserFirebase, [decoded.uid], (q_err, q_res) => {
 	    if (q_err)
-		res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
 	    else {
-		req.profile = q_res.rows[0];
+            req.profile = q_res.rows[0];
 	    	next();
 	    }
 	});

@@ -15,7 +15,8 @@ CREATE TABLE users (
     bio           VARCHAR,
     school        VARCHAR(255) NOT NULL,
     major         VARCHAR(255) NOT NULL,
-    grad_year     VARCHAR(255) NOT NULL
+    grad_year     VARCHAR(255) NOT NULL,
+    is_admin      BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE events (

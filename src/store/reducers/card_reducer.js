@@ -26,12 +26,12 @@ export const CardReducer = (state=initialState, action) => {
         case ACTION_TYPES.SET_EVENTS:
             return {
                 ...state,
-                events: [...action.payload],
+                events: action.payload,
             }
         case ACTION_TYPES.SET_MY_EVENTS:
             return {
                 ...state,
-                myEvents: [...action.payload],
+                myEvents: action.payload,
             }
         default:
             return state
