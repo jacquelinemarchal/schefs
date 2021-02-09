@@ -5,10 +5,12 @@ const { Pool } = require('pg');
 const { createEvent, reserveTicket, createHost } = require('../src/utils/queries/events');
 const { uploadThumbnail } = require('../src/utils/queries/thumbnails');
 const { getUserFirebase, postSignup } = require('../src/utils/queries/users');
+const { postOpenMind } = require('../src/utils/queries/openmind');
 
 // initialize firebase
 const admin = require('firebase-admin');
-const serviceAccount = require('/Users/Chris 1/schefs/firebase-credentials.json');
+const serviceAccount = require('/Users/jacquelinemarchal/Documents/code/schefs/firebase-credentials.json');
+
 admin.initializeApp({
     credential: admin.credential.cert({
         privateKey: serviceAccount.private_key,
@@ -19,17 +21,27 @@ admin.initializeApp({
 });
 
 const firestore = admin.firestore();
-const storage = admin.storage().bucket('schefs.appspot.com');
 
+
+/*
 // initialize postgres
 const pool = new Pool({
     user: 'Chris',
     host: 'localhost',
     database: 'schefs',
-    password: 'mxUS4Cen',
+    password: '',
+    port: 5432,
+});*/
+
+const pool = new Pool({
+    user: 'jacquelinemarchal',
+    host: 'localhost',
+    database: 'schefs',
+    password: 'phoebe tonkin',
     port: 5432,
 });
 
+/*
 const downloadImage = async (file) => {
     const fileurl = file.publicUrl();
     const filename = uuidv4();
@@ -116,7 +128,6 @@ firestore.collection('users').get().then((snap) => {
                 tickets_snap.forEach(async (ticket_doc) => {
                     try {
                         const ticket_user_id = await pool.query(getUserFirebase, [ ticket_doc.id ]);
-                        console.log(ticket_user_id.rows[0]);
                         await pool.query(reserveTicket, [ event_id, ticket_user_id.rows[0].uid ]);
                     } catch (err) {
                         console.log(err);
@@ -124,9 +135,30 @@ firestore.collection('users').get().then((snap) => {
                 });
             } catch (err) {
                 console.log(err);
-                console.log(doc.data());
+                //console.log(doc.data());
                 console.log(doc.id);
             }
         });
     });
-});
+})*/
+
+    firestore.collection('openmind').get().then((snap) => {
+        snap.forEach(async (doc) => {
+            try {
+                const data = doc.data();
+                const user_id = (await pool.query(getUserFirebase, [ data.uid ])).rows[0].uid;
+               
+                // insert user into postgres
+                const values = [
+                    user_id,
+                    data.topic,
+                ];
+
+                await pool.query(postOpenMind, values);
+            } catch (err) {
+                console.log(err);
+            }
+        });
+    });
+
+
