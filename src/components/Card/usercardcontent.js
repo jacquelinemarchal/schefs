@@ -66,13 +66,14 @@ const CardContent = (props) => {
                 .catch(err => console.log(err.response.data.err));
         }
 
-        if (context.profile && context.profile.uid === props.profile.uid && context.rEvents) 
+        if (context.profile && context.profile.uid === props.profile.uid && context.rEvents)
             setEvents([...context.rEvents]);
         else if (context.lEvents)
             setEvents([...context.lEvents]);
 
         if (context.profile && context.profile.uid === props.profile.uid && context.myEvents)
             setMyEvents([...context.myEvents]);
+
     }, [props.profile, context.profile, context.lEvents, context.rEvents, context.myEvents]);
 
     const toggleDropDown = () => {
@@ -125,8 +126,8 @@ const CardContent = (props) => {
             />
 
             {context.profile.isVerified
-            ? null
-            : <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
+                ? null
+                : <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
             }
 
             <ContentEditable
@@ -194,8 +195,8 @@ const CardContent = (props) => {
               : events
                   ? <>
                         {events.length === 0
-                          ? <div className="text-gray-500 mt-6 text-sm hidden">
-                                Your upcoming events will be displayed here… so go start reserving tickets already!
+                          ? <div className="text-gray-500 mt-6 text-sm">
+                                Your upcoming events will be displayed here... so go start reserving tickets already!
                             </div>
                           : null
                         }
