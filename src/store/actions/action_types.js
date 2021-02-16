@@ -19,3 +19,5 @@ export const LOGOUT = 'LOGOUT';
 export const UPDATE_PROFILE = 'UPDATE_PROFILE';
 
 export const SET_HOME_EVENTS = 'SET_HOME_EVENTS';
+
+export const SET_LEFT_PROFILE = 'SET_LEFT_PROFILE';

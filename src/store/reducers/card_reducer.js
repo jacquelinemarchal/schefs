@@ -4,6 +4,7 @@ export const initialState = {
     isOpen: false,
     events: null,
     myEvents: null,
+    leftProfile: null,
 }
 
 export const CardReducer = (state=initialState, action) => {
@@ -32,6 +33,11 @@ export const CardReducer = (state=initialState, action) => {
             return {
                 ...state,
                 myEvents: action.payload,
+            }
+        case ACTION_TYPES.SET_LEFT_PROFILE:
+            return {
+                ...state,
+                leftProfile: action.payload,
             }
         default:
             return state

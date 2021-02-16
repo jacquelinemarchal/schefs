@@ -7,8 +7,8 @@ const EventThumbnail = (props) => {
     const context = useContext(Context);
 
     return (
-        <div onClick={context.handleCloseCard} className={"cursor-pointer col-span-1 mb-4 " + props.style} >
-            <a href={`/events/${props.eid}`}>
+        <div className={"col-span-1 mb-4 " + props.style} >
+            <a className="cursor-pointer" onClick={context.handleCloseCard} href={`/events/${props.eid}`}>
                 <div className="relative">
                     <img
                       src={process.env.BASE_URL + props.img_thumbnail}
@@ -23,8 +23,40 @@ const EventThumbnail = (props) => {
                     }
                 </div>
                 <p className="mb-1 text-sm">{props.title}</p> 
-                <p className="text-xs">Hosted by {props.host_name} • {props.host_school}<br></br> at {props.time_start}</p>
+                <p className="text-xs">Hosted by {props.host_name.split(' ')[0]} • {props.host_school}<br></br> at {props.time_start}</p>
             </a>
+
+            {props.showAttendees && props.hosts && props.attendees
+              ? <>
+                  <p>Hosted by:</p>
+                  {props.hosts.map(host => 
+                    <WhitePillButton
+                      text={host.first_name + ' ' + host.last_name}
+                      padding="w-full text-left pl-3 py-0.5 mb-1"
+                      size="lg"
+                      key={props.eid + ' ' + host.uid}
+                      handleClick={() => {
+                          context.handleSetLeftProfile(host);
+                          context.handleOpenCard(true, false);
+                      }}
+                    />
+                  )}
+                  <p>Attended by:</p>
+                  {props.attendees.map(attendee =>
+                    <WhitePillButton
+                      text={attendee.first_name + ' ' + attendee.last_name}
+                      padding="w-full text-left pl-3 py-0.5 mb-1"
+                      size="lg"
+                      key={props.eid + ' ' + attendee.uid}
+                      handleClick={() => {
+                          context.handleSetLeftProfile(attendee);
+                          context.handleOpenCard(true, false);
+                      }}
+                    />
+                  )}
+                </>
+              : null
+            }
         </div>
     )
 };

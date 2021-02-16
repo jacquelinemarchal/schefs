@@ -11,16 +11,15 @@ export default function Home(props) {
 
     useEffect(async () => {
         if (!context.events) {
-            const date_from = new Date();
             const date_to = new Date();
             date_to.setDate(date_to.getDate() + 17);
 
             const query = {
                 params: {
-                    date_from: '2019-01-01',
-                    date_to: '2021-12-31',
+                    date_from: '2018-01-01',
+                    date_to: date_to,
                     status: 'approved',
-                    type: 'summary',
+                    type: 'detailed',
                 }
             }
 
@@ -29,7 +28,10 @@ export default function Home(props) {
                 context.setHomeEvents(events);
                 setAllEvents(events);
             } catch (err) {
-                console.log(err.response.data.err);
+                if (err.response && err.response.data && err.response.data.err)
+                    console.log(err.response.data.err)
+                else
+                    console.log(err);
             }
         }
         
@@ -46,7 +48,16 @@ export default function Home(props) {
 
     return (
         <>
-            {allEvents ? <EventGrid events={allEvents} style="px-2" gridNum="3 mx-6" closeCardF={props.closeCardF} /> : null}
+            {allEvents
+              ? <EventGrid
+                  events={allEvents}
+                  style="px-2"
+                  gridNum="3 mx-6"
+                  closeCardF={props.closeCardF}
+                  showAttendees={true}
+                /> 
+              : null
+            }
             <Footer {...ambassador} />
         </>
     );

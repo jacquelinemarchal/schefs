@@ -45,12 +45,14 @@ const CardContent = (props) => {
                     context.handleSetREvents(res.data);
                 })
                 .catch(err => console.log(err.response.data.err));
-        } else if (!context.lEvents) {
+        }
+        
+        if (props.profile && !events) {
             axios
                 .get(`/api/users/${props.profile.uid}/events/live`)
                 .then(res => {
                     res.data = res.data.map(event => {
-                        if (context.profile.uid === event.host_id)
+                        if (props.profile.uid === event.host_id)
                             event.border = true;
                         return event;
                     });
@@ -125,9 +127,9 @@ const CardContent = (props) => {
                 className="text-5xl leading-none mb-4 focus:outline-none"
             />
 
-            {context.profile.isVerified
-                ? null
-                : <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
+            {!disabled && !context.profile.isVerified
+                ? <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
+                : null
             }
 
             <ContentEditable
