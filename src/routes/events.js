@@ -27,17 +27,6 @@ const router = express.Router();
  * axios.get("backend.com/api/events", query)
  *
  *
- *                  SAMPLE
- * let query = {
- *      params: {
- *          date_from:"2020-08-09",
- *          date_to:"2020-08-09",
- *      }
- * }
- * axios.get("backend.com/api/events", query)
- *
- *
- *
  * Request Parameters:
  *  query:
  *    date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'

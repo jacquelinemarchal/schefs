@@ -17,8 +17,8 @@ const NavBar = (props) => {
             return () => window.removeEventListener("scroll", onScroll)
         }, [])
         return (
-            <div className="z-50">
-                <nav className={"bg-white fixed top-0 md:top-auto w-full  " + (isScroll !== 0 ? 'shadow-lg' : '')}>
+            <div>
+                <nav style={{zIndex:3}} className={"bg-white fixed top-0 md:top-auto w-full  " + (isScroll !== 0 ? 'shadow-lg' : '')}>
                     <div className="sm:flex sm:justify-start sm:mx-8 sm:px-0 my-4 mx-4 px-4 py-1">
                         <div className="flex items-center">
                             <a href="/index">

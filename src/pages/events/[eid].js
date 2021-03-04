@@ -7,6 +7,7 @@ import React, { useEffect, useContext, useState } from "react"
 import Context from '../../components/Context/context';
 import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
+const { htmlToText } = require('html-to-text');
 
 const EventPage = (props) => {
     const [clientTickets, setClientTickets] = useState(props.tickets)
@@ -125,13 +126,13 @@ const EventPage = (props) => {
                     <img src={process.env.BASE_URL + props.eventInfo.img_thumbnail} className="sm:w-3/4 rounded-2xl"></img>
                 </div>
                 <div className="mb-2">
-                    {props.eventInfo.description}
+                    {htmlToText(props.eventInfo.description)}
                 </div>
                 <div className="text-2xl">
                     What to Prepare
                 </div>
                 <div className="mb-4">
-                    {props.eventInfo.requirements ? props.eventInfo.requirements : "This event has no requirements."}
+                    {props.eventInfo.requirements ? htmlToText(props.eventInfo.requirements) : "This event has no requirements."}
                 </div>
                 <hr></hr>
                 <div className="my-4 text-2xl">
