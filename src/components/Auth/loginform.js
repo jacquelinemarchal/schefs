@@ -12,26 +12,28 @@ const LoginForm = (props) => {
 
         // error[] format: typeError, errorMsg, emailBorderFormat, pwordBorderFormat
         // default = [null, null, "border-black", "border-black"]
-
-    // TASK:
-        //setError(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"])
-        // setError(["passwordError", "Sorry, seems like your password is incorrect. Please double-check your password & try again.", "border-black", "border-red-500"])
-        // on close reset error
         
     const context = useContext(Context);
 
     const handleSubmit = (values) => {
         context.handleLoginWithEmailAndPassword(values.email, values.password)
-       // alert(JSON.stringify(values, null, 2));
+        .catch((e)=>{
+            switch (e.code){
+                case "auth/user-not-found":
+                    setError(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"]);
+                    break;
+                case "auth/wrong-password":
+                    setError(["passwordError", "Sorry, seems like your password is incorrect. Please double-check your password & try again.", "border-black", "border-red-500"]);
+                    break;
+            }
+        })
     }
      
     const SigninSchema = Yup.object().shape({
         email: Yup.string()
-            .required('This field is required') 
-            .email('This is not a valid email'),
+            .required('This field is required'),
         password: Yup.string()
             .required("You must provide your password")
-            .min(8, "Your password must be at least 8 characters")
     });
     
     return (

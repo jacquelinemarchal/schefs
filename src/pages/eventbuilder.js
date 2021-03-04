@@ -7,7 +7,6 @@ import ContentEditable from 'react-contenteditable'
 import cohost from "../assets/cohost.png"
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
-import getCroppedImg from 'react-image-crop';
 import Cropper from 'react-easy-crop'
 
 import { ErrorMessage, Field, Form, Formik } from "formik";

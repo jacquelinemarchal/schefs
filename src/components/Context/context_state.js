@@ -44,10 +44,11 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
                 setAuthHeader(id_token);
 
                 try {
-                    const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
+                    let profile = (await axios.get('/api/users/login/' + fb_uid)).data;
+                    profile = {...profile, isVerified: user.emailVerified};
                     dispatchAuthReducer(ACTIONS.loginSuccess(profile));
                 } catch (err) {
-                    die(err);
+                    console.log(err);
                 }
             }
         });
@@ -61,11 +62,11 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
                 if (stateAuthReducer.profile && user.uid !== stateAuthReducer.profile.uid) {
                     const fb_uid = user.uid;
                     try {
-                        const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
+                        let profile = (await axios.get('/api/users/login/' + fb_uid)).data;
+                        profile = {...profile, isVerified: user.emailVerified};
                         dispatchAuthReducer(ACTIONS.loginSuccess(profile));
                     } catch (err) {
                         console.log(err);
-                        die(err);
                     }
                 }
 
@@ -116,7 +117,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             await axios.post('/api/users/signup', data);
             await handleLoginWithEmailAndPassword(email, password);
         } catch (err) {
-            die(err);
+            console.log(err);
         }
     }
 
@@ -160,7 +161,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         profile = {...profile, isVerified: firebase.auth().currentUser.emailVerified}
         dispatchAuthReducer(ACTIONS.updateProfile(profile));
     } catch (err) {
-        die(err);
+        console.log(err);
     }
     }
 

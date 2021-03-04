@@ -85,7 +85,7 @@ const CardContent = (props) => {
     // for "Browse events" button
     const closeCard = () => {
         if (window.location.pathname === "/" || window.location.pathname ===  "" || window.location.pathname === "/index")
-            context.handleCloseCard();
+            context.handleCloseCard(true, true);
         else
             window.location.href="/"
     }
