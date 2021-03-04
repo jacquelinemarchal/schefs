@@ -43,6 +43,13 @@ const getEventsDetailed = `
             LEFT JOIN event_hosts AS eh
                 ON u.uid = eh.user_id
             WHERE eh.event_id = e.eid
+        ),
+        'attendees', (
+            SELECT JSON_AGG(ROW_TO_JSON(u))
+            FROM users AS u
+            LEFT JOIN tickets AS tk
+                ON u.uid = tk.user_id
+            WHERE tk.event_id = e.eid
         )
     )
     FROM events AS e, thumbnails AS t
@@ -56,7 +63,7 @@ const getEventsDetailed = `
         'all' = $3 OR
         e.status = $3
     ) AND
-	t.tid = e.thumbnail_id
+        t.tid = e.thumbnail_id
     ORDER BY e.time_start ASC
 `;
 

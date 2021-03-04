@@ -154,14 +154,14 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     }
 
     const handleUpdateProfile = async (uid, updated_fields) => {
-	try {
+    try {
         await axios.put('/api/users/' + uid, updated_fields);
-	    let profile = (await axios.get('/api/users/' + uid)).data;
+        let profile = (await axios.get('/api/users/' + uid)).data;
         profile = {...profile, isVerified: firebase.auth().currentUser.emailVerified}
-	    dispatchAuthReducer(ACTIONS.updateProfile(profile));
-	} catch (err) {
-	    die(err);
-	}
+        dispatchAuthReducer(ACTIONS.updateProfile(profile));
+    } catch (err) {
+        die(err);
+    }
     }
 
     /* Card Reducer */
@@ -176,10 +176,17 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         CardReducer.initialState,
     );
     
+    useEffect(() => {
+        if (stateRCardReducer.isOpen || stateLCardReducer.isOpen)
+            document.body.style.overflow = 'hidden';
+        else
+            document.body.style.overflow = '';
+    }, [stateRCardReducer.isOpen, stateLCardReducer.isOpen]);
+
     const handleOpenCard = (left, right) => {
         if (right)
             dispatchRCardReducer(ACTIONS.openCard());
-        if (left)
+        if (left) 
             dispatchLCardReducer(ACTIONS.openCard());
     }
 
@@ -200,6 +207,8 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     const handleSetREvents = (events) => dispatchRCardReducer(ACTIONS.setEvents(events));
     const handleSetLEvents = (events) => dispatchLCardReducer(ACTIONS.setEvents(events));
     const handleSetMyEvents = (events) => dispatchRCardReducer(ACTIONS.setMyEvents(events));
+
+    const handleSetLeftProfile = (profile) => dispatchLCardReducer(ACTIONS.setLeftProfile(profile));
 
     /* EVENTS REDUCER */
 
@@ -235,6 +244,9 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             handleLoginWithGoogle,
             handleUpdateProfile,
 
+            leftProfile: stateLCardReducer.leftProfile,
+            handleSetLeftProfile,
+
             events: stateEventsReducer.events,
             setHomeEvents,
           }}
@@ -243,10 +255,10 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
           <NavBar scrollShadow={false} />
           <CardButton />        
           <Card right={true} />
-          <Card right={false} profile={{"uid":5,"email":"cyw2124@columbia.edu","phone":null,"first_name":"Christopher","last_name":"Wang","img_profile":null,"bio":null,"school":"Columbia University","major":"Math","grad_year":2022,"fb_uid":"bOBANGm9UzPWeZMymLQkqWScSbm1"}}/>
+          <Card right={false} />
           <GreyOut />
 
-          <div className={(stateRCardReducer.isOpen ? 'overflow-hidden fixed w-full' : '')}>
+          <div className='w-full'>
             <Component {...pageProps}/>
           </div>
         </Context.Provider>
