@@ -127,12 +127,13 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         const fb_uid = user.uid;
         const id_token = await user.getIdToken();
         setAuthHeader(id_token);
-        
+
         try {
-            const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
+            let profile = (await axios.get('/api/users/login/' + fb_uid)).data;
+            profile = {...profile, isVerified: firebase.auth().currentUser.emailVerified}
             dispatchAuthReducer(ACTIONS.loginSuccess(profile));
         } catch (err) {
-            die(err);
+            console.log(err);
         }
     }
 
@@ -155,7 +156,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     const handleUpdateProfile = async (uid, updated_fields) => {
 	try {
         await axios.put('/api/users/' + uid, updated_fields);
-	    const profile = (await axios.get('/api/users/' + uid)).data;
+	    let profile = (await axios.get('/api/users/' + uid)).data;
         profile = {...profile, isVerified: firebase.auth().currentUser.emailVerified}
 	    dispatchAuthReducer(ACTIONS.updateProfile(profile));
 	} catch (err) {

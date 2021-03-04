@@ -18,7 +18,7 @@ export default function ApprovalPortal() {
             params: {
                 date_from: '2020-12-31',
                 date_to: '2021-01-31',
-                status: 'denied',
+                status: 'pending',
                 type: 'summary',
             }
         }
@@ -32,7 +32,7 @@ export default function ApprovalPortal() {
     },[]);
 
     return (
-        <>{pendingEvents ? <EventGrid events={pendingEvents} style="px-2" gridNum="3 mx-6" closeCardF={()=>{console.log("close card")}}/> : null}
+        <>{pendingEvents && pendingEvents.length ? <EventGrid events={pendingEvents} style="px-2" gridNum="3 mx-6" closeCardF={()=>{console.log("close card")}}/> : <> <div>No Events</div> </>}
         </>
     );
 };
