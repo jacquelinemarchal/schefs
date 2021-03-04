@@ -45,12 +45,14 @@ const CardContent = (props) => {
                     context.handleSetREvents(res.data);
                 })
                 .catch(err => console.log(err.response.data.err));
-        } else if (!context.lEvents) {
+        }
+        
+        if (props.profile && !events) {
             axios
                 .get(`/api/users/${props.profile.uid}/events/live`)
                 .then(res => {
                     res.data = res.data.map(event => {
-                        if (context.profile.uid === event.host_id)
+                        if (props.profile.uid === event.host_id)
                             event.border = true;
                         return event;
                     });
@@ -66,13 +68,14 @@ const CardContent = (props) => {
                 .catch(err => console.log(err.response.data.err));
         }
 
-        if (context.profile && context.profile.uid === props.profile.uid && context.rEvents) 
+        if (context.profile && context.profile.uid === props.profile.uid && context.rEvents)
             setEvents([...context.rEvents]);
         else if (context.lEvents)
             setEvents([...context.lEvents]);
 
         if (context.profile && context.profile.uid === props.profile.uid && context.myEvents)
             setMyEvents([...context.myEvents]);
+
     }, [props.profile, context.profile, context.lEvents, context.rEvents, context.myEvents]);
 
     const toggleDropDown = () => {
@@ -124,9 +127,9 @@ const CardContent = (props) => {
                 className="text-5xl leading-none mb-4 focus:outline-none"
             />
 
-            {context.profile.isVerified
-            ? null
-            : <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
+            {!disabled && !context.profile.isVerified
+                ? <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
+                : null
             }
 
             <ContentEditable
@@ -183,7 +186,7 @@ const CardContent = (props) => {
                         {myEvents.length
                           ? <div className="mt-4 text-sm">
                                 <>Events I'm hosting:</>
-                                <div id="innerCardContainer" className="overflow-scroll mt-2" style={{height: "333px"}}>
+                                <div id="innerCardContainer" className="overflow-scroll mt-2">
                                     <EventGrid events={myEvents} style="mr-12" gridNum="1"/>
                                 </div>
                             </div>
@@ -194,8 +197,8 @@ const CardContent = (props) => {
               : events
                   ? <>
                         {events.length === 0
-                          ? <div className="text-gray-500 mt-6 text-sm hidden">
-                                Your upcoming events will be displayed here… so go start reserving tickets already!
+                          ? <div className="text-gray-500 mt-6 text-sm">
+                                Your upcoming events will be displayed here... so go start reserving tickets already!
                             </div>
                           : null
                         }
@@ -209,7 +212,7 @@ const CardContent = (props) => {
                                     ? <>{props.profile.first_name}'s upcoming events:</>
                                     : <>My upcoming events:</>
                                 }
-                                <div id="innerCardContainer" className="overflow-scroll mt-2" style={{height: "333px"}}>
+                                <div id="innerCardContainer" className="overflow-scroll mt-2">
                                     <EventGrid events={events} style="mr-12" gridNum="1"/>
                                 </div>
                             </div>

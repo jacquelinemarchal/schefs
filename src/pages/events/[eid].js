@@ -20,14 +20,14 @@ const EventPage = (props) => {
     /* Get comments and new tickets for event every 10 seconds*/ 
     useEffect(() => {
         const interval = setInterval(() => {
-            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/countTickets`)
+            axios.get(`/api/events/${props.eventInfo.eid}/countTickets`)
             .then(res => {
                 (res.data.count === "0" ? setClientTickets(0) : setClientTickets(parseInt(res.data.count, 10)))
             })
             .catch(err => {
                 console.log(err)
             })
-            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/comments`)
+            axios.get(`/api/events/${props.eventInfo.eid}/comments`)
             .then(res => {
                 setClientComments(res.data)
             })
@@ -40,7 +40,7 @@ const EventPage = (props) => {
       
     useEffect(() => {
         if (context.profile){
-            axios.get(`http://localhost:5000/api/events/${props.eventInfo.eid}/${context.profile.uid}/ticketstatus`)
+            axios.get(`/api/events/${props.eventInfo.eid}/${context.profile.uid}/ticketstatus`)
             .then(res => {
                 setReservedTicket(res.data)
             })
@@ -78,7 +78,7 @@ const EventPage = (props) => {
                     body:commentBody,
                     school: context.profile.school,
                 }
-                axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/comment`, sendComment)
+                axios.post(`/api/events/${props.eventInfo.eid}/comment`, sendComment)
                 .then((res)=>{
                     setCommentBody("")
                     console.log(res)
@@ -98,12 +98,12 @@ const EventPage = (props) => {
                 user_id: context.profile.uid,
             }
             setClientTickets(clientTickets + 1)
-            axios.post(`http://localhost:5000/api/events/${props.eventInfo.eid}/tickets`, userContent)
+            axios.post(`/api/events/${props.eventInfo.eid}/tickets`, userContent)
             .then(() => {
                 setReservedTicket(true)
             })
             .catch((err) => {
-                console.log(JSON.stringify(err))
+                console.log(err.response.data.err);
             })
         }
         else{
@@ -184,7 +184,7 @@ const EventPage = (props) => {
                     <div className="sm:mr-8 shadow-md sm:shadow-none mr-4 border-solid border-black border sm:border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
                         <div className="p-4 grid-rows-3">
                             <div className="row-span-1 flex">
-                                <img src={'../' + props.eventInfo.hosts[0].img_profile
+                                <img src={process.env.BASE_URL + props.eventInfo.hosts[0].img_profile
                                 //TODO: update for cohosts
                                 } className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
                                 <p className="self-center ml-4 text-3xl">{props.eventInfo.host_name}</p>
@@ -209,7 +209,12 @@ export default EventPage;
 export const getServerSideProps = async (context) => {
     const eventInfo = await new Promise((resolve, reject) => 
         pool.query(queries.getEvent, [ context.params.eid ], (err, results) => {
-            (err ? reject(err) : resolve((results.rows[0].event)))
+            if (err)
+                reject(err);
+            else if (results.rows.length == 0)
+                reject({ err: 'No such event' });
+            else
+                resolve((results.rows[0].event));
         })
     )
     const tickets = await new Promise((resolve, reject) =>

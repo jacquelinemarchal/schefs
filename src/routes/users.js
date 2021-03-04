@@ -5,6 +5,7 @@ const upload = require('../utils/multer');
 const express = require('express');
 const pool = require('../utils/db');
 const queries = require('../utils/queries/users');
+const emails = require('../utils/emails');
 
 const router = express.Router();
 
@@ -53,6 +54,8 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
                 delete q_res.rows[0].fb_uid;
                 delete q_res.rows[0].email;
                 delete q_res.rows[0].phone;
+                delete q_res.rows[0].is_verified;
+                delete q_res.rows[0].is_admin;
                 res.status(200).json(q_res.rows[0]);
             }
         }
@@ -83,6 +86,8 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
  *      school      <string>
  *      major       <string>
  *      grad_year   <string>
+ *      is_verified <boolean>
+ *      is_admin    <boolean>
  *  403: may only access own information
  */
 router.get('/login/:fb_uid', verifyFirebaseIdToken, (req, res) => {
@@ -123,8 +128,7 @@ router.post('/signup', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ err: 'Firebase error: ' + err });
-	return;
-
+        return;
     }
 
     const values = [
@@ -150,6 +154,9 @@ router.post('/signup', async (req, res) => {
                 res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         } else
             res.status(201).send();
+
+        // send email
+        emails.sendWelcomeEmail(req.body.email, req.body.first_name);
     });
 });
 

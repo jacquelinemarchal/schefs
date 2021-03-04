@@ -9,7 +9,7 @@ import LoginForm from '../Auth/loginform';
 import PasswordReset from '../Auth/passwordreset';
 import Context from '../Context/context';
 
-// props.right = boolean side of screen, props.profile = profile to display, if not the current user's card
+// props.right = boolean side of screen
 const Card = (props) => {
     const context = useContext(Context);
     const [cardInterior, setCardInterior] = useState("login");
@@ -49,7 +49,9 @@ const Card = (props) => {
                           : cardInterior === "password"
                               ? <PasswordReset function={() => setCardInterior("login")}/> 
                               : null
-              : <CardContent profile={props.profile} />
+              : context.leftProfile
+                  ? <CardContent profile={context.leftProfile} />
+                  : null
 		    }
           </div>
         </CSSTransition>

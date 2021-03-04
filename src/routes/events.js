@@ -1,11 +1,17 @@
+const moment = require('moment-timezone');
+const schedule = require('node-schedule');
+
 const { verifyFirebaseIdToken } = require('../middleware/auth');
 
 const express = require('express');
 const pool = require('../utils/db');
 const queries = require('../utils/queries/events');
 const thumbnail_queries = require('../utils/queries/thumbnails');
+const emails = require('../utils/emails');
 
 const router = express.Router();
+
+// TODO: event approval/denial
 
 /*
  * GET /api/events
@@ -222,7 +228,16 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
                 await client.query(queries.createHost, [ host.uid, eid ]);
 
             await client.query('COMMIT');
+
+            // send email
+            emails.sendEventSubmittedEmail(
+                req.profile.email,
+                req.profile.first_name,
+                req.body.title
+            );
+
             res.status(201).send();
+
         }
     } catch (err) {
         await client.query('ROLLBACK');
@@ -270,6 +285,48 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
 
             await client.query(queries.reserveTicket, values);
             await client.query('COMMIT');
+
+            // handle emails
+            
+            // reserve email
+            const event = (await pool.query(queries.getEvent, [ req.params.eid ])).rows[0].event;
+            emails.sendReserveEmail(
+                req.profile.email,
+                req.profile.first_name,
+                event.title,
+                moment.tz(event.time_start, 'America/New_York').format('dddd, MMMM D, YYYY'),
+                moment.tz(event.time_start, 'America/New_York').format('h:mm A, z'),
+                process.env.BASE_URL + '/events/' + req.params.eid
+            );
+
+            // schedule 24 hour email 
+            time_24hr = new Date(event.time_start);
+            time_24hr.setDate(time_24hr.getDate() - 1);
+            schedule.scheduleJob(time_24hr, () => emails.send24HourReminderEmail(
+                req.profile.email,
+                req.profile.first_name,
+                event.title
+            ));
+
+            // schedule 30 minute email
+            time_30min = new Date(event.time_start);
+            time_30min.setMinutes(time_30min.getMinutes() - 30);
+            schedule.scheduleJob(time_30min, () => emails.send30MinuteReminderEmail(
+                req.profile.email,
+                req.profile.first_name,
+                event.title,
+                event.zoom_link
+            ));
+
+            // schedule post-event email
+            time_post = new Date(event.time_start);
+            time_post.setHours(time_post.getHours() + 2);
+            schedule.scheduleJob(time_post, () => emails.sendPostEventEmail(
+                req.profile.email,
+                req.profile.first_name,
+                event.title
+            ));
+
             res.status(201).send();
         }
     } catch (err) {

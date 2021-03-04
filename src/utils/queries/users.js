@@ -82,7 +82,7 @@ const updateUser = `
  * $1: uid <int> required
  */
 const getUserLiveEvents = `
-    SELECT 
+    SELECT DISTINCT
         e.eid, e.host_name, e.host_school,
         e.host_bio, e.title, e.time_start,
         eh.user_id AS host_id,

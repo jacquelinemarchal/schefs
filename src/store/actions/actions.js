@@ -49,6 +49,11 @@ export const setMyEvents = (events) => ({
     payload: events,
 });
 
+export const setLeftProfile = (profile) => ({
+    type: ACTION_TYPES.SET_LEFT_PROFILE,
+    payload: profile,
+});
+
 /* EVENTS ACTIONS */
 
 export const setHomeEvents = (events) => ({

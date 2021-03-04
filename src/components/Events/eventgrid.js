@@ -11,6 +11,7 @@ const EventGrid = (props) => {
                     border={p.border}
                     key={-p.eid}
                     closeCardF={props.closeCardF}
+                    showAttendees={Boolean(props.showAttendees)}
                   />
                 )
               : null

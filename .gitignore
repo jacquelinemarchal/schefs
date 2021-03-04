@@ -40,4 +40,6 @@ yarn-error.log*
 *.jpg
 *.png
 *.gif
+<<<<<<< Updated upstream
 images/*
+public/images/*

@@ -19,16 +19,12 @@
     outline: none;
 }
 
-#innerCardContainer {
-    height: "400px"
-}
-
 @media screen and (min-width: 666px) {
     #innerCardContainer {
-        height: "333px"
+        height: 200px
     }
     #imageContainerEB {
-        height: "30rem"
+        height: 30rem;
     }
     #cardSize{
         width: 430px;
@@ -39,6 +35,9 @@
 @media screen and (max-width: 666px){
     #imageContainerEB {
         height: ""
+    }
+    #innerCardContainer {
+        height: 200px;
     }
     #cardSize{
         min-width: 80vw;

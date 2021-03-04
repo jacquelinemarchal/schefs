@@ -59,7 +59,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
                 dispatchAuthReducer(ACTIONS.logout());
             else {
                 if (stateAuthReducer.profile && user.uid !== stateAuthReducer.profile.uid) {
-		    const fb_uid = user.uid;
+                    const fb_uid = user.uid;
                     try {
                         const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
                         dispatchAuthReducer(ACTIONS.loginSuccess(profile));
@@ -147,17 +147,19 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     const handleLogout = async () => {
         await firebase.auth().signOut();
         setAuthHeader(null);
+        handleSetREvents(null);
+        handleSetMyEvents(null);
         dispatchAuthReducer(ACTIONS.logout());
     }
 
     const handleUpdateProfile = async (uid, updated_fields) => {
-	await axios.put('/api/users/' + uid, updated_fields);
-	try {
-	    const profile = (await axios.get('/api/users/' + uid)).data;
-	    dispatchAuthReducer(ACTIONS.updateProfile(profile));
-	} catch (err) {
-	    die(err);
-	}
+        await axios.put('/api/users/' + uid, updated_fields);
+        try {
+            const profile = (await axios.get('/api/users/' + uid)).data;
+            dispatchAuthReducer(ACTIONS.updateProfile(profile));
+        } catch (err) {
+            die(err);
+        }
     }
 
     /* Card Reducer */
@@ -172,10 +174,17 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         CardReducer.initialState,
     );
     
+    useEffect(() => {
+        if (stateRCardReducer.isOpen || stateLCardReducer.isOpen)
+            document.body.style.overflow = 'hidden';
+        else
+            document.body.style.overflow = '';
+    }, [stateRCardReducer.isOpen, stateLCardReducer.isOpen]);
+
     const handleOpenCard = (left, right) => {
         if (right)
             dispatchRCardReducer(ACTIONS.openCard());
-        if (left)
+        if (left) 
             dispatchLCardReducer(ACTIONS.openCard());
     }
 
@@ -196,6 +205,8 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     const handleSetREvents = (events) => dispatchRCardReducer(ACTIONS.setEvents(events));
     const handleSetLEvents = (events) => dispatchLCardReducer(ACTIONS.setEvents(events));
     const handleSetMyEvents = (events) => dispatchRCardReducer(ACTIONS.setMyEvents(events));
+
+    const handleSetLeftProfile = (profile) => dispatchLCardReducer(ACTIONS.setLeftProfile(profile));
 
     /* EVENTS REDUCER */
 
@@ -231,6 +242,9 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             handleLoginWithGoogle,
             handleUpdateProfile,
 
+            leftProfile: stateLCardReducer.leftProfile,
+            handleSetLeftProfile,
+
             events: stateEventsReducer.events,
             setHomeEvents,
           }}
@@ -239,10 +253,10 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
           <NavBar scrollShadow={false} />
           <CardButton />        
           <Card right={true} />
-          <Card right={false} profile={{"uid":5,"email":"cyw2124@columbia.edu","phone":null,"first_name":"Christopher","last_name":"Wang","img_profile":null,"bio":null,"school":"Columbia University","major":"Math","grad_year":2022,"fb_uid":"bOBANGm9UzPWeZMymLQkqWScSbm1"}}/>
+          <Card right={false} />
           <GreyOut />
 
-          <div className={(stateRCardReducer.isOpen ? 'overflow-hidden fixed w-full' : '')}>
+          <div className='w-full'>
             <Component {...pageProps}/>
           </div>
         </Context.Provider>
