@@ -187,7 +187,7 @@ const CardContent = (props) => {
                           ? <div className="mt-4 text-sm">
                                 <>Events I'm hosting:</>
                                 <div id="innerCardContainer" className="overflow-scroll mt-2">
-                                    <EventGrid events={myEvents} style="mr-12" gridNum="1"/>
+                                    <EventGrid isEditable={false} events={myEvents} style="mr-12" gridNum="1"/>
                                 </div>
                             </div>
                           : null
@@ -213,7 +213,7 @@ const CardContent = (props) => {
                                     : <>My upcoming events:</>
                                 }
                                 <div id="innerCardContainer" className="overflow-scroll mt-2">
-                                    <EventGrid events={events} style="mr-12" gridNum="1"/>
+                                    <EventGrid isEditable={false} events={events} style="mr-12" gridNum="1"/>
                                 </div>
                             </div>
                           : null

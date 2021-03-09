@@ -50,6 +50,7 @@ export default function Home(props) {
         <>
             {allEvents
               ? <EventGrid
+                  isEditable={false}
                   events={allEvents}
                   style="px-2"
                   gridNum="3 mx-6"

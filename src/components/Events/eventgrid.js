@@ -7,6 +7,7 @@ const EventGrid = (props) => {
               ? props.events.map(p =>
                   <EventThumbnail
                     {...p}
+                    isEditable={props.isEditable}
                     style={props.style}
                     border={p.border}
                     key={-p.eid}

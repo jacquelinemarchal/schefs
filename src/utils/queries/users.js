@@ -7,6 +7,14 @@ const getUser = `
 `;
 
 /*
+* $1: date_from <string | Date> - if string, must be of form 'YYY-MM-DD'
+* $2: date_to   <string | Date> - if string, must be of form 'YYY-MM-DD'
+*/
+const getUserCount = `
+    SELECT COUNT(*) FROM users
+`;
+
+/*
  * $1: fb_uid <string> required
  */
 const getUserFirebase = `
@@ -124,6 +132,7 @@ const getUserHostingEvents = `
 
 module.exports = {
     getUser,
+    getUserCount,
     getUserFirebase,
     postSignup,
 	updateUser,

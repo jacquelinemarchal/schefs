@@ -165,6 +165,14 @@ const getReservedTicketsCount = `
 `;
 
 /*
+* $1: date_from <string | Date> - if string, must be of form 'YYY-MM-DD'
+* $2: date_to   <string | Date> - if string, must be of form 'YYY-MM-DD'
+*/
+const getAllReservedTicketsCount = `
+    SELECT COUNT(*) FROM tickets
+`;
+
+/*
  * $1: event_id <int> required
  * $2: user_id  <int> required
  */
@@ -230,6 +238,7 @@ module.exports = {
     getEvent,
     getReservedTickets,
     getReservedTicketsCount,
+    getAllReservedTicketsCount,
     checkTicketStatus,
     reserveTicket,
     deleteTicket,
