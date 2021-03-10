@@ -157,6 +157,37 @@ const createHost = `
 `;
 
 /*
+ * $1:  host_name    <string>
+ * $2:  host_school  <string>
+ * $3:  host_bio     <string>
+ * $4:  title        <string>
+ * $5:  description  <string>
+ * $6:  requirements <string>
+ * $7:  thumbnail_id <int>
+ * $8:  zoom_link    <string>
+ * $9:  zoom_id      <string>
+ * $10: time_start   <Date>
+ * $11: status       <string>
+ * $12: eid          <int>
+ */
+const updateEvent = `
+    UPDATE events
+    SET host_name = COALESCE($1, host_name),
+        host_school = COALESCE($2, host_school),
+        host_bio = COALESCE($3, host_bio),
+        title = COALESCE($4, title),
+        description = COALESCE($5, description),
+        requirements = COALESCE($6, requirements),
+        thumbnail_id = COALESCE($7, thumbnail_id),
+        zoom_link = COALESCE($8, zoom_link),
+        zoom_id = COALESCE($9, zoom_id),
+        time_start = COALESCE($10, time_start),
+        time_created = CURRENT_TIMESTAMP,
+        status = COALESCE($11, status)
+    WHERE eid = $12
+`;
+
+/*
  * $1: eid <int>
  */
 const getReservedTicketsCount = `
@@ -234,5 +265,6 @@ module.exports = {
     reserveTicket,
     deleteTicket,
     createEvent,
+    updateEvent,
     createHost,
 };

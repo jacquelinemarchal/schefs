@@ -4,6 +4,21 @@ const getThumbnails = `
 `;
 
 /*
+ * $1: location <string> required - location of old thumbnail
+ * $2: tid      <int>    required - tid of replacing thumbnail
+ */
+const replaceThumbnail = `
+    WITH thumb AS (
+        UPDATE thumbnails
+        SET is_used = false
+        WHERE location = $1
+    )
+    UPDATE thumbnails AS t
+    SET t.is_used = true
+    WHERE t.tid = $2
+`;
+
+/*
  * $1: tid <int> required
  */
 const checkThumbnail = `
@@ -22,6 +37,15 @@ const setThumbnailUsed = `
 `;
 
 /*
+ * $1: tid <int> required
+ */
+const setThumbnailUnused = `
+    UPDATE thumbnails
+    SET is_used = false
+    WHERE tid = $2
+`;
+
+/*
  * $1: location <string> required
  */
 const uploadThumbnail = `
@@ -35,7 +59,9 @@ const uploadThumbnail = `
 
 module.exports = {
 	getThumbnails,
+    replaceThumbnail,
     checkThumbnail,
     setThumbnailUsed,
+    setThumbnailUnused,
     uploadThumbnail,
 };
