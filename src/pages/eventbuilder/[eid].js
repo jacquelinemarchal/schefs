@@ -1,21 +1,26 @@
-import WhitePillButton from "../components/Buttons/wpillbutton"
+import WhitePillButton from "../../components/Buttons/wpillbutton"
+import pool from '../../utils/db';
+import queries from "../../utils/queries/events"
 import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
 import axios from "axios"
 import HighlightOff from '@material-ui/icons/HighlightOff';
 import { htmlToText } from 'html-to-text';
 import ContentEditable from 'react-contenteditable'
-import cohost from "../assets/cohost.png"
+import cohost from "../../assets/cohost.png"
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 import Cropper from 'react-easy-crop'
+import { useRouter } from 'next/router'
+import pencil from "../../assets/pencil.png"
 
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import Context from '../components/Context/context';
+import Context from '../../components/Context/context';
 import * as Yup from "yup"
 import { now } from "moment";
 
 const EventBuilder = (props) => {
     const context = useContext(Context);
+    const [editMode, setEditMode] = useState(false)
 
     const defaultProfilePicture = 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2FScreen%20Shot%202021-01-24%20at%2010.57.18%20AM.jpeg?alt=media&token=a88fcb5e-4919-4bc6-b792-23d725324040';
     const defaultThumbnail = {
@@ -45,7 +50,6 @@ const EventBuilder = (props) => {
     const [profilePictureURL, setProfilePictureURL] = useState(defaultProfilePicture);
 
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)    
-    const [isModalOpen, setIsModalOpen] = useState(true)
     const [isCoHostOpen, setIsCoHostOpen] = useState(false)
 
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
@@ -57,7 +61,6 @@ const EventBuilder = (props) => {
     const escFunction = (event) => {
         if (event.keyCode === 27) {
       	    setIsPhotoDisplayOpen(false);
-            setIsModalOpen(false);
         }
     };
 
@@ -80,24 +83,22 @@ const EventBuilder = (props) => {
     useEffect(() => {
         document.addEventListener("keydown", escFunction, false);
 
-        if (context.profile){
-            var user = context.profile;
-            setPreLoad({
-                coHostEmail: "",
-				title: "",
-				description: "",
-				requirements: "",
-                first_name: user.first_name,
-                last_name: user.last_name,
-                grad_year: user.grad_year,
-                school: user.school,
-                major: user.major,
-            })
-        }
+        setPreLoad({
+            coHostEmail: "",
+            title: `${props.eventInfo.title}`,
+            description: "",
+            requirements: "",
+            first_name: "",
+            last_name: "",
+            grad_year: "",
+            school: "",
+            major: "",
+        })
+
         return () => {
           document.removeEventListener("keydown", escFunction, false);
         };
-    }, [context.profile]);
+    }, [editMode]);
 
     const makeCroppedImage = () => {
         const image = new Image()
@@ -160,6 +161,7 @@ const EventBuilder = (props) => {
         //values not yet in the endpoint= [coHostEmail, lastName, gradYear, major]
 
         setSubmitting(false);
+        setEditMode(false);
 
         const eventData = {
             title: values.title,
@@ -172,7 +174,7 @@ const EventBuilder = (props) => {
         }
 
         try {
-            await axios.post('/api/events', eventData);
+            await axios.post('/api/events', eventData); // TODO: change to update
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 alert('Thumbnail already in use, choose a different one');
@@ -203,7 +205,7 @@ const EventBuilder = (props) => {
             });
 
             alert('event successfully submitted');
-            window.location.href = '/';
+            window.location.href = '/admin';
 		} catch (err) {
             if (err.response && err.response.data)
                 alert(err.response.data.err);
@@ -245,7 +247,7 @@ const EventBuilder = (props) => {
     });
 
     return (
-        preLoad.first_name && context.profile && !isLoading ?
+        context.profile && !isLoading ?
         <Formik
             initialValues={preLoad}
             onSubmit={handleSubmit}
@@ -253,35 +255,6 @@ const EventBuilder = (props) => {
         >
             {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
             <Form>
-
-                {isModalOpen ? 
-                    <>
-                        <div className="h-screen fixed w-screen" onClick={() => setIsModalOpen(!isModalOpen)}></div>
-                        <div className="fixed overflow-scroll m-16 top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
-                            <div className="flex justify-end">
-                                <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
-                                    <HighlightOff/>
-                                </button>
-                            </div>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="grid col-span-1 px-16 pt-2 pb-12">
-                                    <h2 className="text-5xl">Welcome to the<br></br> Event Builder*</h2>
-                                    <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                                    <p className="text-sm mt-4"><b>*</b> Click “HELP” to return to this screen at any point</p>
-                                </div>
-                                <div className="grid col-span-1">
-                                    <div className="grid col-span-1 mx-6 px-10 my-4 pb-10 overflow-y-auto" style={{maxHeight: "30rem"}}>
-                                        <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                                        <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
-                                        <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                                        <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
-                    </>
-                    : null}
-
                 {isPhotoDisplayOpen ? 
                     <>
                         <div className="h-screen fixed w-screen" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}></div>
@@ -332,6 +305,7 @@ const EventBuilder = (props) => {
                     <div className="grid col-span-3">
                         <Field 
                             name="title" 
+                            disabled={!editMode}
                             validate={charCounter}
                             className="text-left text-5xl leading-snug mb-1 focus:outline-none"
                             placeholder="My event title..."
@@ -389,11 +363,35 @@ const EventBuilder = (props) => {
                                   type="submit"
                                   className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
                                 >
-                                    SUBMIT
+                                    APPROVE
                                 </button>
-                                <div onClick={() => {setIsModalOpen(true)}}> 
-                                    <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
-                                </div>
+                                <button
+                                    onClick={() => {setEditMode(true)}}>
+                                    <img 
+                                    src = {pencil}
+                                    className = "h-8 focus:outline-none" />
+                                </button>
+
+                                {editMode ? 
+                                <>
+                                    <WhitePillButton onClick={() => {setEditMode(false);}} padding="px-4" text="CANCEL" />
+                                    <button
+                                        disabled={
+                                            selectedThumbnail.tid === -1 ||
+                                            profilePictureURL === defaultProfilePicture ||
+                                            !isValid ||
+                                            !dirty ||
+                                            isSubmitting
+                                        }
+                                        type="submit"
+                                        className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                        >
+                                        SAVE
+                                        </button>
+                                </>
+                                :
+                                null}
+                                
                             </div>
                             <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-20" style={{ maxWidth: "300px"}}>
                                 <p>Hosted by:</p>
@@ -507,9 +505,6 @@ const EventBuilder = (props) => {
                                         >
                                             SET DATE &amp; SUBMIT
                                         </button>
-                                        <div onClick={() => {setIsModalOpen(true)}}> 
-                                            <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
-                                        </div>
                                 </footer>
                             </div>
                         </div>
@@ -525,3 +520,21 @@ const EventBuilder = (props) => {
 };
 
 export default EventBuilder;
+
+export const getServerSideProps = async (context) => {
+    const eventInfo = await new Promise((resolve, reject) => 
+        pool.query(queries.getEvent, [ context.params.eid ], (err, results) => {
+            if (err)
+                reject(err);
+            else if (results.rows.length == 0)
+                reject({ err: 'No such event' });
+            else
+                resolve((results.rows[0].event));
+        })
+    )
+    return {
+        props: {
+            eventInfo,
+        },
+    }
+}

@@ -9,7 +9,10 @@ const EventThumbnail = (props) => {
 
     useEffect(() => {
         if (!props.isEditable) {
-            setLink(`/events/${props.eid}`)
+            setLink(`/events/${props.eid}`) 
+        }
+        else{
+            setLink(`eventbuilder/${props.eid}`)
         }
     }, [])
 

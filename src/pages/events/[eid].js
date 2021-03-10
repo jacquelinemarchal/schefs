@@ -64,7 +64,6 @@ const EventPage = (props) => {
     
     const handleCommentSubmit = (e) => {
         e.preventDefault();
-        console.log("HI")
         if (context.profile){
             if (commentBody.replace(/\s/g, '').length) {
                 setClientComments([...clientComments, {

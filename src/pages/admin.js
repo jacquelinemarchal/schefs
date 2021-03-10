@@ -33,11 +33,14 @@ export default function ApprovalPortal() {
                 date_to:"2020-08-09",
             }
         }
- 
-       // setTicketsNum((await axios.get("/api/countTickets")).data);
-        console.log(ticketsNum)
+        try{
+            setTicketsNum((await axios.get("/api/events/countTickets")).data.count);
+        }
+        catch (e){
+            console.log(e.response.data.err);
+        }
 
-        //setUsersNum((await axios.get("/api/usersCount")).data);
+        //setUsersNum((await axios.get("/api/users/usersCount")).data);
         console.log(usersNum)
 
         try {
