@@ -169,7 +169,14 @@ const getReservedTicketsCount = `
 * $2: date_to   <string | Date> - if string, must be of form 'YYY-MM-DD'
 */
 const getAllReservedTicketsCount = `
-    SELECT COUNT(*) FROM tickets
+    SELECT COUNT(*) FROM tickets AS t
+    WHERE (
+        COALESCE($1) = '' OR
+        t.time_created >= TO_DATE($1, 'YYYY-MM-DD')
+    ) AND (
+        COALESCE($2) = '' OR
+        t.time_created <= TO_DATE($2, 'YYYY-MM-DD')
+    )
 `;
 
 /*
