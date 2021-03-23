@@ -6,10 +6,6 @@ const getUser = `
     WHERE uid = $1
 `;
 
-/*
-* $1: date_from <string | Date> - if string, must be of form 'YYY-MM-DD'
-* $2: date_to   <string | Date> - if string, must be of form 'YYY-MM-DD'
-*/
 const getUserCount = `
     SELECT COUNT(*) FROM users
 `;

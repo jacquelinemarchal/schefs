@@ -221,7 +221,7 @@ const EventBuilder = (props) => {
             
         return (
             <button onClick={handleSelectThumbnail}>
-                <img src={props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
+                <img src={process.env.BASE_URL +  props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
     }
@@ -345,7 +345,7 @@ const EventBuilder = (props) => {
                             You’ll be able to select your event’s date on the next page
                         </div>
                         <div className="mr-6 mt-2 mb-10 w-9/12">
-                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
+                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={process.env.BASE_URL + selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
                         </div>
                         <div className="items-center flex space-x-2">
                             <p>Your event description:</p>

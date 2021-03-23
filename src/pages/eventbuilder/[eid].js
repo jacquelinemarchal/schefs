@@ -86,13 +86,13 @@ const EventBuilder = (props) => {
         setPreLoad({
             coHostEmail: "",
             title: `${props.eventInfo.title}`,
-            description: "",
-            requirements: "",
-            first_name: "",
-            last_name: "",
-            grad_year: "",
-            school: "",
-            major: "",
+            description: `${props.eventInfo.description}`,
+            requirements: `${props.eventInfo.requirements}`,
+            first_name: `${props.eventInfo.hosts[0].first_name}`,
+            last_name: `${props.eventInfo.hosts[0].last_name}`,
+            grad_year: `${props.eventInfo.hosts[0].grad_year}`,
+            school: `${props.eventInfo.host_school}`,
+            major: `${props.eventInfo.hosts[0].major}}`,
         })
 
         return () => {
@@ -100,6 +100,28 @@ const EventBuilder = (props) => {
         };
     }, [editMode]);
 
+    const cancelEdit = () => {
+        setEditMode(false);
+        axios.get(`/api/events/${props.eventInfo.eid}`)
+        .then((res) =>{
+            const eventInfo = res.data;
+            setPreLoad({
+                coHostEmail: "",
+                title: `${eventInfo.title}`,
+                description: `${eventInfo.description}`,
+                requirements: `${eventInfo.requirements}`,
+                first_name: `${eventInfo.hosts[0].first_name}`,
+                last_name: `${eventInfo.hosts[0].last_name}`,
+                grad_year: `${eventInfo.hosts[0].grad_year}`,
+                school: `${eventInfo.host_school}`,
+                major: `${eventInfo.hosts[0].major}}`,
+            })
+        })
+        .catch((e) => {
+            console.log(e)
+        })
+    }
+    
     const makeCroppedImage = () => {
         const image = new Image()
         image.src=profilePictureURL;
@@ -223,7 +245,7 @@ const EventBuilder = (props) => {
             
         return (
             <button onClick={handleSelectThumbnail}>
-                <img src={props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
+                <img src={process.env.BASE_URL + props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
     }
@@ -251,9 +273,10 @@ const EventBuilder = (props) => {
         <Formik
             initialValues={preLoad}
             onSubmit={handleSubmit}
+            enableReinitialize={true}
             validationSchema={EventBuilderSchema}
         >
-            {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
+            {({isValid, dirty, isSubmitting, setFieldTouched, handleChange, handleReset}) => (
             <Form>
                 {isPhotoDisplayOpen ? 
                     <>
@@ -319,7 +342,7 @@ const EventBuilder = (props) => {
                             You’ll be able to select your event’s date on the next page
                         </div>
                         <div className="mr-6 mt-2 mb-10 w-9/12">
-                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
+                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={process.env.BASE_URL + selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
                         </div>
                         <div className="items-center flex space-x-2">
                             <p>Your event description:</p>
@@ -349,7 +372,7 @@ const EventBuilder = (props) => {
                         />
                     </div>
 
-                    <div className="grid col-span-2 ">
+                    <div className="grid col-span-2">
                         <div className="sm:fixed">
                             <div className="hidden sm:flex space-x-2 h-8 items-center">
                                 <button
@@ -366,15 +389,29 @@ const EventBuilder = (props) => {
                                     APPROVE
                                 </button>
                                 <button
+                                    type="button"
+                                    className="flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white "
+                                    onClick={() => {setEditMode(true)}}>
+                                    DENY
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className= "focus:outline-none"
                                     onClick={() => {setEditMode(true)}}>
                                     <img 
                                     src = {pencil}
-                                    className = "h-8 focus:outline-none" />
+                                    className = "h-8 w-8 focus:outline-none" />
                                 </button>
+                            </div>
+                            {editMode ? 
+                                <div className="hidden sm:flex space-x-5 h-8 items-center">
+                                    <button
+                                        type="button"
+                                        className="flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white"
+                                        onClick={handleReset}> CANCEL
+                                    </button>
 
-                                {editMode ? 
-                                <>
-                                    <WhitePillButton onClick={() => {setEditMode(false);}} padding="px-4" text="CANCEL" />
                                     <button
                                         disabled={
                                             selectedThumbnail.tid === -1 ||
@@ -388,11 +425,9 @@ const EventBuilder = (props) => {
                                         >
                                         SAVE
                                         </button>
-                                </>
+                                </div>
                                 :
                                 null}
-                                
-                            </div>
                             <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-20" style={{ maxWidth: "300px"}}>
                                 <p>Hosted by:</p>
                                 <p className="cursor-pointer hover:underline hover:text-blue-900" onClick={() => setIsCoHostOpen(!isCoHostOpen)}>Add a co-host</p>

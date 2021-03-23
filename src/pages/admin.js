@@ -6,6 +6,7 @@ import upload from "../assets/upload-long.png"
 import EventGrid from "../components/Events/eventgrid"
 import NavBar from "../components/Banners/navbar";
 import Context from '../components/Context/context';
+const admin = require('../utils/firebase_admin');
 
 // use https://www.npmjs.com/package/react-scrollable-list if issues with larger lists
 
@@ -16,32 +17,31 @@ export default function ApprovalPortal() {
     const [ticketsNum, setTicketsNum] = useState(0);
     const [usersNum, setUsersNum] = useState(0);
 
-
     useEffect(async () => {
 
         const query = {
             params: {
                 date_from: '2020-01-31',
                 date_to: '2021-01-31',
-                status: 'denied',
+                status: 'approved',
                 type: 'summary',
             }
         }
         const ticketQuery = {
             params: {
-                date_from:"2020-08-09",
-                date_to:"2020-08-09",
+                date_from: Date(2019, 7, 9),
+                date_to: Date(2021, 7, 9)
             }
         }
+
         try{
-            setTicketsNum((await axios.get("/api/events/countTickets")).data.count);
+            setTicketsNum((await axios.get("/api/events/countTickets", ticketQuery)).data.count);
+            setUsersNum((await axios.get("/api/users/usersCount")).data.count);
         }
         catch (e){
             console.log(e.response.data.err);
         }
 
-        //setUsersNum((await axios.get("/api/users/usersCount")).data);
-        console.log(usersNum)
 
         try {
             const events = (await axios.get("/api/events", query)).data;
@@ -102,10 +102,6 @@ export default function ApprovalPortal() {
                 <div className="text-2xl">15</div>
                 <div>Accounts Made</div>
             </div>
-            <div className="flex flex-col text-center">
-                <div className="text-2xl">200</div>
-                <div>Page Views</div>
-            </div>
         </div>
         
         <h2 className="pl-8 text-2xl pb-8 pt-12">All Time</h2>
@@ -119,12 +115,8 @@ export default function ApprovalPortal() {
                 <div>Events Submitted</div>
             </div>
             <div className="flex flex-col">
-                <div className="text-2xl text-center">323</div>
+                <div className="text-2xl text-center">{usersNum}</div>
                 <div>Accounts Made</div>
-            </div>
-            <div className="flex flex-col">
-                <div className="text-2xl text-center">234</div>
-                <div>Page Views</div>
             </div>
         </div>
         </>
