@@ -23,7 +23,7 @@ export default function ApprovalPortal() {
             params: {
                 date_from: '2020-01-31',
                 date_to: '2021-01-31',
-                status: 'approved',
+                status: 'denied',
                 type: 'summary',
             }
         }

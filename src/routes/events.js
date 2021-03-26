@@ -263,6 +263,128 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
     }
 });
 
+
+/*
+ * PUT /api/events/{eid}
+ * Update an event.
+ *
+ * Authorization:
+ *  Firebase ID Token
+ *
+ * Request Parameters
+ *  path:
+ *    eid <int> required
+ *
+ * Request Body:
+ *  <object>
+ *    host_name              <string>
+ *    host_school            <string>
+ *    host_bio               <string>
+ *    title                  <string>
+ *    description            <string>
+ *    requirements           <string>
+ *    thumbnail_id           <int> - id of the new thumbnail, if changing
+ *    zoom_link              <string>
+ *    zoom_id                <string>
+ *    time_start             <Date>
+ *    status                 <string>
+ *
+ * Response:
+ *  201: successfully updated
+ *  403: must be an admin to update an event
+ *  406: eid missing
+ *  409: thumbnail already in use
+ *  500: other postgres error
+ */
+router.put('/:eid', verifyFirebaseIdToken, (req, res) => {
+    if (!req.params.eid) {
+        res.status(406).json({ err: 'eid is required' });
+    	return;
+    }
+
+    if (!req.profile.is_admin) {
+        res.status(403).json({ err: 'Must be an admin to update an event' });
+        return;
+    }
+
+    const values = [
+        req.body.host_name|| null,
+        req.body.host_school || null,
+        req.body.host_bio || null,
+        req.body.title || null,
+        req.body.description || null,
+        req.body.requirements || null,
+        req.body.thumbnail_id || null,
+        req.body.zoom_link || null,
+        req.body.zoom_id || null,
+        req.body.time_start || null,
+        req.body.status || null,
+        req.params.eid
+    ];
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        if (req.body.thumbnail_id &&
+            (await client.query(thumbnail_queries.checkThumbnail, [ req.body.thumbnail_id ])).rows.length > 0
+        ) {
+            await client.query('COMMIT');
+            res.status(409).json({ err: 'Thumbnail already in use' });
+        } else {
+            const orig_event = (await client.query(queries.getEvent, [ req.params.eid ])).rows[0];
+
+            if (req.body.thumbnail_id)
+                await client.query(thumbnail_queries.replaceThumbnail, [
+                    orig_event.img_thumbnail,
+                    req_body.thumbnail_id,
+                ]);
+
+            await client.query(queries.updateEvent, values);
+            await client.query('COMMIT');
+
+            // send email on approval
+            if (orig_event.status !== 'approved' && req.body.status === 'approved') {
+                const event_time = req.body.time_start || orig_event.time_start;
+                for (const host of orig_event.hosts) {
+                    emails.sendEventApprovedEmail(
+                        host.email,
+                        host.first_name,
+                        req.body.title || orig_event.title,
+                        moment.tz(event_time, 'America/New_York').format('dddd, MMMM D, YYYY'),
+                        moment.tz(event_time, 'America/New_York').format('h:mm A, z'),
+                        process.env.BASE_URL + '/' + orig_event.eid,
+                        req.body.zoom_link || orig_event.zoom_link
+                    );
+                }
+
+            // or send email on denial
+            } else if (orig_event.status !== 'denied' && req.body.status === 'denied') {
+                for (const host of orig_event.hosts) {
+                    emails.sendEventDeniedEmail(
+                        host.email,
+                        host.first_name,
+                        req.body.title || orig_event.title,
+                        req.body.description || orig_event.description,
+                        req.body.requirements || orig_event.requirements,
+                        req.body.host_bio || orig_event.host_bio
+                    );
+                }
+            }
+
+            res.status(201).send();
+        }
+    } catch (err) {
+        await client.query('ROLLBACK');
+        if (err.code === '23502') // not_null_violation
+            res.status(406).json({ err: 'Required field missing' });
+        else
+            res.status(500).json({ err: 'PSQL Error: ' + err.message });
+    } finally {
+        client.release();
+    }
+});
+
+
 /*
  * POST /api/events/{eid}/tickets
  * Reserve ticket associated with a specified event and user.

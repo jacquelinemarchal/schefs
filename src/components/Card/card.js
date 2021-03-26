@@ -7,12 +7,14 @@ import CardContent from './usercardcontent'
 import SignUpForm from '../Auth/signupform';
 import LoginForm from '../Auth/loginform';
 import PasswordReset from '../Auth/passwordreset';
+import VerifyEmail from '../Auth/verifyemail';
 import Context from '../Context/context';
 
 // props.right = boolean side of screen
 const Card = (props) => {
     const context = useContext(Context);
     const [cardInterior, setCardInterior] = useState("login");
+    const [email, setEmail] = useState("");
 
     const handleCloseCard = () => context.handleCloseCard(!props.right, props.right);
 
@@ -23,6 +25,10 @@ const Card = (props) => {
         else{
             setCardInterior("login")
         }
+    }
+    const verify = (e) => {
+        setCardInterior("verify");
+        setEmail(e);
     }
     return (
         <CSSTransition
@@ -43,12 +49,14 @@ const Card = (props) => {
 		      ? context.profile
                   ? <CardContent profile={context.profile} />
                   : cardInterior === "login"
-                      ? <LoginForm function={toggle} resetFunction={() => setCardInterior("password")}/> 
+                      ? <LoginForm function={toggle} resetFunction={() => setCardInterior("password")} showVerify={() => setCardInterior("verify")}/> 
                       : cardInterior === "signup" 
-                          ? <SignUpForm function={toggle} /> 
+                          ? <SignUpForm function={toggle} showVerify={verify}/> 
                           : cardInterior === "password"
                               ? <PasswordReset function={() => setCardInterior("login")}/> 
-                              : null
+                              : cardInterior === "verify"
+                                ? <VerifyEmail email={e} function={() => setCardInterior("login")}/>
+                                : null
               : context.leftProfile
                   ? <CardContent profile={context.leftProfile} />
                   : null

@@ -196,7 +196,7 @@ const EventBuilder = (props) => {
         }
 
         try {
-            await axios.post('/api/events', eventData); // TODO: change to update
+            await axios.put(`/api/events/${props.eventInfo.eid}`, eventData); 
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 alert('Thumbnail already in use, choose a different one');
@@ -351,6 +351,7 @@ const EventBuilder = (props) => {
                         </div>
                         <Field 
                             as="textarea"
+                            disabled={!editMode}
                             placeholder="My event description..." 
                             className={"text-left mt-4 h-32 leading-snug mb-8 w-5/6 focus:outline-none"} 
                             name="description" 
@@ -367,6 +368,7 @@ const EventBuilder = (props) => {
                         <Field 
                             as="textarea"   
                             placeholder="My event requirements..." 
+                            disabled={!editMode}
                             className={"text-left mt-4 h-32 leading-snug mb-8 w-5/6 focus:outline-none"} 
                             name="requirements" 
                         />
@@ -480,12 +482,14 @@ const EventBuilder = (props) => {
                                                 <div className="col-span-2 my-auto">
                                                     <Field 
                                                         placeholder="First Name" 
+                                                        disabled={!editMode}
                                                         className={"ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-visible"}
                                                         as="textarea"
                                                         name="first_name" 
                                                     />
                                                     <Field 
-                                                        placeholder="Last Name" 
+                                                        placeholder="Last Name"
+                                                        disabled={!editMode} 
                                                         className={"ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-hidden"} 
                                                         name="last_name" 
                                                         as="textarea"
@@ -497,18 +501,21 @@ const EventBuilder = (props) => {
                                             <div className="flex ">
                                                 <Field 
                                                     placeholder="My university..." 
+                                                    disabled={!editMode}
                                                     className={"leading-snug focus:outline-none overflow-hidden text-center"} 
                                                     name="school" 
                                                 />
                                                 <p className="mx-3">•</p>
                                                 <Field 
                                                     placeholder="My grad year..." 
+                                                    disabled={!editMode}
                                                     className={"leading-snug focus:outline-none overflow-hidden text-center"} 
                                                     name="grad_year" 
                                                 />
                                             </div>
                                             <Field 
                                                 placeholder="My major..." 
+                                                disabled={!editMode}
                                                 className={"leading-snug focus:outline-none overflow-hidden text-center"} 
                                                 name="major" 
                                             />
@@ -516,6 +523,7 @@ const EventBuilder = (props) => {
                                         <div className="flex">
                                                 <Field 
                                                     placeholder="My bio..."
+                                                    disabled={!editMode}
                                                     className="leading-snug h-32 focus:outline-none w-full"
                                                     name="bio" 
                                                     as="textarea"

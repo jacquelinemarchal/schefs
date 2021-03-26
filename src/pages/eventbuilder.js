@@ -253,7 +253,6 @@ const EventBuilder = (props) => {
         >
             {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
             <Form>
-
                 {isModalOpen ? 
                     <>
                         <div className="h-screen fixed w-screen" onClick={() => setIsModalOpen(!isModalOpen)}></div>
