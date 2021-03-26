@@ -17,6 +17,7 @@ const LoginForm = (props) => {
 
     const handleSubmit = (values) => {
         context.handleLoginWithEmailAndPassword(values.email, values.password)
+        
         .catch((e)=>{
             switch (e.code){
                 case "auth/user-not-found":
