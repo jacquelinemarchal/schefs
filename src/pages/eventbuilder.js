@@ -245,7 +245,7 @@ const EventBuilder = (props) => {
     });
 
     return (
-        preLoad.first_name && context.profile && !isLoading ?
+        preLoad.first_name && context.profile && context.profile.isVerified ?
         <Formik
             initialValues={preLoad}
             onSubmit={handleSubmit}
@@ -516,10 +516,17 @@ const EventBuilder = (props) => {
                 </div>
             </Form>)}
         </Formik>
-        : <div className="text-center items-center flex flex-col mt-12">
-                You must have a Schefs account to make events
-                <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
-         </div>
+        : context.profile && !context.profile.isVerified 
+            ?
+            <div className="text-center items-center flex flex-col mt-12">
+                You must verify your Schefs account to make events
+                <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="VERIFY ACCOUNT" padding="flex px-16 mt-4" />
+            </div>
+            :
+            <div className="text-center items-center flex flex-col mt-12">
+                    You must have a Schefs account to make events
+                    <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
+            </div>
     );
 };
 

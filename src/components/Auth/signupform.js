@@ -32,12 +32,12 @@ const SignUpForm = (props) => {
         .then((res)=>{
             console.log("success making account", res)
             context.handleLoginWithEmailAndPassword(values.signUpEmail, values.signUpPassword)
-                .then((res) =>{
-                    console.log("success logging in", res)
+                .then(() =>{
+                    console.log("success logging in");
                     // send verification email
                     var user = firebase.auth().currentUser;
                     user.sendEmailVerification().then(() => {
-                        props.showVerify(signUpEmail);
+                        props.showVerify(values.signUpEmail);
                     }).catch(function(error) {
                         console.log(error)
                     });
