@@ -13,8 +13,20 @@ import Context from '../Context/context';
 // props.right = boolean side of screen
 const Card = (props) => {
     const context = useContext(Context);
-    const [cardInterior, setCardInterior] = useState("login");
+    const [cardInterior, setCardInterior] = useState("");
     const [email, setEmail] = useState("");
+
+    useEffect(() => {
+        if (context.profile && !context.profile.isVerified){
+            setCardInterior("verify")
+        }
+        if (!context.profile){
+            setCardInterior("login")
+        }        
+        if (context.profile && context.profile.isVerified){
+            setCardInterior("account")
+        }
+    }, [context.rCardIsOpen])
 
     const handleCloseCard = () => context.handleCloseCard(!props.right, props.right);
 
@@ -46,17 +58,17 @@ const Card = (props) => {
             </div>
 
 	        {props.right
-		      ? context.profile
+		      ? cardInterior === "account"
                   ? <CardContent profile={context.profile} />
-                  : cardInterior === "login"
-                      ? <LoginForm function={toggle} resetFunction={() => setCardInterior("password")} showVerify={() => setCardInterior("verify")}/> 
-                      : cardInterior === "signup" 
-                          ? <SignUpForm function={toggle} showVerify={verify}/> 
-                          : cardInterior === "password"
-                              ? <PasswordReset function={() => setCardInterior("login")}/> 
-                              : cardInterior === "verify"
-                                ? <VerifyEmail email={e} function={() => setCardInterior("login")}/>
-                                : null
+                    : cardInterior === "login"
+                        ? <LoginForm function={toggle} resetFunction={() => setCardInterior("password")} showVerify={() => setCardInterior("verify")} showAccount={() => {setCardInterior("account")}}/>
+                        : cardInterior === "verify"
+                            ? <VerifyEmail email={email} function={() => setCardInterior("login")}/>
+                            : cardInterior === "signup" 
+                                ? <SignUpForm function={toggle} showVerify={verify}/> 
+                                : cardInterior === "password"
+                                    ? <PasswordReset function={() => setCardInterior("login")}/> 
+                                    : null
               : context.leftProfile
                   ? <CardContent profile={context.leftProfile} />
                   : null

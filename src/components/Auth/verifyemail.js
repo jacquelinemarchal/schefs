@@ -14,8 +14,8 @@ const VerifyEmail = (props) => {
 
     return (
         <div className="grid md-shadow px-8 py-2 rounded-2xl">
-            <p className="text-base">Verify your email</p>
-            <p>We've sent an email to {props.email}</p>
+            <p className="mb-4 text-xl">Verify your email</p>
+            <p className="mb-6">We've sent a verification email to {context.profile.email}. You must verify your account before using schefs.us</p>
             <WhitePillButton handleClick={props.function} text="< LOG IN" padding="flex w-full" />
         </div>
     );

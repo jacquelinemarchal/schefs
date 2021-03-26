@@ -296,7 +296,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
  *  409: thumbnail already in use
  *  500: other postgres error
  */
-router.put('/:eid', verifyFirebaseIdToken, (req, res) => {
+router.put('/:eid', verifyFirebaseIdToken, async (req, res) => {
     if (!req.params.eid) {
         res.status(406).json({ err: 'eid is required' });
     	return;

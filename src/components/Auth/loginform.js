@@ -17,7 +17,6 @@ const LoginForm = (props) => {
 
     const handleSubmit = (values) => {
         context.handleLoginWithEmailAndPassword(values.email, values.password)
-        
         .catch((e)=>{
             switch (e.code){
                 case "auth/user-not-found":
@@ -28,6 +27,12 @@ const LoginForm = (props) => {
                     break;
             }
         })
+        if (context.profile && !context.profile.isVerified){
+            props.showVerify();
+        }
+        if (context.profile && context.profile.isVerified){
+            props.showAccount();
+        }
     }
      
     const SigninSchema = Yup.object().shape({
@@ -79,6 +84,7 @@ const LoginForm = (props) => {
         <a onClick={props.resetFunction} className="underline text-center cursor-pointer justify-self-center">Forgot Your Password?</a>
         <footer className="my-2 mt-6 justify-between flex">
             <p>Don't have an account?</p>
+            
             <WhitePillButton handleClick={props.function} text="SIGN UP" padding="flex px-6"/>
         </footer>
     </div>
