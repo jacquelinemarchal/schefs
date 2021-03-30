@@ -20,13 +20,13 @@ const Card = (props) => {
         if (context.profile && !context.profile.isVerified){
             setCardInterior("verify")
         }
-        if (!context.profile){
+        if (!context.profile) {
             setCardInterior("login")
-        }        
+        }
         if (context.profile && context.profile.isVerified){
             setCardInterior("account")
         }
-    }, [context.rCardIsOpen])
+    }, [context.profile])
 
     const handleCloseCard = () => context.handleCloseCard(!props.right, props.right);
 
@@ -58,11 +58,11 @@ const Card = (props) => {
             </div>
 
 	        {props.right
-		      ? cardInterior === "account"
+		      ? cardInterior === "account" && context.profile
                   ? <CardContent profile={context.profile} />
                     : cardInterior === "login"
                         ? <LoginForm function={toggle} resetFunction={() => setCardInterior("password")} showVerify={() => setCardInterior("verify")} showAccount={() => {setCardInterior("account")}}/>
-                        : cardInterior === "verify"
+                        : cardInterior === "verify" && context.profile
                             ? <VerifyEmail email={email} function={() => setCardInterior("login")}/>
                             : cardInterior === "signup" 
                                 ? <SignUpForm function={toggle} showVerify={verify}/> 
