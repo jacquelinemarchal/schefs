@@ -122,6 +122,12 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     }
 
     const handleLoginWithEmailAndPassword = async (email, password) => {
+        try {
+            await handleLogout();
+        }
+        catch (err){
+            console.log(err);
+        }
         const user_creds = await firebase.auth().signInWithEmailAndPassword(email, password);
         const user = user_creds.user;
 

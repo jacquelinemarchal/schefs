@@ -23,7 +23,7 @@ export default function OMA () {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (context.profile){
+        if ((context.profile) && (context.profile.isVerified)){
             let sendTopic = {
                 user_id: context.profile.uid,
                 body:topic,

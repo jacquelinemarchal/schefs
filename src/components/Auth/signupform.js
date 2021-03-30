@@ -50,7 +50,10 @@ const SignUpForm = (props) => {
         })
         .catch((err)=>{
             var div = (err.response.data.err).split(':')
-            setError(div[1].concat(':', div[2]))
+            if (div[1] === "Firebase error: "){
+                setError(div[2])
+            }
+            console.log(err.response.data.err)
         })
     }
 

@@ -93,7 +93,7 @@ const EventPage = (props) => {
     }
     const reserveTicket = (e) => {
         e.preventDefault()
-        if (context.profile){
+        if (context.profile && context.profile.isVerified){
             let userContent = {
                 user_id: context.profile.uid,
             }
