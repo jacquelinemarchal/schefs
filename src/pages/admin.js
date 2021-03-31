@@ -29,8 +29,10 @@ export default function ApprovalPortal() {
         }
         const ticketQuery = {
             params: {
-                date_from: Date(2019, 7, 9),
-                date_to: Date(2021, 7, 9)
+               // date_from: Date(2019, 7, 9),
+                //date_to: Date(2021, 7, 9)
+                date_from: "2019-01-01",
+                date_to: "2021-01-01"
             }
         }
 
