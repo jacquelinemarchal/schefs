@@ -36,7 +36,9 @@ const SignUpForm = (props) => {
                     console.log("success logging in");
                     // send verification email
                     var user = firebase.auth().currentUser;
-                    user.sendEmailVerification().then(() => {
+                    user.sendEmailVerification({
+                        url: "https://www.schefs.us",
+                    }).then(() => {
                         props.showVerify(values.signUpEmail);
                     }).catch(function(error) {
                         console.log(error)

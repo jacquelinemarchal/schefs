@@ -29,8 +29,10 @@ const router = express.Router();
  */
 router.get('/countTickets', (req, res) => {
     pool.query(queries.getAllReservedTicketsCount, [ req.params.date_from, req.params.date_to ], (q_err, q_res) => {
-        if (q_err)
+        if (q_err){
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+            console.log(q_err.message);
+        }
         else
             res.status(200).json(q_res.rows[0]);
     });
@@ -325,18 +327,18 @@ router.put('/:eid', verifyFirebaseIdToken, async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        if (req.body.thumbnail_id &&
-            (await client.query(thumbnail_queries.checkThumbnail, [ req.body.thumbnail_id ])).rows.length > 0
-        ) {
-            await client.query('COMMIT');
-            res.status(409).json({ err: 'Thumbnail already in use' });
-        } else {
+       // if (req.body.thumbnail_id &&
+           // (await client.query(thumbnail_queries.checkThumbnail, [ req.body.thumbnail_id ])).rows.length > 0
+        //) {
+        //    await client.query('COMMIT');
+        //    res.status(409).json({ err: 'Thumbnail already in use' });
+        //} else {
             const orig_event = (await client.query(queries.getEvent, [ req.params.eid ])).rows[0];
 
             if (req.body.thumbnail_id)
                 await client.query(thumbnail_queries.replaceThumbnail, [
                     orig_event.img_thumbnail,
-                    req_body.thumbnail_id,
+                    req.body.thumbnail_id,
                 ]);
 
             await client.query(queries.updateEvent, values);
@@ -372,7 +374,7 @@ router.put('/:eid', verifyFirebaseIdToken, async (req, res) => {
             }
 
             res.status(201).send();
-        }
+       // }
     } catch (err) {
         await client.query('ROLLBACK');
         if (err.code === '23502') // not_null_violation
