@@ -8,10 +8,10 @@ const pool = require('../utils/db');
 const queries = require('../utils/queries/events');
 const thumbnail_queries = require('../utils/queries/thumbnails');
 const emails = require('../utils/emails');
+const gcal = require('../utils/gcalendar');
+const zoom = require('../utils/zoom');
 
 const router = express.Router();
-
-// TODO: event approval/denial
 
 /*
  * GET /api/events
@@ -159,7 +159,7 @@ router.get('/:eid', (req, res) => {
  *    requirements  <string>
  *    thumbnail_id  <int>           required
  *    host_bio      <string>        required
- *    time_start    <Date>          required
+ *    time_start    <Date>          required - UTC timezone
  *    hosts         <array[object]> required
  *      uid         <int>           required
  *      first_name  <string>        required
@@ -188,6 +188,35 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         host_school = req.body.hosts[0].school;
     }
 
+    // convert to Date objects
+    req.body.time_start = new Date(req.body.time_start);
+
+    // make Zoom event
+    const zoom_res = await zoom.createMeeting(req.body.title, req.body.time_start);
+    if (!zoom_res) {
+        res.status(500).json({ err: 'Zoom API failed to create a new meeting' });
+        return;
+    }
+
+    // make Google Calendar event
+    const time_end = new Date(req.body.time_start.valueOf());
+    time_end.setHours(time_end.getHours() + 1);
+    const gcal_id = await gcal.createGcalEvent(
+        req.body.title,
+        host_name,
+        req.profile.email,
+        req.body.description,
+        zoom_res.url,
+        zoom_res.id,
+        req.body.time_start,
+        time_end
+    );
+
+    if (!gcal_id) {
+        res.status(500).json({ err: 'Google Calendar API failed to create a new event' });
+        return;
+    }
+
     const values = [
         host_name,
         host_school,
@@ -196,8 +225,9 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         req.body.description,
         req.body.requirements,
         req.body.thumbnail_id,
-        '', // zoom link empty for now
-        '', // zoom id empty for now
+        zoom_res.url, 
+        zoom_res.id,
+        gcal_id,
         req.body.time_start,
         'pending', // default status pending        
     ];
@@ -240,7 +270,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
 });
 
 /*
- * PUT /api/events/{eid}
+ * PATCH /api/events/{eid}
  * Update an event.
  *
  * Authorization:
@@ -271,7 +301,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
  *  409: thumbnail already in use
  *  500: other postgres error
  */
-router.put('/:eid', verifyFirebaseIdToken, (req, res) => {
+router.patch('/:eid', verifyFirebaseIdToken, async (req, res) => {
     if (!req.params.eid) {
         res.status(406).json({ err: 'eid is required' });
     	return;
@@ -300,24 +330,31 @@ router.put('/:eid', verifyFirebaseIdToken, (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
+
+        // check if thumbnail is use
         if (req.body.thumbnail_id &&
             (await client.query(thumbnail_queries.checkThumbnail, [ req.body.thumbnail_id ])).rows.length > 0
         ) {
             await client.query('COMMIT');
             res.status(409).json({ err: 'Thumbnail already in use' });
+
+        // if not, then continue
         } else {
+            // get and keep track of event pre-update
             const orig_event = (await client.query(queries.getEvent, [ req.params.eid ])).rows[0];
 
+            // update thumbnail in PSQL if it has changed
             if (req.body.thumbnail_id)
                 await client.query(thumbnail_queries.replaceThumbnail, [
                     orig_event.img_thumbnail,
-                    req_body.thumbnail_id,
+                    req.body.thumbnail_id,
                 ]);
 
+            // update the event proper
             await client.query(queries.updateEvent, values);
             await client.query('COMMIT');
 
-            // send email on approval
+            // send email if an approval took place
             if (orig_event.status !== 'approved' && req.body.status === 'approved') {
                 const event_time = req.body.time_start || orig_event.time_start;
                 for (const host of orig_event.hosts) {
@@ -332,7 +369,7 @@ router.put('/:eid', verifyFirebaseIdToken, (req, res) => {
                     );
                 }
 
-            // or send email on denial
+            // or send email if a denial took place
             } else if (orig_event.status !== 'denied' && req.body.status === 'denied') {
                 for (const host of orig_event.hosts) {
                     emails.sendEventDeniedEmail(

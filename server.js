@@ -44,7 +44,7 @@ app.prepare().then(() => {
     server.use('/api/thumbnails', routers.thumbnailsRouter);
 
     if (dev)
-	server.use(express.static('public'));
+        server.use(express.static('public'));
 
     server.all('*', (req, res) => {
         return handle(req, res);

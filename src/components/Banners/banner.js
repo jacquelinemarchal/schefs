@@ -2,11 +2,12 @@ import React from "react";
 import BlackPillButton from "../Buttons/bpillbutton"
 
 const Banner = (props) => {
-    let hostButtonProps = {
+    const hostButtonProps = {
         text: props.buttonText,
         size: "sm",
-        link: "/about"
+        link: "/eventbuilder"
     }
+
     return (
         <div>
             <div className="z-40 h-8 md:flex justify-center md:justify-between md:px-8 md:fixed md:w-full items-center md:bg-black">

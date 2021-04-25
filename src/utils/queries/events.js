@@ -101,9 +101,10 @@ const getEvent = `
  * $6:  requirements  <string>
  * $7:  thumbnail_id  <int>    required
  * $8:  zoom_link     <string>
- * $9:  zoom_id       <string>
- * $10: time_start    <Date>   required
- * $11: status        <string>
+ * $9:  zoom_id       <long>
+ * $10: gcal_id       <string>
+ * $11: time_start    <Date>   required
+ * $12: status        <string>
  */
 const createEvent = `
     WITH thumb AS (
@@ -134,7 +135,8 @@ const createEvent = `
         $8,
         $9,
         $10,
-        $11
+        $11,
+        $12
     )
     RETURNING eid
 `;
