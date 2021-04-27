@@ -8,7 +8,7 @@ import cohost from "../assets/cohost.png"
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 import Cropper from 'react-easy-crop'
-
+import Head from 'next/head';
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import Context from '../components/Context/context';
 import * as Yup from "yup"
@@ -253,6 +253,10 @@ const EventBuilder = (props) => {
         >
             {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
             <Form>
+                <Head>
+                    <title>Event Builder</title>
+                    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+                </Head>
                 {isModalOpen ? 
                     <>
                         <div className="h-screen fixed w-screen" onClick={() => setIsModalOpen(!isModalOpen)}></div>
@@ -519,11 +523,17 @@ const EventBuilder = (props) => {
         : context.profile && !context.profile.isVerified 
             ?
             <div className="text-center items-center flex flex-col mt-12">
+                <Head>
+                    <title>Event Builder</title>
+                </Head>
                 You must verify your Schefs account to make events
                 <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="VERIFY ACCOUNT" padding="flex px-16 mt-4" />
             </div>
             :
             <div className="text-center items-center flex flex-col mt-12">
+                <Head>
+                    <title>Event Builder</title>
+                </Head>
                     You must have a Schefs account to make events
                     <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
             </div>

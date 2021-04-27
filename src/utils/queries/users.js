@@ -6,8 +6,19 @@ const getUser = `
     WHERE uid = $1
 `;
 
+/*
+* $1: date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
+* $2: date_to   <string | Date> - if string, must be of form 'YYYY-MM-DD'
+*/
 const getUserCount = `
-    SELECT COUNT(*) FROM users
+    SELECT COUNT(*) FROM users AS u
+    WHERE (
+        COALESCE($1) = '' OR
+        u.time_created >= TO_DATE($1, 'YYYY-MM-DD')
+    ) AND (
+        COALESCE($2) = '' OR
+        u.time_created <= TO_DATE($2, 'YYYY-MM-DD')
+    )
 `;
 
 /*

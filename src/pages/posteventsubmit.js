@@ -1,8 +1,12 @@
 import WhitePillButton from "../components/Buttons/wpillbutton"
+import Head from 'next/head';
 
 export default function PostEventSubmit() {
   return (
     <>
+        <Head>
+            <title>Thank you for submitting!</title>
+        </Head>
         <div className="px-8 mt-8 sm:grid sm:grid-cols-2 gap-6">
             <div className="sm:grid sm:col-span-1 w-4/5">
                 <h2 className="text-4xl mr-6">Thank you for submitting your event!</h2>

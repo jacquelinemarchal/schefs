@@ -6,6 +6,8 @@ import upload from "../assets/upload-long.png"
 import EventGrid from "../components/Events/eventgrid"
 import NavBar from "../components/Banners/navbar";
 import Context from '../components/Context/context';
+import CountUp from 'react-countup';
+import Head from 'next/head';
 const admin = require('../utils/firebase_admin');
 
 // use https://www.npmjs.com/package/react-scrollable-list if issues with larger lists
@@ -16,8 +18,44 @@ export default function ApprovalPortal() {
     const fileInput = useRef(null);
     const [ticketsNum, setTicketsNum] = useState(0);
     const [usersNum, setUsersNum] = useState(0);
+    const [eventsNum, setEventsNum] = useState(0);
+
+    const [dayTicketsNum, setDayTicketsNum] = useState(0);
+    const [dayEventsNum, setDayEventsNum] = useState(0);
+    const [dayUsersNum, setDayUsersNum] = useState(0);
 
     useEffect(async () => {
+        var today = new Date(),
+        date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+        const dayTicketQuery = {
+            params: {
+                date_from: date,
+                date_to: date
+            }
+        }
+
+        const dayEventQuery = {
+            params: {
+                date_from: date,
+                date_to: date,
+                status: 'approved',
+            }
+        }
+
+        const ticketQuery = {
+            params: {
+                date_from: "2019-01-01",
+                date_to: "2021-12-12"
+            }
+        }
+
+        const eventQuery = {
+            params: {
+                date_from: '2019-01-01',
+                date_to: '2021-12-12',
+                status: 'approved',
+            }
+        }
 
         const query = {
             params: {
@@ -27,18 +65,14 @@ export default function ApprovalPortal() {
                 type: 'summary',
             }
         }
-        const ticketQuery = {
-            params: {
-               // date_from: Date(2019, 7, 9),
-                //date_to: Date(2021, 7, 9)
-                date_from: "2019-01-01",
-                date_to: "2021-01-01"
-            }
-        }
-
         try{
             setTicketsNum((await axios.get("/api/events/countTickets", ticketQuery)).data.count);
-            setUsersNum((await axios.get("/api/users/usersCount")).data.count);
+           // setUsersNum((await axios.get("/api/users/usersCount", ticketQuery).data.count));
+            setEventsNum((await axios.get("/api/events/countEvents", eventQuery)).data.count);
+            
+            setDayTicketsNum((await axios.get("/api/events/countTickets", dayTicketQuery)).data.count);
+           // setDayUsersNum((await axios.get("/api/users/usersCount", dayTicketQuery)).data.count);
+            setDayEventsNum((await axios.get("/api/events/countEvents", dayEventQuery)).data.count);
         }
         catch (e){
             console.log(e.response.data.err);
@@ -80,6 +114,10 @@ export default function ApprovalPortal() {
 
     return (
         <>
+        <Head>
+            <title>Admin Dashboard</title>
+            <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        </Head>
         <h2 className="pl-8 pb-4 text-2xl">Approval Portal</h2>
         {pendingEvents && pendingEvents.length ? <EventGrid events={pendingEvents} isEditable={true} style="px-2" gridNum="3 mx-6" closeCardF={()=>{console.log("close card")}}/> : <> <div className="text-center">No Events</div> </>}
         <h2 className="pl-8 text-2xl">Upload to Image Bank</h2>
@@ -93,15 +131,15 @@ export default function ApprovalPortal() {
         <h2 className="pt-32 pb-12 pl-8 text-2xl">Today</h2>
         <div className="flex flex-row justify-between px-24">
             <div className="flex flex-col text-center">
-                <div className="text-2xl">351</div>
+                <div className="text-2xl">{dayTicketsNum}</div>
                 <div>Tickets Booked</div>
             </div>
             <div className="flex flex-col text-center">
-                <div className="text-2xl">34</div>
+                <div className="text-2xl">{dayEventsNum}</div>
                 <div>Events Submitted</div>
             </div>
             <div className="flex flex-col text-center">
-                <div className="text-2xl">15</div>
+                <div className="text-2xl">{dayUsersNum}</div>
                 <div>Accounts Made</div>
             </div>
         </div>
@@ -109,15 +147,15 @@ export default function ApprovalPortal() {
         <h2 className="pl-8 text-2xl pb-8 pt-12">All Time</h2>
         <div className="flex flex-row justify-between px-24 pb-12">
             <div className="flex flex-col">
-                <div className="text-2xl text-center">{ticketsNum}</div>
+                <CountUp duration={1.2} className="text-2xl text-center" end={ticketsNum} />
                 <div>Tickets Booked</div>
             </div>
             <div className="flex flex-col">
-                <div className="text-2xl text-center">405</div>
+                <CountUp duration={1.2} className="text-2xl text-center" end={eventsNum} />
                 <div>Events Submitted</div>
             </div>
             <div className="flex flex-col">
-                <div className="text-2xl text-center">{usersNum}</div>
+                <CountUp duration={1.2} className="text-2xl text-center" end={usersNum} />
                 <div>Accounts Made</div>
             </div>
         </div>

@@ -8,6 +8,7 @@ import Context from '../../components/Context/context';
 import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
 const { htmlToText } = require('html-to-text');
+import Head from 'next/head'
 
 const EventPage = (props) => {
     const [clientTickets, setClientTickets] = useState(props.tickets)
@@ -114,6 +115,10 @@ const EventPage = (props) => {
 
     return (
         <div className="mb-4 sm:gap-24 sm:grid sm:grid-cols-5 mx-8">
+            <Head>
+                    <title>{props.eventInfo.title}</title>
+                    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+            </Head>
             <div className="sm:col-span-3">
                 <div className="text-5xl">
                     {props.eventInfo.title}

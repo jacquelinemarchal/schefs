@@ -12,7 +12,7 @@ import Slider from '@material-ui/core/Slider';
 import Cropper from 'react-easy-crop'
 import { useRouter } from 'next/router'
 import pencil from "../../assets/pencil.png"
-
+import Head from 'next/head';
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import Context from '../../components/Context/context';
 import * as Yup from "yup"
@@ -278,6 +278,10 @@ const EventBuilder = (props) => {
         >
             {({isValid, dirty, isSubmitting, setFieldTouched, handleChange, handleReset}) => (
             <Form>
+                <Head>
+                    <title>Editing: {props.eventInfo.title}</title>
+                    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+                </Head>
                 {isPhotoDisplayOpen ? 
                     <>
                         <div className="h-screen fixed w-screen" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}></div>
