@@ -25,7 +25,7 @@ const router = express.Router();
  *  500: other postgres error
  */
 router.get('/usersCount', (req, res) => {
-    pool.query(queries.getUserCount, (q_err, q_res) => {
+    pool.query(queries.getUserCount, [ req.query.date_from, req.query.date_to ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else

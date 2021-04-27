@@ -1,9 +1,13 @@
 import NavBar from "../components/Banners/navbar";
 import logo from "../assets/logo.png"
-
+import head from 'next/head'
 export default function About() {
   return (
     <>
+            <Head>
+                    <title>About Schefs}</title>
+                    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+            </Head>
         <div className="mx-8">
             <div className="row">
                 <div className="col-lg-7">

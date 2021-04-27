@@ -172,10 +172,29 @@ const getAllReservedTicketsCount = `
     SELECT COUNT(*) FROM tickets AS t
     WHERE (
         COALESCE($1) = '' OR
-        t.time_created <= TO_DATE($1, 'YYYY-MM-DD')
+        t.time_created >= TO_DATE($1, 'YYYY-MM-DD')
     ) AND (
         COALESCE($2) = '' OR
-        t.time_created >= TO_DATE($2, 'YYYY-MM-DD')
+        t.time_created <= TO_DATE($2, 'YYYY-MM-DD')
+    )
+`;
+
+/*
+* $1: date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
+* $2: date_to   <string | Date> - if string, must be of form 'YYYY-MM-DD'
+* $3: status    <string> default 'approved' - one of 'approved', 'denied', 'pending', 'all'
+*/
+const getAllEventsCount = `
+    SELECT COUNT(*) FROM events AS e
+    WHERE (
+        COALESCE($1) = '' OR
+        e.time_created >= TO_DATE($1, 'YYYY-MM-DD')
+    ) AND (
+        COALESCE($2) = '' OR
+        e.time_created <= TO_DATE($2, 'YYYY-MM-DD')
+    ) AND (
+        'all' = $3 OR
+        e.status = $3
     )
 `;
 
@@ -277,6 +296,7 @@ module.exports = {
     getReservedTickets,
     getReservedTicketsCount,
     getAllReservedTicketsCount,
+    getAllEventsCount,
     checkTicketStatus,
     reserveTicket,
     deleteTicket,

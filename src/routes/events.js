@@ -11,10 +11,9 @@ const emails = require('../utils/emails');
 
 const router = express.Router();
 
-// TODO: event approval/denial
 /*
  * GET /api/events/countTickets
- * Get number of all tickets reserved from .
+ * Get number of all tickets reserved in given time span.
  *
  * Request Parameters:
  *  query:
@@ -28,7 +27,33 @@ const router = express.Router();
  *  500: other postgres error
  */
 router.get('/countTickets', (req, res) => {
-    pool.query(queries.getAllReservedTicketsCount, [ req.params.date_from, req.params.date_to ], (q_err, q_res) => {
+    pool.query(queries.getAllReservedTicketsCount, [ req.query.date_from, req.query.date_to ], (q_err, q_res) => {
+        if (q_err){
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+            console.log(q_err.message);
+        }
+        else
+            res.status(200).json(q_res.rows[0]);
+    });
+});
+
+/*
+ * GET /api/events/countEvents
+ * Get number of all events reserved in given time span.
+ *
+ * Request Parameters:
+ *  query:
+ *    date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
+ *    date_to   <string | Date> - if string, must be of form 'YYYY-MM-DD'
+ *    status    <string> default 'approved' - one of 'approved', 'denied', 'pending', 'all'
+ * Response:
+ *  200: successfully retrieved
+ *    <object>
+ *      count <int>
+ *  500: other postgres error
+ */
+router.get('/countEvents', (req, res) => {
+    pool.query(queries.getAllEventsCount, [ req.query.date_from, req.query.date_to, req.query.status ], (q_err, q_res) => {
         if (q_err){
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
             console.log(q_err.message);

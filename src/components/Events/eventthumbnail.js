@@ -22,8 +22,7 @@ const EventThumbnail = (props) => {
                 <div className="relative">
                     <img
                       src={process.env.BASE_URL + props.img_thumbnail}
-                      className="mb-2 rounded-2xl"
-                      style={{zIndex:-1}}
+                      className="mb-2 z-0 rounded-2xl"
                     ></img>
                     {props.border
                       ? <div
