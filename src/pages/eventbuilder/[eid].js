@@ -203,7 +203,7 @@ const EventBuilder = (props) => {
                 queryThumbnails();
                 setSelectedThumbnail(defaultThumbnail);
             } else
-                alert(err.response.data.err)
+                alert(err.response.data.err, eventData)
 
             return;
         }
@@ -276,7 +276,7 @@ const EventBuilder = (props) => {
             enableReinitialize={true}
             validationSchema={EventBuilderSchema}
         >
-            {({isValid, dirty, isSubmitting, setFieldTouched, handleChange, handleReset}) => (
+            {({isValid, dirty, isSubmitting, setFieldTouched, handleChange, resetForm}) => (
             <Form>
                 <Head>
                     <title>Editing: {props.eventInfo.title}</title>
@@ -415,7 +415,8 @@ const EventBuilder = (props) => {
                                     <button
                                         type="button"
                                         className="flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white"
-                                        onClick={handleReset}> CANCEL
+                                        onClick={() => {resetForm(); setEditMode(false);}}> 
+                                        CANCEL
                                     </button>
 
                                     <button

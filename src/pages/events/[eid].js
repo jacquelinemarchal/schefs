@@ -8,7 +8,7 @@ import Context from '../../components/Context/context';
 import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
 const { htmlToText } = require('html-to-text');
-import Head from 'next/head'
+import Head from 'next/head';
 
 const EventPage = (props) => {
     const [clientTickets, setClientTickets] = useState(props.tickets)

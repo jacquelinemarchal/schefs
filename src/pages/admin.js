@@ -13,7 +13,7 @@ const admin = require('../utils/firebase_admin');
 // use https://www.npmjs.com/package/react-scrollable-list if issues with larger lists
 
 export default function ApprovalPortal() {
-
+    const context = useContext(Context);
     const [pendingEvents, setPendingEvents]  = useState(null); // [[eid, host_name, host_school, time_start, title]]
     const fileInput = useRef(null);
     const [ticketsNum, setTicketsNum] = useState(0);
@@ -25,66 +25,66 @@ export default function ApprovalPortal() {
     const [dayUsersNum, setDayUsersNum] = useState(0);
 
     useEffect(async () => {
-        var today = new Date(),
-        date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        const dayTicketQuery = {
-            params: {
-                date_from: date,
-                date_to: date
+            var today = new Date(),
+            date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+            const dayTicketQuery = {
+                params: {
+                    date_from: date,
+                    date_to: date
+                }
             }
-        }
 
-        const dayEventQuery = {
-            params: {
-                date_from: date,
-                date_to: date,
-                status: 'approved',
+            const dayEventQuery = {
+                params: {
+                    date_from: date,
+                    date_to: date,
+                    status: 'approved',
+                }
             }
-        }
 
-        const ticketQuery = {
-            params: {
-                date_from: "2019-01-01",
-                date_to: "2021-12-12"
+            const ticketQuery = {
+                params: {
+                    date_from: "2019-01-01",
+                    date_to: "2021-12-12"
+                }
             }
-        }
 
-        const eventQuery = {
-            params: {
-                date_from: '2019-01-01',
-                date_to: '2021-12-12',
-                status: 'approved',
+            const eventQuery = {
+                params: {
+                    date_from: '2019-01-01',
+                    date_to: '2021-12-12',
+                    status: 'approved',
+                }
             }
-        }
 
-        const query = {
-            params: {
-                date_from: '2020-01-31',
-                date_to: '2021-01-31',
-                status: 'denied',
-                type: 'summary',
+            const query = {
+                params: {
+                    date_from: '2020-01-31',
+                    date_to: '2021-01-31',
+                    status: 'denied',
+                    type: 'summary',
+                }
             }
-        }
-        try{
-            setTicketsNum((await axios.get("/api/events/countTickets", ticketQuery)).data.count);
-           // setUsersNum((await axios.get("/api/users/usersCount", ticketQuery).data.count));
-            setEventsNum((await axios.get("/api/events/countEvents", eventQuery)).data.count);
-            
-            setDayTicketsNum((await axios.get("/api/events/countTickets", dayTicketQuery)).data.count);
-           // setDayUsersNum((await axios.get("/api/users/usersCount", dayTicketQuery)).data.count);
-            setDayEventsNum((await axios.get("/api/events/countEvents", dayEventQuery)).data.count);
-        }
-        catch (e){
-            console.log(e.response.data.err);
-        }
+            try{
+                setTicketsNum((await axios.get("/api/events/countTickets", ticketQuery)).data.count);
+            // setUsersNum((await axios.get("/api/users/usersCount", ticketQuery).data.count));
+                setEventsNum((await axios.get("/api/events/countEvents", eventQuery)).data.count);
+                
+                setDayTicketsNum((await axios.get("/api/events/countTickets", dayTicketQuery)).data.count);
+            // setDayUsersNum((await axios.get("/api/users/usersCount", dayTicketQuery)).data.count);
+                setDayEventsNum((await axios.get("/api/events/countEvents", dayEventQuery)).data.count);
+            }
+            catch (e){
+                console.log(e.response.data.err);
+            }
 
 
-        try {
-            const events = (await axios.get("/api/events", query)).data;
-            setPendingEvents(events);
-        } catch (err) {
-            console.log(err.response.data.err);
-        }  
+            try {
+                const events = (await axios.get("/api/events", query)).data;
+                setPendingEvents(events);
+            } catch (err) {
+                console.log(err.response.data.err);
+            }  
     },[]);
 
     const fileEventHandler = async e => {
@@ -113,6 +113,7 @@ export default function ApprovalPortal() {
 
 
     return (
+        context.profile && context.profile.is_admin ?
         <>
         <Head>
             <title>Admin Dashboard</title>
@@ -160,6 +161,11 @@ export default function ApprovalPortal() {
             </div>
         </div>
         </>
+    : 
+    <>
+        <h2 className="pl-8 pb-4 text-lg text-center">You're not authorized to view this page. Click <a className=" underline" href="/">here</a> to visit our homepage.</h2>
+
+    </>
     );
 };
 
