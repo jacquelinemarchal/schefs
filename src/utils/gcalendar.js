@@ -21,12 +21,14 @@ exports.createGcalEvent = async (event_name, host_name, host_email, description,
         location: zoom_link,
         description: `
             <html>
-              A Schefs event hosted by ${host_name}.
-              <br><br>
-              ${description}
-              <br><br>
-              Meeting Link: <a href=${zoom_link}>${zoom_link}</a><br>
-              Meeting ID: ${zoom_id}
+              <p>
+                A Schefs event hosted by ${host_name}.
+                <br><br>
+                ${description}
+                <br><br>
+                Meeting Link: <a href=${zoom_link}>${zoom_link}</a><br>
+                Meeting ID: ${zoom_id}
+              </p>
             </html>`,
         start: {
             dateTime: start_time.toISOString(),
@@ -41,19 +43,34 @@ exports.createGcalEvent = async (event_name, host_name, host_email, description,
         reminders: { useDefault: false },
     };
 
-    let gcal_id = false;
-    await calendar.events.insert({
-        auth: auth,
-        calendarId: CALENDAR_ID,
-        resource: gcal_event
-    }, (err, event) => {
-        if (err)
-            console.log(err);
+    try {
+        const res = await calendar.events.insert({
+            auth: auth,
+            calendarId: CALENDAR_ID,
+            resource: gcal_event
+        });
 
-        gcal_id = event.data.id;
-    });
+        return res.data.id;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+};
 
-    return gcal_id;
+exports.updateGcalEvent = async (gcal_id, gcal_event_patch) => {
+    try {
+        const res = await calendar.events.patch({
+            auth: auth,
+            calendarId: CALENDAR_ID,
+            eventId: gcal_id,
+            resource: gcal_event_patch,
+        });
+
+        return true;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
 };
 
 exports.addAttendeeToGcalEvent = async (gcal_id, attendee_email) => {
@@ -70,30 +87,33 @@ exports.addAttendeeToGcalEvent = async (gcal_id, attendee_email) => {
 
     const gcal_event_patch = {attendees: attendees};
 
-    let success = false;
-    await calendar.events.patch({
-        auth: auth,
-        calendarId: CALENDAR_ID,
-        eventId: encoded_id,
-        resource: gcal_event_patch,
-    }, (err, event) => {
-        if (err) console.log(err);
-        else success = true;
-    });
+    try {
+        const res = await calendar.events.patch({
+            auth: auth,
+            calendarId: CALENDAR_ID,
+            eventId: gcal_id,
+            resource: gcal_event_patch,
+        });
 
-    return success;
+        return true;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
 };
 
 exports.deleteGcalEvent = async (gcal_id) => {
     let success = false;
-    await calendar.events.delete({
-        auth: auth,
-        calendarId: CALENDAR_ID,
-        eventId: gcal_id, 
-    }, (err, event) => {
-        if (err) console.log(err);
-        else success = true;
-    });
+    try {
+        const res = await calendar.events.delete({
+            auth: auth,
+            calendarId: CALENDAR_ID,
+            eventId: gcal_id, 
+        });
 
-    return success;
+        return true;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
 }

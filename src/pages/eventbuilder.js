@@ -1,22 +1,28 @@
-import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
-import axios from "axios";
-import HighlightOff from '@material-ui/icons/HighlightOff';
+import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
+import axios from 'axios';
+import moment from 'moment';
+import 'moment-timezone';
+
 import { htmlToText } from 'html-to-text';
-import ContentEditable from 'react-contenteditable'
-import cohost from "../assets/cohost.png"
-import Typography from '@material-ui/core/Typography';
-import Slider from '@material-ui/core/Slider';
+import ContentEditable from 'react-contenteditable';
 import getCroppedImg from 'react-image-crop';
-import Cropper from 'react-easy-crop'
-import WhitePillButton from "../components/Buttons/wpillbutton"
+import Cropper from 'react-easy-crop';
 
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import Collapse from '@material-ui/core/Collapse';
+import Slider from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
+import HighlightOff from '@material-ui/icons/HighlightOff';
+import { MuiPickersUtilsProvider, Calendar } from '@material-ui/pickers';
+import MomentUtils from '@date-io/moment';
+
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import * as Yup from 'yup';
+
 import Context from '../components/Context/context';
-import * as Yup from "yup"
-import { now } from "moment";
-import { openPopupWidget, CalendlyEventListener } from "react-calendly";
+import WhitePillButton from '../components/Buttons/wpillbutton'
+import cohost from '../assets/cohost.png'
 
-const CALENDLY_URL = 'https://calendly.com/schefs/schefs-react-weekend-events';
+
 const defaultProfilePicture = 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2FScreen%20Shot%202021-01-24%20at%2010.57.18%20AM.jpeg?alt=media&token=a88fcb5e-4919-4bc6-b792-23d725324040';
 const defaultThumbnail = {
     tid: -1,
@@ -29,6 +35,8 @@ const EventBuilder = () => {
     // import Context
     const context = useContext(Context);
 
+    // get timezone
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     // prefill values for event builder form
     const [preLoad, setPreLoad] = useState({
@@ -44,8 +52,8 @@ const EventBuilder = () => {
 		bio: "",
     });
 
-    // mostly useless state to handle Formik => Calendly => backend workflow
-    const [valuesToBackend, setValuesToBackend] = useState(null);
+    // default available times to schedule event
+    const [dailyTimes, setDailyTimes] = useState(null);
 
     // ref for profile picture that gets uploaded by user
     const fileInput = useRef(null)
@@ -67,21 +75,23 @@ const EventBuilder = () => {
     // cohost options modal state
     const [isCoHostOpen, setIsCoHostOpen] = useState(false)
 
+    // schedule event modal state
+    const [isSchedulerOpen, setIsSchedulerOpen] = useState(false)
+
+    // selected date & time for scheduler
+    const [datetimeConfirmed, setDatetimeConfirmed] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(moment());
+    const [selectedTime, setSelectedTime] = useState(null);
+
+    // available dates & times for scheduler
+    const [unavailableDatetimes, setUnavailableDatetimes] = useState(null);
+
+    // show available times when scheduling
+    const [showTimes, setShowTimes] = useState(false);
+
     // thumbnail options and selected value
 	const [thumbnails, setThumbnails] = useState([]);
     const [selectedThumbnail, setSelectedThumbnail] = useState(defaultThumbnail);
-
-    // loading animations
-    const [isLoading, setIsLoading] = useState(true)
-
-    // listen for escape key to close modals
-    const escFunction = (event) => {
-        if (event.keyCode === 27) {
-      	    setIsPhotoDisplayOpen(false);
-            setIsModalOpen(false);
-            setIsCoHostOpen(false);
-        }
-    };
 
     // get available thumbnails from backend
     const queryThumbnails = () => {
@@ -91,21 +101,66 @@ const EventBuilder = () => {
             .catch(err => console.log(err.response.data.err));
     }
 
-    // query thumbnails on load
-    useEffect(queryThumbnails, []);
-    
-    // wait a second on load to wait for thumbnails, etc.
+    // get available times from backend
+    const queryAvailableTimes = () => {
+        const date_from = moment();
+        const date_to = moment().add(4, 'weeks');
+
+        axios
+            .get('/api/events', {
+                params: {
+                    date_from: date_from.format('YYYY-MM-DD'),
+                    date_to: date_to.format('YYYY-MM-DD'),
+                    status: 'all',
+                    type: 'summary',
+                }
+            })
+            .then((res) => {
+                // don't consider denied events
+                const events = res.data.filter((event) => !(event.status === 'denied'));
+
+                // save in object {date string: time string} format
+                const times = {}
+                for (const event of events) {
+                    const datetime = moment(event.time_start).tz(timezone);
+                    const date = datetime.format('YYYY-MM-DD');
+                    if (date in times)
+                        times[date].push(datetime.format('h:mm A'));
+                    else
+                        times[date] = [datetime.format('h:mm A')];
+                }
+
+                setUnavailableDatetimes({...times});
+            })
+            .catch((err) => console.log(err));
+    }
+ 
+    // function to close modals
+    const closeModals = () => {
+        if (isPhotoDisplayOpen)
+            setIsPhotoDisplayOpen(false);
+        if (isModalOpen)
+            setIsModalOpen(false);
+        if (isCoHostOpen)
+            setIsCoHostOpen(false);
+        if (isSchedulerOpen)
+            setIsSchedulerOpen(false);
+    }
+
+    // listen for escape key to close modals
+    const escFunction = (event) => {
+        if (event.keyCode === 27)
+            closeModals();
+    };
+
+    // escape keylistener
     useEffect(() => {
-        setTimeout(
-            () => setIsLoading(false),
-            1000
-        );
+        document.addEventListener('keydown', escFunction, false);
+        return () => document.removeEventListener('keydown', escFunction, false);
     }, []);
 
-    // add escape keylistener and set pre-fill values whenever profile updates
+    // set pre-fill values whenever profile updates
     useEffect(() => {
-        document.addEventListener("keydown", escFunction, false);
-
         if (context.profile){
             var user = context.profile;
             setPreLoad({
@@ -121,11 +176,34 @@ const EventBuilder = () => {
                 bio: user.bio,
             })
         }
-        return () => {
-          document.removeEventListener("keydown", escFunction, false);
-        };
     }, [context.profile]);
 
+    // query thumbnails on load
+    useEffect(queryThumbnails, []);
+
+    useEffect(() => {
+        let times = [
+            '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM',
+            '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM',
+            '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'
+        ];
+
+        times = times.map(time => (moment.tz(time, 'h:mm A', 'America/New_York').tz(timezone).format('h:mm A')));
+        setDailyTimes([...times]);
+    }, []);
+
+    // query available times in the next 4 weeks on load
+    useEffect(queryAvailableTimes, []);
+
+    // check if date in scheduler should be disabled
+    const isDateDisabled = (date) => {
+        const datestring = date.format('YYYY-MM-DD');
+        if (date.day() != 0 && date.day() != 5 && date.day() != 6)
+            return true;
+        if (datestring in unavailableDatetimes && unavailableDatetimes[datestring].length === dailyTimes.length)
+            return true;
+        return false;
+    }
 
     // math for cropping profile pictures
     const makeCroppedImage = () => {
@@ -187,32 +265,27 @@ const EventBuilder = () => {
         }
     }
 
-    // open Calendly widget when submitting Formik and actually submit to backend on Calendly submit
-    const handleSubmit = (values, { setSubmitting }) => {
+    // on Formik submit
+    const handleSubmit = async (values, { setSubmitting }) => {
         //values not yet in the endpoint= [coHostEmail, lastName, gradYear, major]
         
         setSubmitting(false);
-        setValuesToBackend(values);
 
-        // open Calendly widget
-        openPopupWidget({
-            url: CALENDLY_URL,
-            prefill: {
-                name: context.profile.first_name + ' ' + context.profile.last_name,
-                email: context.profile.email,
-            }
-        });
-    }
+        const time_start = moment.tz(
+            selectedDate.format('YYYY-MM-DD') + ' ' + selectedTime,
+            'YYYY-MM-DD h:mm A',
+            timezone
+        ).toDate();
 
-    const onCalendlySubmit = async (e) => {
-        const values = valuesToBackend;
+        console.log(time_start);
+
         const eventData = {
             title: values.title,
             description: values.description,
             requirements: values.requirements,
             thumbnail_id: selectedThumbnail.tid,
             host_bio: values.bio,
-            time_start: new Date(), // TODO: do actual start time
+            time_start: time_start,
             hosts: [{ ...context.profile }],
         }
 
@@ -220,9 +293,15 @@ const EventBuilder = () => {
             await axios.post('/api/events', eventData);
         } catch (err) {
             if (err.response && err.response.status === 409) {
-                alert('Thumbnail already in use, choose a different one');
-                queryThumbnails();
-                setSelectedThumbnail(defaultThumbnail);
+                if (err.response.data.err === 'Thumbnail already in use') {
+                    alert('Thumbnail already in use, choose a different one');
+                    queryThumbnails();
+                    setSelectedThumbnail(defaultThumbnail);
+                } else if (err.response.data.err === 'Time unavailable') {
+                    queryAvailableTimes();
+                    setSelectedTime(null);
+                    setDatetimeConfirmed(false);
+                }
             } else
                 alert(err.response.data.err)
 
@@ -290,20 +369,18 @@ const EventBuilder = () => {
     });
 
     return (
-        preLoad.first_name && context.profile && !isLoading
-        ? <>
-          <CalendlyEventListener onEventScheduled={onCalendlySubmit} />
-          <Formik
+        <>
+        {preLoad.first_name && context.profile
+          ? <Formik
               initialValues={preLoad}
               onSubmit={handleSubmit}
               validationSchema={EventBuilderSchema}
-          >
+            >
               {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
               <Form>
   
                   {isModalOpen ? 
                       <>
-                          <div className="h-screen fixed w-screen" onClick={() => setIsModalOpen(!isModalOpen)}></div>
                           <div className="fixed overflow-scroll m-16 top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
                               <div className="flex justify-end">
                                   <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
@@ -374,8 +451,60 @@ const EventBuilder = () => {
                       </div>
                       </>
                       : null}
+                  
+                  {isSchedulerOpen
+                    ? <div className="fixed transform -translate-x-1/2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20" style={{left: '50%'}}>
+                          <div className="flex justify-end">
+                              <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
+                                  <HighlightOff/>
+                              </button>
+                          </div>
+                          <div className="flex flex-row" style={{maxHeight: '304px'}}>
+                            <div className="flex flex-col px-6">
+                              <div className="overflow-hidden">
+                                {unavailableDatetimes !== null
+                                  ? <MuiPickersUtilsProvider utils={MomentUtils}>
+                                      <Calendar 
+                                        date={selectedDate}
+                                        onChange={(date, isFinish) => {
+                                            setSelectedDate(date);
+                                            setShowTimes(true);
+                                        }}
+                                        shouldDisableDate={isDateDisabled} 
+                                        maxDate={moment().add(60, 'days')}
+                                        minDate={moment().add(3, 'days')}
+                                      />
+                                    </MuiPickersUtilsProvider>
+                                  : null
+                                }
+                              </div>
+                            </div>
+
+                            {dailyTimes
+                              ? <div className="px-6 overflow-scroll" style={{maxWidth: '200px'}}>
+                                  {dailyTimes.map(time => {
+                                    const date = moment(selectedDate).format('YYYY-MM-DD');
+                                    if (date in unavailableDatetimes && unavailableDatetimes[date].includes(time))
+                                        return null;
+                                    return (
+                                        <WhitePillButton
+                                          handleClick={selectedTime === time ? () => {setIsSchedulerOpen(false); setDatetimeConfirmed(true)} : () => setSelectedTime(time)}
+                                          type="button"
+                                          text={selectedTime === time ? 'CONFIRM' : time}
+                                          padding="my-1 w-full text-center"
+                                          key={time}
+                                        />
+                                    );
+                                  })}
+                                </div>
+                              : null
+                            }
+                          </div>
+                      </div>
+                    : null
+                  }
   
-                  <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6" onClick={() => {if (isCoHostOpen)setIsCoHostOpen(false);}}>
+                  <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6" onClick={closeModals}>
                       <div className="grid col-span-3">
                           <Field 
                               name="title" 
@@ -387,9 +516,12 @@ const EventBuilder = () => {
                                   handleChange(e);
                               }}
                           />
+                  
                           <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
-                          <div>
-                              You’ll be able to select your event’s date on the next page
+
+                          <div className="flex flex-row">
+                            <WhitePillButton handleClick={() => setIsSchedulerOpen(true)} type="button" text="SELECT DATE & TIME" padding="px-6 flex w-3/4 md:w-1/2 xl:w-1/3" />
+                            {datetimeConfirmed ? selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z') : null}
                           </div>
   
                           <div className="mr-6 mt-2 mb-10 w-9/12">
@@ -427,15 +559,16 @@ const EventBuilder = () => {
                           <div className="sm:fixed">
                               <div className="hidden sm:flex space-x-2 h-8 items-center">
                                   <button
-                                    disabled={false/*
+                                    disabled={
                                       selectedThumbnail.tid === -1 ||
                                       profilePictureURL === defaultProfilePicture ||
+                                      !datetimeConfirmed ||
                                       !isValid ||
                                       !dirty ||
                                       isSubmitting
-                                    */}
+                                    }
                                     type="submit"
-                                    className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                    className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !datetimeConfirmed || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
                                   >
                                       SUBMIT
                                   </button>
@@ -443,7 +576,7 @@ const EventBuilder = () => {
                                       <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
                                   </div>
                               </div>
-                              <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-20" style={{ maxWidth: "300px"}}>
+                              <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-12" style={{ maxWidth: "300px"}}>
                                   <p>Hosted by:</p>
                                   <p className="cursor-pointer hover:underline hover:text-blue-900" onClick={() => setIsCoHostOpen(!isCoHostOpen)}>Add a co-host</p>
                               </div>
@@ -542,34 +675,38 @@ const EventBuilder = () => {
   
                               <div className="h-8">
                                   <footer className="bg-white sm:hidden inset-x-0 fixed bottom-0 flex justify-around items-center">
-                                          <button
-                                          disabled={
-                                              selectedThumbnail.tid === -1 ||
-                                              profilePictureURL === defaultProfilePicture ||
-                                              !isValid ||
-                                              !dirty ||
-                                              isSubmitting
-                                          }
-                                          type="submit"
-                                          className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
-                                          >
-                                              SET DATE &amp; SUBMIT
-                                          </button>
-                                          <div onClick={() => {setIsModalOpen(true)}}> 
-                                              <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
-                                          </div>
+                                      <button
+                                        disabled={
+                                            selectedThumbnail.tid === -1 ||
+                                            profilePictureURL === defaultProfilePicture ||
+                                            !datetimeConfirmed ||
+                                            !isValid ||
+                                            !dirty ||
+                                            isSubmitting
+                                        }
+                                        type="submit"
+                                        className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !datetimeConfirmed || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                      >
+                                          SET DATE &amp; SUBMIT
+                                      </button>
+                                      <div onClick={() => {setIsModalOpen(true)}}> 
+                                          <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
+                                      </div>
                                   </footer>
                               </div>
                           </div>
                       </div>
                   </div>
               </Form>)}
-          </Formik>
-          </>
-        : <div className="text-center items-center flex flex-col mt-12">
+            </Formik>
+          : context.profile
+            ? null
+            : <div className="text-center items-center flex flex-col mt-12">
                 You must have a Schefs account to make events
                 <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
-         </div>
+              </div>
+        }
+        </>
     );
 };
 

@@ -13,6 +13,8 @@ const zoom = require('../utils/zoom');
 
 const router = express.Router();
 
+const TIMEZONE = 'America/New_York';
+
 /*
  * GET /api/events
  * List events (summary) within date range, in ascending order by date/time.
@@ -159,7 +161,7 @@ router.get('/:eid', (req, res) => {
  *    requirements  <string>
  *    thumbnail_id  <int>           required
  *    host_bio      <string>        required
- *    time_start    <Date>          required - UTC timezone
+ *    time_start    <Date>          required
  *    hosts         <array[object]> required
  *      uid         <int>           required
  *      first_name  <string>        required
@@ -170,7 +172,7 @@ router.get('/:eid', (req, res) => {
  *  201: successfully created
  *  403: attempting to create event for non-self user
  *  406: required field missing
- *  409: thumbnail already in use
+ *  409: thumbnail already in use or time unavailable
  *  500: other postgres error
  */
 router.post('', verifyFirebaseIdToken, async (req, res) => {
@@ -188,18 +190,18 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         host_school = req.body.hosts[0].school;
     }
 
-    // convert to Date objects
-    req.body.time_start = new Date(req.body.time_start);
+    // convert to Date object
+    const time_start = new Date(req.body.time_start);
 
     // make Zoom event
-    const zoom_res = await zoom.createMeeting(req.body.title, req.body.time_start);
+    const zoom_res = await zoom.createMeeting(req.body.title, time_start);
     if (!zoom_res) {
         res.status(500).json({ err: 'Zoom API failed to create a new meeting' });
         return;
     }
 
     // make Google Calendar event
-    const time_end = new Date(req.body.time_start.valueOf());
+    const time_end = new Date(time_start);
     time_end.setHours(time_end.getHours() + 1);
     const gcal_id = await gcal.createGcalEvent(
         req.body.title,
@@ -208,7 +210,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         req.body.description,
         zoom_res.url,
         zoom_res.id,
-        req.body.time_start,
+        time_start,
         time_end
     );
 
@@ -228,25 +230,42 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         zoom_res.url, 
         zoom_res.id,
         gcal_id,
-        req.body.time_start,
+        time_start,
         'pending', // default status pending        
     ];
 
+    // insert into PSQL
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        const valid_thumb = (await client.query(thumbnail_queries.checkThumbnail, [ req.body.thumbnail_id ])).rows.length > 0;
+
+        // check thumbnail not in use
+        const valid_thumb = (await client.query(
+            thumbnail_queries.checkThumbnailAvailable,
+            [ req.body.thumbnail_id ]
+        )).rows[0].available;
+
+        // check time still available
+        time_end.setHours(time_start.getHours() + 2);
+
+        const valid_time = (await client.query(
+            queries.checkTimeAvailable,
+            [ time_start, time_end ]
+        )).rows[0].available;
+
+        // if valid, add this event
         if (!valid_thumb) {
             await client.query('COMMIT');
             res.status(409).json({ err: 'Thumbnail already in use' });
+        } else if (!valid_time) {
+            await client.query('COMMIT');
+            res.status(409).json({ err: 'Time unavailable' });
         } else {
             await client.query(thumbnail_queries.setThumbnailUsed, [ req.body.thumbnail_id ]);
 
             const eid = (await client.query(queries.createEvent, values)).rows[0].eid;	
             for (const host of req.body.hosts)
                 await client.query(queries.createHost, [ host.uid, eid ]);
-
-            await client.query('COMMIT');
 
             // send email
             emails.sendEventSubmittedEmail(
@@ -255,15 +274,22 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
                 req.body.title
             );
 
+            await client.query('COMMIT');
             res.status(201).send();
-
         }
+
+    // if not valid, delete the Zoom and GCal events
     } catch (err) {
         await client.query('ROLLBACK');
         if (err.code === '23502') // not_null_violation
             res.status(406).json({ err: 'Required field missing' });
         else
             res.status(500).json({ err: 'PSQL Error: ' + err.message });
+
+        if (!(await zoom.deleteMeeting(zoom_res.id)))
+            console.log('Failed to delete Zoom meeting', zoom_res.id);
+        if (!(await gcal.deleteGcalEvent(gcal_id)))
+            console.log('Failed to delete Gcal event', gcal_id);
     } finally {
         client.release();
     }
@@ -289,10 +315,8 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
  *    description            <string>
  *    requirements           <string>
  *    thumbnail_id           <int> - id of the new thumbnail, if changing
- *    zoom_link              <string>
- *    zoom_id                <string>
  *    time_start             <Date>
- *    status                 <string>
+ *    status                 <string> - either or 'approved', 'denied'
  *
  * Response:
  *  201: successfully updated
@@ -312,6 +336,11 @@ router.patch('/:eid', verifyFirebaseIdToken, async (req, res) => {
         return;
     }
 
+    if (req.body.status && req.body.status !== 'approved' && req.body.status !== 'denied') {
+        res.status(406).json({ err: 'status must be "approved" or "denied"' });
+        return;
+    }
+
     const values = [
         req.body.host_name|| null,
         req.body.host_school || null,
@@ -320,8 +349,6 @@ router.patch('/:eid', verifyFirebaseIdToken, async (req, res) => {
         req.body.description || null,
         req.body.requirements || null,
         req.body.thumbnail_id || null,
-        req.body.zoom_link || null,
-        req.body.zoom_id || null,
         req.body.time_start || null,
         req.body.status || null,
         req.params.eid
@@ -331,45 +358,135 @@ router.patch('/:eid', verifyFirebaseIdToken, async (req, res) => {
     try {
         await client.query('BEGIN');
 
-        // check if thumbnail is use
-        if (req.body.thumbnail_id &&
-            (await client.query(thumbnail_queries.checkThumbnail, [ req.body.thumbnail_id ])).rows.length > 0
-        ) {
+        // if thumbnail got updated, check thumbnail not in use
+        let valid_thumb = true;
+        if (req.body.thumbnail_id) {
+            valid_thumb = (await client.query(
+                thumbnail_queries.checkThumbnailAvailable,
+                [ req.body.thumbnail_id ]
+            )).rows[0].available;
+        }
+
+        // if start time got updated, check time still available
+        let valid_time = true;
+        if (req.body.time_start) {
+            const time_start = new Date(req.body.time_start);
+            const time_end = new Date(time_start);
+            time_end.setHours(time_start.getHours() + 2);
+
+            valid_time = (await client.query(
+                queries.checkTimeAvailable,
+                [ time_start, time_end ]
+            )).rows[0].available;
+        }
+
+        // if either thumbnail or time is invalid, return 409
+        if (!valid_thumb) {
             await client.query('COMMIT');
             res.status(409).json({ err: 'Thumbnail already in use' });
+        } else if (!valid_time) {
+            await client.query('COMMIT');
+            res.status(409).json({ err: 'Time unavailable' });
 
-        // if not, then continue
+        // otherwise, update the event
         } else {
+
             // get and keep track of event pre-update
             const orig_event = (await client.query(queries.getEvent, [ req.params.eid ])).rows[0];
 
             // update thumbnail in PSQL if it has changed
-            if (req.body.thumbnail_id)
+            if (req.body.thumbnail_id) {
                 await client.query(thumbnail_queries.replaceThumbnail, [
                     orig_event.img_thumbnail,
                     req.body.thumbnail_id,
                 ]);
+            }
 
             // update the event proper
             await client.query(queries.updateEvent, values);
-            await client.query('COMMIT');
 
-            // send email if an approval took place
+            // send email and possibly update Gcal/Zoom if an approval took place
             if (orig_event.status !== 'approved' && req.body.status === 'approved') {
+                
+                // get final event infos
                 const event_time = req.body.time_start || orig_event.time_start;
+                const event_title = req.body.title || orig_event.title;
+
+                // if necessary, update Zoom
+                if (req.body.time_start || req.body.title) {
+                    if (!(await zoom.updateMeeting(orig_event.zoom_id, event_title, event_time))) {
+                        await client.query('ROLLBACK');
+                        client.release();
+                        res.status(500).json({
+                            err: 'Zoom API failed to update meeting ' + orig_event.zoom_id 
+                        });
+                        return;
+                    }
+                }
+
+                // if necessary, update Gcal
+                if (req.body.time_start || req.body.title || req.body.host_name || req.body.description) {
+                    const gcal_event_patch = {}
+                    if (req.body.time_start) {
+                        const time_start = new Date(req.body.time_start);
+                        const time_end = new Date(time_start);
+                        time_end.setHours(time_start.getHours() + 1);
+
+                        gcal_event_patch.start = {
+                            dateTime: time_start.toISOString(),
+                            timeZone: TIMEZONE
+                        };
+
+                        gcal_event_patch.end = {
+                            dateTime: time_end.toISOString(),
+                            timeZone: TIMEZONE
+                        };
+                    }
+
+                    if (req.body.title)
+                        gcal_event_patch.summary = req.body.title;
+
+                    if (req.body.host_name || req.body.description) {
+                        const event_host = req.body.host_name || orig_event.host_name;
+                        const event_desc = req.body.description || orig_event.description;
+                        gcal_event_patch.description = `
+                            <html>
+                              <p>
+                                A Schefs event hosted by ${event_host}.
+                                <br><br>
+                                ${event_desc}
+                                <br><br>
+                                Meeting Link: <a href=${orig_event.zoom_link}>${orig_event.zoom_link}</a><br>
+                                Meeting ID: ${orig_event.zoom_id}
+                              </p>
+                            </html>
+                        `;
+                    }
+                    
+                    if (!(await gcal.updateGcalEvent(orig_event.gcal_id, gcal_event_patch))) {
+                        await client.query('ROLLBACK');
+                        client.release();
+                        res.status(500).json({
+                            err: 'Google Calendar API failed to update the event ' + orig_event.gcal_id
+                        });
+                        return;
+                    }
+                }
+
+                // send approval email
                 for (const host of orig_event.hosts) {
                     emails.sendEventApprovedEmail(
                         host.email,
                         host.first_name,
-                        req.body.title || orig_event.title,
+                        event_title,
                         moment.tz(event_time, 'America/New_York').format('dddd, MMMM D, YYYY'),
-                        moment.tz(event_time, 'America/New_York').format('h:mm A, z'),
+                        moment.tz(event_time, 'America/New_York').format('h:mm A z'),
                         process.env.BASE_URL + '/' + orig_event.eid,
                         req.body.zoom_link || orig_event.zoom_link
                     );
                 }
 
-            // or send email if a denial took place
+            // or send email and delete Zoom/Gcal if a denial took place
             } else if (orig_event.status !== 'denied' && req.body.status === 'denied') {
                 for (const host of orig_event.hosts) {
                     emails.sendEventDeniedEmail(
@@ -381,8 +498,15 @@ router.patch('/:eid', verifyFirebaseIdToken, async (req, res) => {
                         req.body.host_bio || orig_event.host_bio
                     );
                 }
+
+                if (!(await zoom.deleteMeeting(zoom_res.id)))
+                    console.log('Failed to delete Zoom meeting', zoom_res.id);
+                if (!(await gcal.deleteGcalEvent(gcal_id)))
+                    console.log('Failed to delete Gcal event', gcal_id);
             }
 
+            // if all went well, commit
+            await client.query('COMMIT');
             res.status(201).send();
         }
     } catch (err) {
@@ -430,7 +554,6 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
             ];
 
             await client.query(queries.reserveTicket, values);
-            await client.query('COMMIT');
 
             // handle emails
             
@@ -473,6 +596,7 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
                 event.title
             ));
 
+            await client.query('COMMIT');
             res.status(201).send();
         }
     } catch (err) {
