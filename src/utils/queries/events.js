@@ -206,6 +206,40 @@ const getReservedTicketsCount = `
 `;
 
 /*
+* $1: date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
+* $2: date_to   <string | Date> - if string, must be of form 'YYYY-MM-DD'
+*/
+const getAllReservedTicketsCount = `
+    SELECT COUNT(*) FROM tickets AS t
+    WHERE (
+        COALESCE($1) = '' OR
+        t.time_created >= TO_DATE($1, 'YYYY-MM-DD')
+    ) AND (
+        COALESCE($2) = '' OR
+        t.time_created <= TO_DATE($2, 'YYYY-MM-DD')
+    )
+`;
+
+/*
+* $1: date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
+* $2: date_to   <string | Date> - if string, must be of form 'YYYY-MM-DD'
+* $3: status    <string> default 'approved' - one of 'approved', 'denied', 'pending', 'all'
+*/
+const getAllEventsCount = `
+    SELECT COUNT(*) FROM events AS e
+    WHERE (
+        COALESCE($1) = '' OR
+        e.time_created >= TO_DATE($1, 'YYYY-MM-DD')
+    ) AND (
+        COALESCE($2) = '' OR
+        e.time_created <= TO_DATE($2, 'YYYY-MM-DD')
+    ) AND (
+        'all' = $3 OR
+        e.status = $3
+    )
+`;
+
+/*
  * $1: event_id <int> required
  * $2: user_id  <int> required
  */
@@ -254,6 +288,37 @@ const postComment = `
     VALUES ($1, $2, $3, $4, $5)
 `;
 
+/*
+ * $1:  host_name    <string>
+ * $2:  host_school  <string>
+ * $3:  host_bio     <string>
+ * $4:  title        <string>
+ * $5:  description  <string>
+ * $6:  requirements <string>
+ * $7:  thumbnail_id <int>
+ * $8:  zoom_link    <string>
+ * $9:  zoom_id      <string>
+ * $10: time_start   <Date>
+ * $11: status       <string>
+ * $12: eid          <int>
+ */
+const updateEvent = `
+    UPDATE events
+    SET host_name = COALESCE($1, host_name),
+        host_school = COALESCE($2, host_school),
+        host_bio = COALESCE($3, host_bio),
+        title = COALESCE($4, title),
+        description = COALESCE($5, description),
+        requirements = COALESCE($6, requirements),
+        thumbnail_id = COALESCE($7, thumbnail_id),
+        zoom_link = COALESCE($8, zoom_link),
+        zoom_id = COALESCE($9, zoom_id),
+        time_start = COALESCE($10, time_start),
+        time_created = CURRENT_TIMESTAMP,
+        status = COALESCE($11, status)
+    WHERE eid = $12
+`;
+
 /* 
  * $1: event_id <int>
  */
@@ -272,6 +337,8 @@ module.exports = {
     getReservedTickets,
     getReservedTicketsCount,
     checkTimeAvailable,
+    getAllReservedTicketsCount,
+    getAllEventsCount,
     checkTicketStatus,
     reserveTicket,
     deleteTicket,

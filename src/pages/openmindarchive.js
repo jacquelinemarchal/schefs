@@ -1,6 +1,7 @@
 import WhitePillButton from "../components/Buttons/wpillbutton"
 import React, { useState, useContext, useEffect } from "react";
 import axios from "axios"
+import Head from 'next/head';
 import Context from "../components/Context/context"
 // use https://www.npmjs.com/package/react-scrollable-list if issues with larger lists
 var Scroll = require('react-scroll');
@@ -23,7 +24,7 @@ export default function OMA () {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (context.profile){
+        if ((context.profile) && (context.profile.isVerified)){
             let sendTopic = {
                 user_id: context.profile.uid,
                 body:topic,
@@ -59,6 +60,9 @@ export default function OMA () {
     }
     return (
         <>  
+            <Head>
+                <title>Open Mind Archive</title>
+            </Head>
             <div className="grid mx-8 sm:grid-cols-2">
                 <div className="col-span-1 sm:mr-6">
                     <p className="sm:my-8">Open Mind Archive</p>

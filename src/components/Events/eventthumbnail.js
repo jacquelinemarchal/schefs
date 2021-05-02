@@ -5,14 +5,24 @@ import WhitePillButton from '../Buttons/wpillbutton';
 
 const EventThumbnail = (props) => {
     const context = useContext(Context);
+    const [link, setLink] = useState('');
+
+    useEffect(() => {
+        if (!props.isEditable) {
+            setLink(`/events/${props.eid}`) 
+        }
+        else{
+            setLink(`eventbuilder/${props.eid}`)
+        }
+    }, [])
 
     return (
         <div className={"col-span-1 mb-4 " + props.style} >
-            <a className="cursor-pointer" onClick={context.handleCloseCard} href={`/events/${props.eid}`}>
+            <a className="cursor-pointer" onClick={context.handleCloseCard} href={link}>
                 <div className="relative">
                     <img
                       src={process.env.BASE_URL + props.img_thumbnail}
-                      className="mb-2 rounded-2xl"
+                      className="mb-2 z-0 rounded-2xl"
                     ></img>
                     {props.border
                       ? <div

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import axios from 'axios';
+import Head from 'next/head';
 import moment from 'moment';
 import 'moment-timezone';
 
@@ -7,6 +8,7 @@ import { htmlToText } from 'html-to-text';
 import ContentEditable from 'react-contenteditable';
 import getCroppedImg from 'react-image-crop';
 import Cropper from 'react-easy-crop';
+import {CSSTransition} from 'react-transition-group'
 
 import Collapse from '@material-ui/core/Collapse';
 import Slider from '@material-ui/core/Slider';
@@ -19,9 +21,8 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 
 import Context from '../components/Context/context';
-import WhitePillButton from '../components/Buttons/wpillbutton'
-import cohost from '../assets/cohost.png'
-
+import WhitePillButton from '../components/Buttons/wpillbutton';
+import cohost from '../assets/cohost.png';
 
 const defaultProfilePicture = 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2FScreen%20Shot%202021-01-24%20at%2010.57.18%20AM.jpeg?alt=media&token=a88fcb5e-4919-4bc6-b792-23d725324040';
 const defaultThumbnail = {
@@ -29,7 +30,6 @@ const defaultThumbnail = {
     location: 'images/placeholder.png',
     is_used: true,
 }
-
 
 const EventBuilder = () => {
     // import Context
@@ -90,7 +90,7 @@ const EventBuilder = () => {
     const [showTimes, setShowTimes] = useState(false);
 
     // thumbnail options and selected value
-	const [thumbnails, setThumbnails] = useState([]);
+	  const [thumbnails, setThumbnails] = useState([]);
     const [selectedThumbnail, setSelectedThumbnail] = useState(defaultThumbnail);
 
     // get available thumbnails from backend
@@ -308,13 +308,13 @@ const EventBuilder = () => {
             return;
         }
 
-		const userData = new FormData();
-		userData.append('first_name', values.first_name);
-		userData.append('last_name', values.last_name);
-		userData.append('bio', values.bio);
-		userData.append('school', values.school);
-		userData.append('major', values.major);
-		userData.append('grad_year', values.grad_year);
+        const userData = new FormData();
+        userData.append('first_name', values.first_name);
+        userData.append('last_name', values.last_name);
+        userData.append('bio', values.bio);
+        userData.append('school', values.school);
+        userData.append('major', values.major);
+        userData.append('grad_year', values.grad_year);
 
         try {
             const res = await fetch(profilePictureURL);
@@ -328,13 +328,13 @@ const EventBuilder = () => {
 
             alert('event successfully submitted');
             window.location.href = '/';
-		} catch (err) {
+        } catch (err) {
             if (err.response && err.response.data)
                 alert(err.response.data.err);
             else
                 alert(err);
         }
-	}
+	  }
 
     const Thumbnail = (props) => {
         const handleSelectThumbnail = (e) => {
@@ -345,9 +345,25 @@ const EventBuilder = () => {
             
         return (
             <button onClick={handleSelectThumbnail}>
-                <img src={props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
+                <img src={process.env.BASE_URL +  props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
+    }
+    
+    const Greyout = () => {
+        return (
+            <CSSTransition
+              in={isModalOpen || isCohostOpen || isSchedulerOpen || isPhotoDisplayOpen}
+              timeout={500}
+              key="grey-out"
+              classNames="grey-out"
+              unmountOnExit
+            >
+              <div onClick={closeModals} className="fixed inset-0 z-10">
+                <div className="absolute inset-0 bg-gray-700 bg-opacity-75"></div>
+              </div>
+            </CSSTransition>
+        )
     }
 
     const EventBuilderSchema = Yup.object().shape({
@@ -367,10 +383,13 @@ const EventBuilder = () => {
         bio: Yup.string()
             .required('This field is required'),
     });
-
+  
     return (
         <>
-        {preLoad.first_name && context.profile
+        <Head>
+          <title>Event Builder</title>
+        </Head>
+        {preLoad.first_name && context.profile && context.profile.isVerified
           ? <Formik
               initialValues={preLoad}
               onSubmit={handleSubmit}
@@ -378,7 +397,7 @@ const EventBuilder = () => {
             >
               {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
               <Form>
-  
+                  <Greyout />
                   {isModalOpen ? 
                       <>
                           <div className="fixed overflow-scroll m-16 top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
@@ -408,18 +427,17 @@ const EventBuilder = () => {
   
                   {isPhotoDisplayOpen ? 
                       <>
-                          <div className="h-screen fixed w-screen" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}></div>
-                          <div className="fixed overflow-scroll m-8 sm:border-2 top-0 mt-10 shadow rounded-xl bg-white justify-center z-10">
-                              <div className="flex justify-end">
-                                  <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
-                                      <HighlightOff/>
-                                  </button>
-                              </div>
-                              <div className="m-2 pb-6 flex justify-between">
-                                  <p>Don't see a photo you like? Pick one of these images as a placeholder for now and<br></br> email schefs.us@gmail with the name of your event &amp; your new image of choice.</p>
-                                  <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
-                              </div>
-                              <div id="imageContainerEB" className="mx-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
+                        <div className="fixed overflow-scroll m-8 sm:border-2 top-0 mt-10 shadow rounded-xl bg-white justify-center z-10">
+                            <div className="flex justify-end">
+                                <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
+                                    <HighlightOff/>
+                                </button>
+                            </div>
+                            <div className="m-2 pb-6 flex justify-between">
+                                <p>Don't see a photo you like? Pick one of these images as a placeholder for now and<br></br> email schefs.us@gmail with the name of your event &amp; your new image of choice.</p>
+                                <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
+                            </div>
+                            <div id="imageContainerEB" className="mx-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
 								  {thumbnails.length
 								    ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
 								    : null
@@ -479,7 +497,6 @@ const EventBuilder = () => {
                                 }
                               </div>
                             </div>
-
                             {dailyTimes
                               ? <div className="px-6 overflow-scroll" style={{maxWidth: '200px'}}>
                                   {dailyTimes.map(time => {
@@ -504,7 +521,7 @@ const EventBuilder = () => {
                     : null
                   }
   
-                  <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6" onClick={closeModals}>
+                  <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6">
                       <div className="grid col-span-3">
                           <Field 
                               name="title" 
@@ -699,12 +716,17 @@ const EventBuilder = () => {
                   </div>
               </Form>)}
             </Formik>
-          : context.profile
+          : context.profile && context.profile.isVerified
             ? null
-            : <div className="text-center items-center flex flex-col mt-12">
-                You must have a Schefs account to make events
-                <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
-              </div>
+            : context.profile && !context.profile.isVerified
+              ? <div className="text-center items-center flex flex-col mt-12">
+                  You must verify your Schefs account to make events
+                  <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="VERIFY ACCOUNT" padding="flex px-16 mt-4" />
+                </div>
+              : <div className="text-center items-center flex flex-col mt-12">
+                  You must have a Schefs account to make events
+                  <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
+                </div>
         }
         </>
     );

@@ -9,6 +9,29 @@ const emails = require('../utils/emails');
 
 const router = express.Router();
 
+/*
+ * GET /api/users/usersCount
+ * Get number of users
+ *
+ * Request Parameters:
+ *  params:
+ *    date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
+ *    date_to   <string | Date> - if string, must be of form 'YYYY-MM-DD'
+ * 
+ * Response:
+ *  200: successfully retrieved
+ *    <object>
+ *      count <int>
+ *  500: other postgres error
+ */
+router.get('/usersCount', (req, res) => {
+    pool.query(queries.getUserCount, [ req.query.date_from, req.query.date_to ], (q_err, q_res) => {
+        if (q_err)
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+        else
+            res.status(200).json(q_res.rows[0]);
+    });
+});
 
 /*
  * GET /api/users/{uid}
@@ -257,6 +280,8 @@ router.get('/:uid/events/live', (req, res) => {
             res.status(200).json(q_res.rows);
     });
 });
+
+
 
 /*
  * GET /api/users/{uid}/events/hosting

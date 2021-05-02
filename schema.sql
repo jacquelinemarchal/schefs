@@ -39,6 +39,7 @@ CREATE TABLE events (
 CREATE TABLE tickets (
     user_id       INT NOT NULL REFERENCES users(uid),
     event_id      INT NOT NULL REFERENCES events(eid),
+    time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (event_id, user_id)
 );
 CREATE UNIQUE INDEX tickets_idx ON tickets(user_id, event_id);

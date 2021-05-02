@@ -4,7 +4,7 @@ import NavBar from "../components/Banners/navbar";
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios"
 import Context from '../components/Context/context';
-
+import Head from 'next/head';
 export default function Home(props) {
     const context = useContext(Context);
     const [allEvents, setAllEvents]  = useState(null); // [[eid, host_name, host_school, time_start, title]]
@@ -48,8 +48,12 @@ export default function Home(props) {
 
     return (
         <>
+        <Head>
+            <title>Schefs - Learn From Each Other</title>
+        </Head>
             {allEvents
               ? <EventGrid
+                  isEditable={false}
                   events={allEvents}
                   style="px-2"
                   gridNum="3 mx-6"

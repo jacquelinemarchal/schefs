@@ -7,12 +7,26 @@ import CardContent from './usercardcontent'
 import SignUpForm from '../Auth/signupform';
 import LoginForm from '../Auth/loginform';
 import PasswordReset from '../Auth/passwordreset';
+import VerifyEmail from '../Auth/verifyemail';
 import Context from '../Context/context';
 
 // props.right = boolean side of screen
 const Card = (props) => {
     const context = useContext(Context);
-    const [cardInterior, setCardInterior] = useState("login");
+    const [cardInterior, setCardInterior] = useState("");
+    const [email, setEmail] = useState("");
+
+    useEffect(() => {
+        if (context.profile && !context.profile.isVerified){
+            setCardInterior("verify")
+        }
+        if (!context.profile) {
+            setCardInterior("login")
+        }
+        if (context.profile && context.profile.isVerified){
+            setCardInterior("account")
+        }
+    }, [context.profile])
 
     const handleCloseCard = () => context.handleCloseCard(!props.right, props.right);
 
@@ -23,6 +37,10 @@ const Card = (props) => {
         else{
             setCardInterior("login")
         }
+    }
+    const verify = (e) => {
+        setCardInterior("verify");
+        setEmail(e);
     }
     return (
         <CSSTransition
@@ -40,15 +58,17 @@ const Card = (props) => {
             </div>
 
 	        {props.right
-		      ? context.profile
+		      ? cardInterior === "account" && context.profile
                   ? <CardContent profile={context.profile} />
-                  : cardInterior === "login"
-                      ? <LoginForm function={toggle} resetFunction={() => setCardInterior("password")}/> 
-                      : cardInterior === "signup" 
-                          ? <SignUpForm function={toggle} /> 
-                          : cardInterior === "password"
-                              ? <PasswordReset function={() => setCardInterior("login")}/> 
-                              : null
+                    : cardInterior === "login"
+                        ? <LoginForm function={toggle} resetFunction={() => setCardInterior("password")} showVerify={() => setCardInterior("verify")} showAccount={() => {setCardInterior("account")}}/>
+                        : cardInterior === "verify" && context.profile
+                            ? <VerifyEmail email={email} function={() => setCardInterior("login")}/>
+                            : cardInterior === "signup" 
+                                ? <SignUpForm function={toggle} showVerify={verify}/> 
+                                : cardInterior === "password"
+                                    ? <PasswordReset function={() => setCardInterior("login")}/> 
+                                    : null
               : context.leftProfile
                   ? <CardContent profile={context.leftProfile} />
                   : null

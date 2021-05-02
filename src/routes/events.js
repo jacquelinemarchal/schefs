@@ -12,8 +12,59 @@ const gcal = require('../utils/gcalendar');
 const zoom = require('../utils/zoom');
 
 const router = express.Router();
-
 const TIMEZONE = 'America/New_York';
+
+/*
+ * GET /api/events/countTickets
+ * Get number of all tickets reserved in given time span.
+ *
+ * Request Parameters:
+ *  query:
+ *    date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
+ *    date_to   <string | Date> - if string, must be of form 'YYYY-MM-DD'
+ * 
+ * Response:
+ *  200: successfully retrieved
+ *    <object>
+ *      count <int>
+ *  500: other postgres error
+ */
+router.get('/countTickets', (req, res) => {
+    pool.query(queries.getAllReservedTicketsCount, [ req.query.date_from, req.query.date_to ], (q_err, q_res) => {
+        if (q_err){
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+            console.log(q_err.message);
+        }
+        else
+            res.status(200).json(q_res.rows[0]);
+    });
+});
+
+/*
+ * GET /api/events/countEvents
+ * Get number of all events reserved in given time span.
+ *
+ * Request Parameters:
+ *  query:
+ *    date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
+ *    date_to   <string | Date> - if string, must be of form 'YYYY-MM-DD'
+ *    status    <string> default 'approved' - one of 'approved', 'denied', 'pending', 'all'
+ * Response:
+ *  200: successfully retrieved
+ *    <object>
+ *      count <int>
+ *  500: other postgres error
+ */
+router.get('/countEvents', (req, res) => {
+    pool.query(queries.getAllEventsCount, [ req.query.date_from, req.query.date_to, req.query.status ], (q_err, q_res) => {
+        if (q_err){
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+            console.log(q_err.message);
+        }
+        else
+            res.status(200).json(q_res.rows[0]);
+    });
+});
 
 /*
  * GET /api/events
@@ -520,6 +571,128 @@ router.patch('/:eid', verifyFirebaseIdToken, async (req, res) => {
     }
 });
 
+
+/*
+ * PUT /api/events/{eid}
+ * Update an event.
+ *
+ * Authorization:
+ *  Firebase ID Token
+ *
+ * Request Parameters
+ *  path:
+ *    eid <int> required
+ *
+ * Request Body:
+ *  <object>
+ *    host_name              <string>
+ *    host_school            <string>
+ *    host_bio               <string>
+ *    title                  <string>
+ *    description            <string>
+ *    requirements           <string>
+ *    thumbnail_id           <int> - id of the new thumbnail, if changing
+ *    zoom_link              <string>
+ *    zoom_id                <string>
+ *    time_start             <Date>
+ *    status                 <string>
+ *
+ * Response:
+ *  201: successfully updated
+ *  403: must be an admin to update an event
+ *  406: eid missing
+ *  409: thumbnail already in use
+ *  500: other postgres error
+ */
+router.put('/:eid', verifyFirebaseIdToken, async (req, res) => {
+    if (!req.params.eid) {
+        res.status(406).json({ err: 'eid is required' });
+    	return;
+    }
+
+    if (!req.profile.is_admin) {
+        res.status(403).json({ err: 'Must be an admin to update an event' });
+        return;
+    }
+
+    const values = [
+        req.body.host_name|| null,
+        req.body.host_school || null,
+        req.body.host_bio || null,
+        req.body.title || null,
+        req.body.description || null,
+        req.body.requirements || null,
+        req.body.thumbnail_id || null,
+        req.body.zoom_link || null,
+        req.body.zoom_id || null,
+        req.body.time_start || null,
+        req.body.status || null,
+        req.params.eid
+    ];
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+       // if (req.body.thumbnail_id &&
+           // (await client.query(thumbnail_queries.checkThumbnail, [ req.body.thumbnail_id ])).rows.length > 0
+        //) {
+        //    await client.query('COMMIT');
+        //    res.status(409).json({ err: 'Thumbnail already in use' });
+        //} else {
+            const orig_event = (await client.query(queries.getEvent, [ req.params.eid ])).rows[0];
+
+            if (req.body.thumbnail_id)
+                await client.query(thumbnail_queries.replaceThumbnail, [
+                    orig_event.img_thumbnail,
+                    req.body.thumbnail_id,
+                ]);
+
+            await client.query(queries.updateEvent, values);
+            await client.query('COMMIT');
+
+            // send email on approval
+            if (orig_event.status !== 'approved' && req.body.status === 'approved') {
+                const event_time = req.body.time_start || orig_event.time_start;
+                for (const host of orig_event.hosts) {
+                    emails.sendEventApprovedEmail(
+                        host.email,
+                        host.first_name,
+                        req.body.title || orig_event.title,
+                        moment.tz(event_time, 'America/New_York').format('dddd, MMMM D, YYYY'),
+                        moment.tz(event_time, 'America/New_York').format('h:mm A, z'),
+                        process.env.BASE_URL + '/' + orig_event.eid,
+                        req.body.zoom_link || orig_event.zoom_link
+                    );
+                }
+
+            // or send email on denial
+            } else if (orig_event.status !== 'denied' && req.body.status === 'denied') {
+                for (const host of orig_event.hosts) {
+                    emails.sendEventDeniedEmail(
+                        host.email,
+                        host.first_name,
+                        req.body.title || orig_event.title,
+                        req.body.description || orig_event.description,
+                        req.body.requirements || orig_event.requirements,
+                        req.body.host_bio || orig_event.host_bio
+                    );
+                }
+            }
+
+            res.status(201).send();
+       // }
+    } catch (err) {
+        await client.query('ROLLBACK');
+        if (err.code === '23502') // not_null_violation
+            res.status(406).json({ err: 'Required field missing' });
+        else
+            res.status(500).json({ err: 'PSQL Error: ' + err.message });
+    } finally {
+        client.release();
+    }
+});
+
+
 /*
  * POST /api/events/{eid}/tickets
  * Reserve ticket associated with a specified event and user.
@@ -669,6 +842,7 @@ router.get('/:eid/countTickets', (req, res) => {
             res.status(200).json(q_res.rows[0]);
     });
 });
+
 
 /*
  * GET /api/events/{eid}/{user}/ticketstatus
