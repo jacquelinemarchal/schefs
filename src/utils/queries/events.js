@@ -101,9 +101,10 @@ const getEvent = `
  * $6:  requirements  <string>
  * $7:  thumbnail_id  <int>    required
  * $8:  zoom_link     <string>
- * $9:  zoom_id       <string>
- * $10: time_start    <Date>   required
- * $11: status        <string>
+ * $9:  zoom_id       <long>
+ * $10: gcal_id       <string>
+ * $11: time_start    <Date>   required
+ * $12: status        <string>
  */
 const createEvent = `
     WITH thumb AS (
@@ -121,6 +122,7 @@ const createEvent = `
         thumbnail_id,
         zoom_link,
         zoom_id,
+        gcal_id,
         time_start,
         status
     ) VALUES (
@@ -134,7 +136,8 @@ const createEvent = `
         $8,
         $9,
         $10,
-        $11
+        $11,
+        $12
     )
     RETURNING eid
 `;
@@ -155,6 +158,44 @@ const createHost = `
         $2
     )
 `;
+
+/*
+ * $1:  host_name    <string>
+ * $2:  host_school  <string>
+ * $3:  host_bio     <string>
+ * $4:  title        <string>
+ * $5:  description  <string>
+ * $6:  requirements <string>
+ * $7:  thumbnail_id <int>
+ * $8:  time_start   <Date>
+ * $9:  status       <string>
+ * $10: eid          <int>
+ */
+const updateEvent = `
+    UPDATE events
+    SET host_name = COALESCE($1, host_name),
+        host_school = COALESCE($2, host_school),
+        host_bio = COALESCE($3, host_bio),
+        title = COALESCE($4, title),
+        description = COALESCE($5, description),
+        requirements = COALESCE($6, requirements),
+        thumbnail_id = COALESCE($7, thumbnail_id),
+        time_start = COALESCE($8, time_start),
+        time_created = CURRENT_TIMESTAMP,
+        status = COALESCE($9, status)
+    WHERE eid = $10
+`;
+
+/*
+ * $1: time_start <Date>
+ * $2: time_end   <Date>
+ */
+const checkTimeAvailable = `
+    SELECT (COUNT(eid) = 0) AS available
+    FROM events
+    WHERE time_start >= $1
+    AND time_start <= $2
+`
 
 /*
  * $1: eid <int>
@@ -295,6 +336,7 @@ module.exports = {
     getEvent,
     getReservedTickets,
     getReservedTicketsCount,
+    checkTimeAvailable,
     getAllReservedTicketsCount,
     getAllEventsCount,
     checkTicketStatus,
