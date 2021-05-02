@@ -64,10 +64,7 @@ exports.sendWelcomeEmail = async (email, name) => {
 
     await transporter.sendMail(mailOptions, (err, info) => {
         if (err) console.log(err);
-        console.log(info);
     });
-
-    return null;
 };
 
 exports.sendReserveEmail = async (email, name,  event_name, event_date, event_time, event_url) => {
@@ -107,9 +104,7 @@ exports.sendReserveEmail = async (email, name,  event_name, event_date, event_ti
     };
     await transporter.sendMail(mailOptions, (err, info) => {
         if (err) console.log(err);
-        console.log(info);
     });
-    return null;
 };
 
 exports.sendEventSubmittedEmail = async (email, name, event_name) => {
@@ -142,9 +137,7 @@ exports.sendEventSubmittedEmail = async (email, name, event_name) => {
     };
     await transporter.sendMail(mailOptions, (err, info) => {
         if (err) console.log(err);
-        console.log(info);
     });
-    return null;
 };
 
 exports.sendEventApprovedEmail = async (email, name, event_name, event_date, event_time, event_url, event_zoom_link) => {
@@ -193,9 +186,7 @@ exports.sendEventApprovedEmail = async (email, name, event_name, event_date, eve
     };
     await transporter.sendMail(mailOptions, (err, info) => {
         if (err) console.log(err);
-        console.log(info);
     });
-    return null;
 };
 
 exports.sendEventDeniedEmail = async (email, name, event_name, event_description, event_requirements, event_hostbio) => {
@@ -266,10 +257,7 @@ exports.sendEventDeniedEmail = async (email, name, event_name, event_description
 
     await transporter.sendMail(mailOptions, (err, info) => {
         if (err) console.log(err);
-        console.log(info);
     });
-
-    return null;
 };
 
 exports.send24HourReminderEmail = async (email, name, event_name) => {
@@ -304,10 +292,7 @@ exports.send24HourReminderEmail = async (email, name, event_name) => {
 
     await transporter.sendMail(mailOptions, (err, info) => {
         if (err) console.log(err);
-        console.log(info);
     });
-
-    return null;
 };
 
 exports.send30MinuteReminderEmail = async (email, name, event_name, event_zoom_link) => {
@@ -341,10 +326,7 @@ exports.send30MinuteReminderEmail = async (email, name, event_name, event_zoom_l
 
     await transporter.sendMail(mailOptions, (err, info) => {
         if (err) console.log(err);
-        console.log(info);
     });
-
-    return null;
 };
 
 exports.sendPostEventEmail = async (email, name, event_name) => {
@@ -391,7 +373,5 @@ exports.sendPostEventEmail = async (email, name, event_name) => {
     };
     await transporter.sendMail(mailOptions, (err, info) => {
         if (err) console.log(err);
-        console.log(info);
     });
-    return null;
 }

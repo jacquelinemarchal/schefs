@@ -1,3 +1,4 @@
+const moment = require('moment-timezone');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 
@@ -27,7 +28,7 @@ exports.getLiveMeetings = async (page_size=300) => {
 
     try {
         res = await axios.get('/users/me/meetings', options);
-        return res.meetings;
+        return res.data.meetings;
     } catch (err) {
         console.log(err);
         return false;
@@ -35,10 +36,13 @@ exports.getLiveMeetings = async (page_size=300) => {
 }
 
 exports.createMeeting = async (title, time_start) => {
+
+    const start_time = moment(time_start).format();
+
     const data = {
         topic: title,
         type: 2, // scheduled meeting
-        start_time: time_start.toISOString(),
+        start_time: start_time,
         duration: 105, // 1:45 length meeting
         settings: {
             join_before_host: true,
@@ -58,9 +62,11 @@ exports.createMeeting = async (title, time_start) => {
     }
 }
 
-exports.updateMeeting = async (meeting_id, title, time_start, duration) => {
+exports.updateMeeting = async (meeting_id, title, time_start, duration=null) => {
     if (!meeting_id)
         throw new Error('Must pass valid meeting_id');
+
+    const start_time = moment(time_start).format();
 
     const data = {}
     if (title)
@@ -86,6 +92,24 @@ exports.endMeeting = async (meeting_id) => {
 
     try {
         res = await axios.put('/meetings/' + meeting_id + '/status', data, baseOptions);
+        return true;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}
+
+exports.deleteMeeting = async (meeting_id) => {
+    const options = {
+        ...baseOptions,
+        params: {
+            schedule_for_reminder: false,
+            cancel_meeting_reminder: false,
+        },
+    };
+
+    try {
+        await axios.delete('/meetings/' + meeting_id, options);
         return true;
     } catch (err) {
         console.log(err);

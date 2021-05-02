@@ -122,6 +122,7 @@ const createEvent = `
         thumbnail_id,
         zoom_link,
         zoom_id,
+        gcal_id,
         time_start,
         status
     ) VALUES (
@@ -166,11 +167,9 @@ const createHost = `
  * $5:  description  <string>
  * $6:  requirements <string>
  * $7:  thumbnail_id <int>
- * $8:  zoom_link    <string>
- * $9:  zoom_id      <string>
- * $10: time_start   <Date>
- * $11: status       <string>
- * $12: eid          <int>
+ * $8:  time_start   <Date>
+ * $9:  status       <string>
+ * $10: eid          <int>
  */
 const updateEvent = `
     UPDATE events
@@ -181,13 +180,22 @@ const updateEvent = `
         description = COALESCE($5, description),
         requirements = COALESCE($6, requirements),
         thumbnail_id = COALESCE($7, thumbnail_id),
-        zoom_link = COALESCE($8, zoom_link),
-        zoom_id = COALESCE($9, zoom_id),
-        time_start = COALESCE($10, time_start),
+        time_start = COALESCE($8, time_start),
         time_created = CURRENT_TIMESTAMP,
-        status = COALESCE($11, status)
-    WHERE eid = $12
+        status = COALESCE($9, status)
+    WHERE eid = $10
 `;
+
+/*
+ * $1: time_start <Date>
+ * $2: time_end   <Date>
+ */
+const checkTimeAvailable = `
+    SELECT (COUNT(eid) = 0) AS available
+    FROM events
+    WHERE time_start >= $1
+    AND time_start <= $2
+`
 
 /*
  * $1: eid <int>
@@ -263,6 +271,7 @@ module.exports = {
     getEvent,
     getReservedTickets,
     getReservedTicketsCount,
+    checkTimeAvailable,
     checkTicketStatus,
     reserveTicket,
     deleteTicket,

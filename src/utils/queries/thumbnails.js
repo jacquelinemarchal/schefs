@@ -21,8 +21,9 @@ const replaceThumbnail = `
 /*
  * $1: tid <int> required
  */
-const checkThumbnail = `
-    SELECT tid FROM thumbnails
+const checkThumbnailAvailable = `
+    SELECT (COUNT(tid) > 0) AS available
+    FROM thumbnails
     WHERE tid = $1
     AND NOT is_used
 `;
@@ -60,7 +61,7 @@ const uploadThumbnail = `
 module.exports = {
 	getThumbnails,
     replaceThumbnail,
-    checkThumbnail,
+    checkThumbnailAvailable,
     setThumbnailUsed,
     setThumbnailUnused,
     uploadThumbnail,
