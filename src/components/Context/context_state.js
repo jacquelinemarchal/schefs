@@ -36,7 +36,9 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         dispatchAuthReducer(ACTIONS.authFailure(err.response.data));
     }
 
-    useEffect(() => {
+    useEffect(async () => {
+        await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
         return firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
                 const fb_uid = user.uid;
@@ -44,8 +46,8 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
                 setAuthHeader(id_token);
 
                 try {
-                    let profile = (await axios.get('/api/users/login/' + fb_uid)).data;
-                    profile = {...profile, isVerified: user.emailVerified};
+                    const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
+                    profile.isVerified = user.emailVerified;
                     dispatchAuthReducer(ACTIONS.loginSuccess(profile));
                 } catch (err) {
                     console.log(err);
@@ -161,14 +163,14 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     }
 
     const handleUpdateProfile = async (uid, updated_fields) => {
-    try {
-        await axios.put('/api/users/' + uid, updated_fields);
-        let profile = (await axios.get('/api/users/' + uid)).data;
-        profile = {...profile, isVerified: firebase.auth().currentUser.emailVerified}
-        dispatchAuthReducer(ACTIONS.updateProfile(profile));
-    } catch (err) {
-        console.log(err);
-    }
+        try {
+            await axios.put('/api/users/' + uid, updated_fields);
+            const profile = (await axios.get('/api/users/' + uid)).data;
+            profile.isVerified = firebase.auth().currentUser.emailVerified;
+            dispatchAuthReducer(ACTIONS.updateProfile(profile));
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     /* Card Reducer */
