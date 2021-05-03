@@ -20,6 +20,7 @@ import Collapse from '@material-ui/core/Collapse';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 import HighlightOff from '@material-ui/icons/HighlightOff';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { MuiPickersUtilsProvider, Calendar } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 import pencil from "../../assets/pencil.png"
@@ -77,9 +78,6 @@ const EventBuilder = (props) => {
 
     // thumbnail selection modal state
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)  
-     
-    // help modal state
-    const [isModalOpen, setIsModalOpen] = useState(true)
    
     const [isCoHostOpen, setIsCoHostOpen] = useState(false)
 
@@ -91,7 +89,7 @@ const EventBuilder = (props) => {
     const [isSchedulerOpen, setIsSchedulerOpen] = useState(false)
 
     // selected date & time for scheduler
-    const [datetimeConfirmed, setDatetimeConfirmed] = useState(false);
+    const [datetimeConfirmed, setDatetimeConfirmed] = useState(true);
     const [selectedDate, setSelectedDate] = useState(moment());
     const [selectedTime, setSelectedTime] = useState(null);
 
@@ -146,8 +144,6 @@ const EventBuilder = (props) => {
     const closeModals = () => {
         if (isPhotoDisplayOpen)
             setIsPhotoDisplayOpen(false);
-        if (isModalOpen)
-            setIsModalOpen(false);
         if (isCoHostOpen)
             setIsCoHostOpen(false);
         if (isSchedulerOpen)
@@ -168,6 +164,9 @@ const EventBuilder = (props) => {
 
     // TODO: 162 for difference, try to remove from cancel edit
     useEffect(() => {
+        console.log(props)
+        setSelectedDate(moment(props.eventInfo.time_start));
+        setSelectedTime(moment(props.eventInfo.time_start).format("h:mm A"));
         setPreLoad({
             coHostEmail: "",
             title: `${props.eventInfo.title}`,
@@ -392,7 +391,7 @@ const EventBuilder = (props) => {
     const Greyout = () => {
         return (
             <CSSTransition
-              in={isModalOpen || isCoHostOpen || isSchedulerOpen || isPhotoDisplayOpen}
+              in={isCoHostOpen || isSchedulerOpen || isPhotoDisplayOpen}
               timeout={500}
               key="grey-out"
               classNames="grey-out"
@@ -407,11 +406,7 @@ const EventBuilder = (props) => {
 
     return (
         <>
-            <Head>
-                <title>Editing: {props.eventInfo.title}</title>
-                <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-            </Head>
-            {preLoad.first_name && context.profile && context.profile.isVerified
+            {preLoad.first_name && context.profile && context.profile.is_admin
             ?   <Formik
                     initialValues={preLoad}
                     onSubmit={handleSubmit}
@@ -420,34 +415,11 @@ const EventBuilder = (props) => {
                 >
                 {({isValid, dirty, isSubmitting, setFieldTouched, handleChange, resetForm}) => (
                 <Form>
-                    <Greyout />
-                    {isModalOpen ? 
-                      <>
-                          <div className="fixed overflow-scroll m-16 top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
-                              <div className="flex justify-end">
-                                  <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
-                                      <HighlightOff/>
-                                  </button>
-                              </div>
-                              <div className="grid grid-cols-2 gap-6">
-                                  <div className="grid col-span-1 px-16 pt-2 pb-12">
-                                      <h2 className="text-5xl">Welcome to the<br></br> Event Builder*</h2>
-                                      <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                                      <p className="text-sm mt-4"><b>*</b> Click “HELP” to return to this screen at any point</p>
-                                  </div>
-                                  <div className="grid col-span-1">
-                                      <div className="grid col-span-1 mx-6 px-10 my-4 pb-10 overflow-y-auto" style={{maxHeight: "30rem"}}>
-                                          <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                                          <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
-                                          <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                                          <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div> 
-                      </>
-                      : null}
-
+                    <Greyout />           
+                    <Head>
+                        <title>Editing: {props.eventInfo.title}</title>
+                        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+                    </Head>
                     {isPhotoDisplayOpen ? 
                         <>
                             <div className="h-screen fixed w-screen" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}></div>
@@ -558,9 +530,12 @@ const EventBuilder = (props) => {
                                 }}
                             />
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
-                            <div>
-                                You’ll be able to select your event’s date on the next page
+
+                            <div className="flex flex-row">
+                                <WhitePillButton handleClick={() => setIsSchedulerOpen(true)} type="button" text="CHANGE DATE &amp; TIME" padding="px-6 flex w-3/4 md:w-1/2 xl:w-1/3 mr-4" />
+                                {datetimeConfirmed ? selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z') : null}
                             </div>
+  
                             <div className="mr-6 mt-2 mb-10 w-9/12">
                                 <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={process.env.BASE_URL + selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
                             </div>
@@ -770,9 +745,6 @@ const EventBuilder = (props) => {
                                         >
                                             SET DATE &amp; SUBMIT
                                         </button>
-                                        <div onClick={() => {setIsModalOpen(true)}}> 
-                                            <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
-                                        </div>
                                     </footer>
                                 </div>
                             </div>
@@ -780,17 +752,19 @@ const EventBuilder = (props) => {
                     </div>
                 </Form>)}
             </Formik>
-          : context.profile && context.profile.isVerified
-            ? null
-            : context.profile && !context.profile.isVerified
-              ? <div className="text-center items-center flex flex-col mt-12">
-                  You must verify your Schefs account to make events
-                  <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="VERIFY ACCOUNT" padding="flex px-16 mt-4" />
-                </div>
-              : <div className="text-center items-center flex flex-col mt-12">
-                  You must have a Schefs account to make events
-                  <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
-                </div>
+          : !preLoad.first_name && context.profile && context.profile.is_admin
+            ? 
+            <div className="text-center mt-56">
+                <CircularProgress color="black" />
+            </div>
+            :
+            <>
+                <Head>
+                    <title>Unauthorized Page</title>
+                    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+                </Head>
+                <h3 className="pl-8 pb-4 items-center text-center mt-56">You're not authorized to view this page. Click <a className=" underline" href="/">here</a> to visit our homepage.</h3>
+            </>
         }
         </>
     );

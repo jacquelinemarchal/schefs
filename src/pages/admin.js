@@ -164,8 +164,7 @@ export default function ApprovalPortal() {
         </>
     : 
     <>
-        <h2 className="pl-8 pb-4 text-lg text-center">You're not authorized to view this page. Click <a className=" underline" href="/">here</a> to visit our homepage.</h2>
-
+        <h3 className="pl-8 pb-4 items-center mt-12 text-lg text-center">You're not authorized to view this page. Click <a className=" underline" href="/">here</a> to visit our homepage.</h3>
     </>
     );
 };
