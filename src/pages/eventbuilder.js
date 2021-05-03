@@ -90,7 +90,7 @@ const EventBuilder = () => {
     const [showTimes, setShowTimes] = useState(false);
 
     // thumbnail options and selected value
-	  const [thumbnails, setThumbnails] = useState([]);
+	const [thumbnails, setThumbnails] = useState([]);
     const [selectedThumbnail, setSelectedThumbnail] = useState(defaultThumbnail);
 
     // get available thumbnails from backend
@@ -353,7 +353,7 @@ const EventBuilder = () => {
     const Greyout = () => {
         return (
             <CSSTransition
-              in={isModalOpen || isCohostOpen || isSchedulerOpen || isPhotoDisplayOpen}
+              in={isModalOpen || isCoHostOpen || isSchedulerOpen || isPhotoDisplayOpen}
               timeout={500}
               key="grey-out"
               classNames="grey-out"

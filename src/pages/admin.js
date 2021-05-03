@@ -8,6 +8,7 @@ import NavBar from "../components/Banners/navbar";
 import Context from '../components/Context/context';
 import CountUp from 'react-countup';
 import Head from 'next/head';
+import moment from 'moment';
 const admin = require('../utils/firebase_admin');
 
 // use https://www.npmjs.com/package/react-scrollable-list if issues with larger lists
@@ -25,19 +26,19 @@ export default function ApprovalPortal() {
     const [dayUsersNum, setDayUsersNum] = useState(0);
 
     useEffect(async () => {
-            var today = new Date(),
-            date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+            var start_date = moment();
+            var end_date = moment().add(1, 'days');
             const dayTicketQuery = {
                 params: {
-                    date_from: date,
-                    date_to: date
+                    date_from: start_date.format('YYYY-MM-DD'),
+                    date_to: end_date.format('YYYY-MM-DD')
                 }
             }
 
             const dayEventQuery = {
                 params: {
-                    date_from: date,
-                    date_to: date,
+                    date_from: start_date.format('YYYY-MM-DD'),
+                    date_to: end_date.format('YYYY-MM-DD'),
                     status: 'approved',
                 }
             }
@@ -45,14 +46,14 @@ export default function ApprovalPortal() {
             const ticketQuery = {
                 params: {
                     date_from: "2019-01-01",
-                    date_to: "2021-12-12"
+                    date_to: end_date.format('YYYY-MM-DD'),
                 }
             }
 
             const eventQuery = {
                 params: {
                     date_from: '2019-01-01',
-                    date_to: '2021-12-12',
+                    date_to: end_date.format('YYYY-MM-DD'),
                     status: 'approved',
                 }
             }
@@ -67,11 +68,11 @@ export default function ApprovalPortal() {
             }
             try{
                 setTicketsNum((await axios.get("/api/events/countTickets", ticketQuery)).data.count);
-            // setUsersNum((await axios.get("/api/users/usersCount", ticketQuery).data.count));
+                setUsersNum((await axios.get("/api/users/usersCount", ticketQuery)).data.count);
                 setEventsNum((await axios.get("/api/events/countEvents", eventQuery)).data.count);
                 
                 setDayTicketsNum((await axios.get("/api/events/countTickets", dayTicketQuery)).data.count);
-            // setDayUsersNum((await axios.get("/api/users/usersCount", dayTicketQuery)).data.count);
+                setDayUsersNum((await axios.get("/api/users/usersCount", dayTicketQuery)).data.count);
                 setDayEventsNum((await axios.get("/api/events/countEvents", dayEventQuery)).data.count);
             }
             catch (e){
