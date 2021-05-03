@@ -1,7 +1,3 @@
-
-import { useRouter } from 'next/router'
-import { now } from "moment";
-// above is what Jackie had before
 import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import axios from 'axios';
 import Head from 'next/head';
@@ -162,7 +158,6 @@ const EventBuilder = (props) => {
         return () => document.removeEventListener('keydown', escFunction, false);
     }, []);
 
-    // TODO: 162 for difference, try to remove from cancel edit
     useEffect(() => {
         console.log(props)
         setSelectedDate(moment(props.eventInfo.time_start));
@@ -179,28 +174,6 @@ const EventBuilder = (props) => {
             major: `${props.eventInfo.hosts[0].major}}`,
         })
     }, [editMode]);
-
-    const cancelEdit = () => {
-        setEditMode(false);
-        axios.get(`/api/events/${props.eventInfo.eid}`)
-        .then((res) =>{
-            const eventInfo = res.data;
-            setPreLoad({
-                coHostEmail: "",
-                title: `${eventInfo.title}`,
-                description: `${eventInfo.description}`,
-                requirements: `${eventInfo.requirements}`,
-                first_name: `${eventInfo.hosts[0].first_name}`,
-                last_name: `${eventInfo.hosts[0].last_name}`,
-                grad_year: `${eventInfo.hosts[0].grad_year}`,
-                school: `${eventInfo.host_school}`,
-                major: `${eventInfo.hosts[0].major}}`,
-            })
-        })
-        .catch((e) => {
-            console.log(e)
-        })
-    }
     
     useEffect(queryThumbnails, []);
     
@@ -296,21 +269,21 @@ const EventBuilder = (props) => {
             'YYYY-MM-DD h:mm A',
             timezone
         ).toDate();
-
-        console.log(time_start);
-
+        console.log(values);
+        
         const eventData = {
             title: values.title,
             description: values.description,
             requirements: values.requirements,
             thumbnail_id: selectedThumbnail.tid,
             host_bio: values.bio,
-            time_start: new Date(), // TODO: do actual start time
-            hosts: [{ ...context.profile }],
+            time_start: time_start,
+            host_name: values.first_name + ' ' + values.last_name,
+            host_school: values.school,
         }
 
         try {
-            await axios.put(`/api/events/${props.eventInfo.eid}`, eventData); 
+            await axios.patch(`/api/events/${props.eventInfo.eid}`, eventData); 
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
@@ -324,7 +297,6 @@ const EventBuilder = (props) => {
                 }
             } else
                 alert(err.response.data.err)
-
             return;
         }
 
@@ -704,14 +676,14 @@ const EventBuilder = (props) => {
                                                     <p className="mx-3">•</p>
                                                     <Field 
                                                         placeholder="My grad year..." 
-                                                        disabled={!editMode}
+                                                        disabled={true}//{!editMode}
                                                         className={"leading-snug focus:outline-none overflow-hidden text-center"} 
                                                         name="grad_year" 
                                                     />
                                                 </div>
                                                 <Field 
                                                     placeholder="My major..." 
-                                                    disabled={!editMode}
+                                                    disabled={true}//{!editMode}
                                                     className={"leading-snug focus:outline-none overflow-hidden text-center"} 
                                                     name="major" 
                                                 />

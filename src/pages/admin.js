@@ -61,7 +61,7 @@ export default function ApprovalPortal() {
             const query = {
                 params: {
                     date_from: '2020-01-31',
-                    date_to: '2021-01-31',
+                    date_to: '2022-01-31',
                     status: 'denied',
                     type: 'summary',
                 }

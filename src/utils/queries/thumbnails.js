@@ -13,9 +13,9 @@ const replaceThumbnail = `
         SET is_used = false
         WHERE location = $1
     )
-    UPDATE thumbnails AS t
-    SET t.is_used = true
-    WHERE t.tid = $2
+    UPDATE thumbnails
+    SET is_used = true
+    WHERE tid = $2
 `;
 
 /*

@@ -346,6 +346,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
     }
 });
 
+// TODO: update users bio and name in users relation
 /*
  * PATCH /api/events/{eid}
  * Update an event.
