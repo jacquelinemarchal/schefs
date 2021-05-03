@@ -29,7 +29,6 @@ const CardContent = (props) => {
     const [edited, setEdited] = useState(false);
 
     const [events, setEvents] = useState(null);
-    const [myEvents, setMyEvents] = useState(null);
 
     useEffect(() => {
         if (context.profile && context.profile.uid === props.profile.uid && !context.rEvents) {
@@ -60,20 +59,10 @@ const CardContent = (props) => {
                 .catch(err => console.log(err.response.data.err));
         }
 
-        if (context.profile && context.profile.uid === props.profile.uid && !context.myEvents) {
-            axios
-                .get(`/api/users/${context.profile.uid}/events/hosting`)
-                .then(res => context.handleSetMyEvents(res.data.map(event => ({...event, border: true}))))
-                .catch(err => console.log(err.response.data.err));
-        }
-
         if (context.profile && context.profile.uid === props.profile.uid && context.rEvents)
             setEvents([...context.rEvents]);
         else if (context.lEvents)
             setEvents([...context.lEvents]);
-
-        if (context.profile && context.profile.uid === props.profile.uid && context.myEvents)
-            setMyEvents([...context.myEvents]);
 
     }, [props.profile, context.profile, context.lEvents, context.rEvents, context.myEvents]);
 

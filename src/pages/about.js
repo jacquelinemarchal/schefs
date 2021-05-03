@@ -1,6 +1,6 @@
 import NavBar from "../components/Banners/navbar";
 import logo from "../assets/logo.png"
-import head from 'next/head'
+import Head from 'next/head'
 export default function About() {
   return (
     <>
