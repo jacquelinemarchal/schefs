@@ -1441,6 +1441,11 @@
     "object-assign" "^4"
     "vary" "^1"
 
+"countup.js@^1.9.3":
+  "integrity" "sha1-zj5QzXFgRB5HjwfaMYle3MDxyd0="
+  "resolved" "https://registry.npmjs.org/countup.js/-/countup.js-1.9.3.tgz"
+  "version" "1.9.3"
+
 "create-ecdh@^4.0.0":
   "integrity" "sha512-mf+TCx8wWc9VpuxfP2ht0iSISLZnt0JgWlrOKZiNqyUZWnjIaCIVNQArMHnCZKfEYRg6IM7A+NeJoN8gf/Ws0A=="
   "resolved" "https://registry.npmjs.org/create-ecdh/-/create-ecdh-4.0.4.tgz"
@@ -3017,7 +3022,7 @@
   "resolved" "https://registry.npmjs.org/long/-/long-4.0.0.tgz"
   "version" "4.0.0"
 
-"loose-envify@^1.1.0", "loose-envify@^1.4.0":
+"loose-envify@^1.0.0", "loose-envify@^1.1.0", "loose-envify@^1.4.0":
   "integrity" "sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q=="
   "resolved" "https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz"
   "version" "1.4.0"
@@ -4225,14 +4230,23 @@
     "fast-deep-equal" "^2.0.1"
     "prop-types" "^15.7.1"
 
-"react-dom@^15.5.4 || ^16.0.0", "react-dom@^16.3.0", "react-dom@^16.6.0 || ^17", "react-dom@^16.8.0 || ^17.0.0", "react-dom@^16.9.0 || ^17", "react-dom@^17.0.2", "react-dom@>=16.3.x", "react-dom@>=16.4.0", "react-dom@>=16.6.0":
-  "integrity" "sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA=="
-  "resolved" "https://registry.npmjs.org/react-dom/-/react-dom-17.0.2.tgz"
-  "version" "17.0.2"
+"react-countup@^4.3.3":
+  "integrity" "sha512-pWnxpwdPNRyJFha/YKKbyc4RLAw8PzmULdgCziGIgw6vxhT1VdccrvQgj38HBSoM2qF/MoLmn4M2klvDWVIdaw=="
+  "resolved" "https://registry.npmjs.org/react-countup/-/react-countup-4.3.3.tgz"
+  "version" "4.3.3"
+  dependencies:
+    "countup.js" "^1.9.3"
+    "prop-types" "^15.7.2"
+    "warning" "^4.0.3"
+
+"react-dom@^15.5.4 || ^16.0.0", "react-dom@^16.3.0", "react-dom@^16.6.0 || ^17", "react-dom@^16.8.0 || ^17.0.0", "react-dom@^16.9.0 || ^17", "react-dom@>=16.3.x", "react-dom@>=16.4.0", "react-dom@>=16.6.0", "react-dom@17.0.1":
+  "integrity" "sha512-6eV150oJZ9U2t9svnsspTMrWNyHc6chX0KzDeAOXftRa8bNeOKTTfCJ7KorIwenkHd2xqVTBTCZd79yk/lx/Ug=="
+  "resolved" "https://registry.npmjs.org/react-dom/-/react-dom-17.0.1.tgz"
+  "version" "17.0.1"
   dependencies:
     "loose-envify" "^1.1.0"
     "object-assign" "^4.1.1"
-    "scheduler" "^0.20.2"
+    "scheduler" "^0.20.1"
 
 "react-easy-crop@^3.3.1":
   "integrity" "sha512-fM249ldk9OBONAgkskWVU3sLLP/hkjqmjY0Ah8V9CNlK2aiasNuHJw6vYCtaESR7CrEP3+XvfG1oO3y5hP6CuQ=="
@@ -4326,7 +4340,7 @@
     "loose-envify" "^1.4.0"
     "prop-types" "^15.6.2"
 
-"react@*", "react@^0.14.0 || ^15.0.0 || ^16.0.0-0", "react@^15.5.4 || ^16.0.0", "react@^16.0.0", "react@^16.11.0 || ^17.0.0", "react@^16.3.0", "react@^16.6.0 || ^17", "react@^16.8.0 || ^17.0.0", "react@^16.9.0 || ^17", "react@^17.0.2", "react@>=16.13.1", "react@>=16.3", "react@>=16.3.x", "react@>=16.4.0", "react@>=16.6.0", "react@>=16.8", "react@>=16.8.0", "react@15.x.x || 16.x.x || 17.x.x", "react@17.0.2":
+"react@*", "react@^0.14.0 || ^15.0.0 || ^16.0.0-0", "react@^15.5.4 || ^16.0.0", "react@^16.0.0", "react@^16.11.0 || ^17.0.0", "react@^16.3.0", "react@^16.6.0 || ^17", "react@^16.8.0 || ^17.0.0", "react@^16.9.0 || ^17", "react@^17.0.2", "react@>= 16.3.0", "react@>=16.13.1", "react@>=16.3", "react@>=16.3.x", "react@>=16.4.0", "react@>=16.6.0", "react@>=16.8", "react@>=16.8.0", "react@15.x.x || 16.x.x || 17.x.x", "react@17.0.1":
   "integrity" "sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA=="
   "resolved" "https://registry.npmjs.org/react/-/react-17.0.2.tgz"
   "version" "17.0.2"
@@ -4474,7 +4488,7 @@
   "resolved" "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz"
   "version" "2.1.2"
 
-"scheduler@^0.20.2":
+"scheduler@^0.20.1":
   "integrity" "sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ=="
   "resolved" "https://registry.npmjs.org/scheduler/-/scheduler-0.20.2.tgz"
   "version" "0.20.2"
@@ -5070,6 +5084,13 @@
   "integrity" "sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ=="
   "resolved" "https://registry.npmjs.org/vm-browserify/-/vm-browserify-1.1.2.tgz"
   "version" "1.1.2"
+
+"warning@^4.0.3":
+  "integrity" "sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w=="
+  "resolved" "https://registry.npmjs.org/warning/-/warning-4.0.3.tgz"
+  "version" "4.0.3"
+  dependencies:
+    "loose-envify" "^1.0.0"
 
 "watchpack@^2.0.0", "watchpack@2.1.1":
   "integrity" "sha512-Oo7LXCmc1eE1AjyuSBmtC3+Wy4HcV8PxWh2kP6fOl8yTlNS7r0K9l1ao2lrrUza7V39Y3D/BbJgY8VeSlc5JKw=="

@@ -7,7 +7,7 @@ import EventGrid from '../components/Events/eventgrid';
 import NavBar from '../components/Banners/navbar';
 import Context from '../components/Context/context';
 
-const Home = (props) => {
+const MyEvents = (props) => {
     const context = useContext(Context);
     const [futureEvents, setFutureEvents] = useState(null); // [[eid, host_name, host_school, time_start, title]]
     const [pastEvents, setPastEvents] = useState(null);
@@ -57,7 +57,7 @@ const Home = (props) => {
     return (
         <>
           <Head>
-              <title>Schefs - Learn From Each Other</title>
+              <title>Schefs - My Events</title>
           </Head>
           {futureEvents && pastEvents
             ? <>
@@ -90,4 +90,4 @@ const Home = (props) => {
     );
 };
 
-export default Home;
+export default MyEvents;

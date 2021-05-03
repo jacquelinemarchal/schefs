@@ -2,7 +2,7 @@ import EventThumbnail from "./eventthumbnail"
 
 const EventGrid = (props) => {
     return (
-        <div className={"grid grid-cols-1 sm:grid-cols-" + props.gridNum}>
+        <div className={"grid grid-cols-1 sm:grid-cols-" + props.gridNum + ' ' + props.margin}>
             {props.events.length != 0 
               ? props.events.map(p =>
                   <EventThumbnail
