@@ -36,7 +36,7 @@ const EventBuilder = () => {
     const context = useContext(Context);
 
     // get timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
 
     // prefill values for event builder form
     const [preLoad, setPreLoad] = useState({
@@ -387,7 +387,7 @@ const EventBuilder = () => {
     return (
         <>
         <Head>
-          <title>Event Builder</title>
+          <title>Schefs - Event Builder</title>
         </Head>
         {preLoad.first_name && context.profile && context.profile.isVerified
           ? <Formik

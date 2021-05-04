@@ -7,11 +7,12 @@ import EventGrid from '../components/Events/eventgrid';
 import NavBar from '../components/Banners/navbar';
 import Context from '../components/Context/context';
 
-const Home = (props) => {
+const MyEvents = (props) => {
     const context = useContext(Context);
     const [futureEvents, setFutureEvents] = useState(null); // [[eid, host_name, host_school, time_start, title]]
     const [pastEvents, setPastEvents] = useState(null);
 
+    // TODO: make this more efficient - get detailed users events
     useEffect(async () => {
         const now = (new Date()).toISOString();
 
@@ -30,9 +31,24 @@ const Home = (props) => {
             try {
                 const events = (await axios.get('/api/events', query)).data;
                 context.setHomeEvents(events);
+            } catch (err) {
+                if (err.response && err.response.data && err.response.data.err)
+                    console.log(err.response.data.err);
+                else
+                    console.log(err);
+            }
+        }
 
-                setFutureEvents(events.filter((e) => e.time_start > now));
-                setPastEvents(events.filter((e) => e.time_start <= now));
+        if (context.profile && !context.rEvents) {
+            try {
+                const res = await axios.get(`/api/users/${context.profile.uid}/events/live`);
+                const events = res.data.map((e) => {
+                    if (context.profile.uid === e.host_id)
+                        e.border = true;
+                    return e;
+                });
+
+                context.handleSetREvents(events);
             } catch (err) {
                 if (err.response && err.response.data && err.response.data.err)
                     console.log(err.response.data.err);
@@ -41,12 +57,22 @@ const Home = (props) => {
             }
         }
         
-        if (context.events) {
-            setFutureEvents(context.events.filter((e) => e.time_start > now));
-            setPastEvents(context.events.filter((e) => e.time_start <= now));
+        if (context.events && context.rEvents) {
+            const my_eids = context.rEvents.map((e) => e.eid);
+            const my_events = context.events.filter(
+                (e) => my_eids.includes(e.eid)
+            ).map((e) => {
+                console.log(e)
+                if (context.profile.uid === e.hosts[0].uid)
+                    e.border = true;
+                return e;
+            });
+
+            setFutureEvents(my_events.filter((e) => e.time_start > now));
+            setPastEvents(my_events.filter((e) => e.time_start <= now));
         }
 
-    }, [context.events]);
+    }, [context.events, context.rEvents, context.profile]);
 
     const ambassador = {
         left:  "We’re looking for engaged students to spread the word",
@@ -57,7 +83,7 @@ const Home = (props) => {
     return (
         <>
           <Head>
-              <title>Schefs - Learn From Each Other</title>
+              <title>Schefs - My Events</title>
           </Head>
           {futureEvents && pastEvents
             ? <>
@@ -80,7 +106,7 @@ const Home = (props) => {
                   gridNum="3"
                   margin="px-6"
                   closeCardF={props.closeCardF}
-                  showAttendees={false}
+                  showAttendees={true}
                 />
               </>
             : null
@@ -90,4 +116,4 @@ const Home = (props) => {
     );
 };
 
-export default Home;
+export default MyEvents;
