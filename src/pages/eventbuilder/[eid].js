@@ -30,6 +30,7 @@ import cohost from '../../assets/cohost.png';
 
 // TODO: escape not working on modals
 // grad year z-index in card
+// runtime error in pages > events > [eid]
 
 const EventBuilder = (props) => {
     // import Context
