@@ -219,7 +219,7 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), (req, r
     	return;
     }
 
-    if (parseInt(req.profile.uid) !== parseInt(req.params.uid)) {
+    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
         res.status(403).json({ err: 'May not update other user profile' });
         return;
     }

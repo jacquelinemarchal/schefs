@@ -22,6 +22,7 @@ const CardContent = (props) => {
         first_name: props.profile.first_name,
         last_name: props.profile.last_name,
         uni: props.profile.school,
+        major: props.profile.major
     });
 
     const [dropDown, setDropDown] = useState(false);
@@ -90,7 +91,8 @@ const CardContent = (props) => {
             first_name: userInfo.current.first_name,
             last_name: userInfo.current.last_name,
             school: userInfo.current.uni,
-            grad_year: gradYear
+            grad_year: gradYear,
+            major: userInfo.current.major
         }
 
         context.handleUpdateProfile(uid, updated_fields);
@@ -119,14 +121,22 @@ const CardContent = (props) => {
                 ? <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
                 : null
             }
-
-            <ContentEditable
-                disabled={disabled}
-                html={userInfo.current.uni}
-                onChange={(e) => {userInfo.current.uni=e.target.value; setEdited(true)}} 
-                placeholder={"Your University"}
-                className="focus:outline-none text-sm"
-            />
+            <div className="flex space-x-2">
+                <ContentEditable
+                    disabled={disabled}
+                    html={userInfo.current.uni}
+                    onChange={(e) => {userInfo.current.uni=e.target.value; setEdited(true)}} 
+                    placeholder={"Your University"}
+                    className="focus:outline-none text-sm"
+                />
+                <ContentEditable
+                    disabled={disabled}
+                    html={userInfo.current.major}
+                    onChange={(e) => {userInfo.current.major=e.target.value; setEdited(true)}} 
+                    placeholder={"Your Major"}
+                    className="focus:outline-none text-sm"
+                />
+            </div>
             <div className="relative inline-block text-left text-sm">
                 <div>
                     <span className="rounded-md">

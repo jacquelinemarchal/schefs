@@ -28,19 +28,15 @@ import Context from '../../components/Context/context';
 import WhitePillButton from '../../components/Buttons/wpillbutton';
 import cohost from '../../assets/cohost.png';
 
-const defaultProfilePicture = 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2FScreen%20Shot%202021-01-24%20at%2010.57.18%20AM.jpeg?alt=media&token=a88fcb5e-4919-4bc6-b792-23d725324040';
-const defaultThumbnail = {
-    tid: -1,
-    location: 'images/placeholder.png',
-    is_used: true,
-}
+// TODO: escape not working on modals
+// grad year z-index in card
 
 const EventBuilder = (props) => {
     // import Context
     const context = useContext(Context);
 
     // get timezone
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York";
 
     // edit event mode
     const [editMode, setEditMode] = useState(false)
@@ -57,7 +53,12 @@ const EventBuilder = (props) => {
 		bio: "",
     });
 
-   
+    const defaultThumbnail = {
+        tid: -1,
+        location: props.eventInfo.img_thumbnail,
+        is_used: true,
+    }
+
     // default available times to schedule event
     const [dailyTimes, setDailyTimes] = useState(null);
     
@@ -70,7 +71,7 @@ const EventBuilder = (props) => {
     const [zoom, setZoom] = useState(1)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
-    const [profilePictureURL, setProfilePictureURL] = useState(defaultProfilePicture);
+    const [profilePictureURL, setProfilePictureURL] = useState(props.eventInfo.hosts[0].img_profile);
 
     // thumbnail selection modal state
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)  
@@ -85,9 +86,10 @@ const EventBuilder = (props) => {
     const [isSchedulerOpen, setIsSchedulerOpen] = useState(false)
 
     // selected date & time for scheduler
+    const defaultDatetime = moment(props.eventInfo.time_start)
     const [datetimeConfirmed, setDatetimeConfirmed] = useState(true);
-    const [selectedDate, setSelectedDate] = useState(moment());
-    const [selectedTime, setSelectedTime] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(defaultDatetime);
+    const [selectedTime, setSelectedTime] = useState(defaultDatetime.tz(timezone).format("h:mm A z"));
 
     // available dates & times for scheduler
     const [unavailableDatetimes, setUnavailableDatetimes] = useState(null);
@@ -165,13 +167,14 @@ const EventBuilder = (props) => {
         setPreLoad({
             coHostEmail: "",
             title: `${props.eventInfo.title}`,
+            bio: `${props.eventInfo.host_bio}`,
             description: `${props.eventInfo.description}`,
             requirements: `${props.eventInfo.requirements}`,
             first_name: `${props.eventInfo.hosts[0].first_name}`,
             last_name: `${props.eventInfo.hosts[0].last_name}`,
             grad_year: `${props.eventInfo.hosts[0].grad_year}`,
             school: `${props.eventInfo.host_school}`,
-            major: `${props.eventInfo.hosts[0].major}}`,
+            major: `${props.eventInfo.hosts[0].major}`,
         })
     }, [editMode]);
     
@@ -269,21 +272,25 @@ const EventBuilder = (props) => {
             'YYYY-MM-DD h:mm A',
             timezone
         ).toDate();
+
         console.log(values);
         
         const eventData = {
             title: values.title,
             description: values.description,
             requirements: values.requirements,
-            thumbnail_id: selectedThumbnail.tid,
             host_bio: values.bio,
             time_start: time_start,
             host_name: values.first_name + ' ' + values.last_name,
             host_school: values.school,
         }
+        if (selectedThumbnail.tid !== -1){
+            eventData.thumbnail_id = selectedThumbnail.tid;
+        }
 
         try {
-            await axios.patch(`/api/events/${props.eventInfo.eid}`, eventData); 
+            await axios.patch(`/api/events/${props.eventInfo.eid}`, eventData);
+            console.log("successfully submitted");
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
@@ -291,8 +298,9 @@ const EventBuilder = (props) => {
                     queryThumbnails();
                     setSelectedThumbnail(defaultThumbnail);
                 } else if (err.response.data.err === 'Time unavailable') {
+                    alert("Time unavailable");
                     queryAvailableTimes();
-                    setSelectedTime(null);
+                    setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
                     setDatetimeConfirmed(false);
                 }
             } else
@@ -309,12 +317,13 @@ const EventBuilder = (props) => {
 		userData.append('grad_year', values.grad_year);
 
         try {
+            console.log(props);
             const res = await fetch(profilePictureURL);
             const blob = await res.blob();
             
             userData.append('img_profile', blob);
 
-            await axios.put('/api/users/' + context.profile.uid, userData, {
+            await axios.put('/api/users/' + props.eventInfo.hosts[0].uid, userData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -337,7 +346,7 @@ const EventBuilder = (props) => {
             
         return (
             <button onClick={handleSelectThumbnail}>
-                <img src={process.env.BASE_URL + props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
+                <img src={process.env.BASE_URL + props.thumbnail.location} className="hover:bg-yellow-300 focus:outline-none p-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
     }
@@ -504,12 +513,12 @@ const EventBuilder = (props) => {
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
 
                             <div className="flex flex-row">
-                                <WhitePillButton handleClick={() => setIsSchedulerOpen(true)} type="button" text="CHANGE DATE &amp; TIME" padding="px-6 flex w-3/4 md:w-1/2 xl:w-1/3 mr-4" />
-                                {datetimeConfirmed ? selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z') : null}
+                                <WhitePillButton handleClick={() => {if(editMode) setIsSchedulerOpen(true);}} type="button" text="CHANGE DATE &amp; TIME" padding={"px-6 flex w-3/4 md:w-1/2 xl:w-1/3 mr-4 " + (editMode ?  "": "cursor-not-allowed")} />
+                                {selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')}
                             </div>
   
                             <div className="mr-6 mt-2 mb-10 w-9/12">
-                                <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={process.env.BASE_URL + selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
+                                <img onClick={() => {if(editMode){setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}}} src={process.env.BASE_URL + selectedThumbnail.location} className={"cursor-pointer rounded-3xl " + (editMode ?  "": "cursor-not-allowed")}></img>
                             </div>
                             <div className="items-center flex space-x-2">
                                 <p>Your event description:</p>
@@ -546,14 +555,12 @@ const EventBuilder = (props) => {
                                 <div className="hidden sm:flex space-x-2 h-8 items-center">
                                     <button
                                     disabled={
-                                        selectedThumbnail.tid === -1 ||
-                                        profilePictureURL === defaultProfilePicture ||
                                         !isValid ||
                                         !dirty ||
                                         isSubmitting
                                     }
                                     type="submit"
-                                    className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                    className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
                                     >
                                         APPROVE
                                     </button>
@@ -578,20 +585,17 @@ const EventBuilder = (props) => {
                                         <button
                                             type="button"
                                             className="flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white"
-                                            onClick={() => {resetForm(); setEditMode(false);}}> 
+                                            onClick={() => {resetForm(); setSelectedDate(defaultDatetime); setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A z")); setEditMode(false); setSelectedThumbnail(defaultThumbnail);}}> 
                                             CANCEL
                                         </button>
 
                                         <button
                                             disabled={
-                                                selectedThumbnail.tid === -1 ||
-                                                profilePictureURL === defaultProfilePicture ||
                                                 !isValid ||
-                                                !dirty ||
                                                 isSubmitting
                                             }
                                             type="submit"
-                                            className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                            className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
                                             >
                                             SAVE
                                             </button>
@@ -705,15 +709,13 @@ const EventBuilder = (props) => {
                                     <footer className="bg-white sm:hidden inset-x-0 fixed bottom-0 flex justify-around items-center">
                                         <button
                                         disabled={
-                                            selectedThumbnail.tid === -1 ||
-                                            profilePictureURL === defaultProfilePicture ||
                                             !datetimeConfirmed ||
                                             !isValid ||
                                             !dirty ||
                                             isSubmitting
                                         }
                                         type="submit"
-                                        className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                        className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
                                         >
                                             SET DATE &amp; SUBMIT
                                         </button>

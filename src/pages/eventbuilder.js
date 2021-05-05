@@ -345,7 +345,7 @@ const EventBuilder = () => {
             
         return (
             <button onClick={handleSelectThumbnail}>
-                <img src={process.env.BASE_URL +  props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
+                <img src={process.env.BASE_URL +  props.thumbnail.location} className="hover:bg-yellow-300 focus:outline-none p-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
     }
