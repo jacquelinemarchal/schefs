@@ -22,6 +22,7 @@ const EventThumbnail = (props) => {
                   <img
                     src={process.env.BASE_URL + props.img_thumbnail}
                     className="mb-2 rounded-2xl"
+                    style={{opacity: props.opacity}}
                   ></img>
                   {props.border
                     ? <div
@@ -31,8 +32,8 @@ const EventThumbnail = (props) => {
                     : null
                   }
               </div>
-              <p className="mb-1 text-sm">{props.title}</p> 
-              <p className="text-xs">
+              <p className="mb-1 text-base">{props.title}</p> 
+              <p className="text-sm">
                   Hosted by {props.host_name.split(' ')[0]} • {props.host_school}<br/>
                   {moment(props.time_start).tz(timezone).format('dddd, MMMM D @ h:mm A z')}
               </p>

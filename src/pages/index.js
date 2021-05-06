@@ -66,21 +66,22 @@ const Home = (props) => {
                   events={futureEvents}
                   style="px-2"
                   gridNum="3"
-                  margin="px-6"
+                  margin="px-6 md:px-12 xl:px-24"
                   closeCardF={props.closeCardF}
                   showAttendees={false}
                 />
 
-                <p className="text-3xl mt-8 mb-16 ml-6 pl-2">Past Events</p>
+                <p className="text-3xl mt-4 mb-6 ml-6 md:ml-12 xl:ml-24 pl-2">Past Events</p>
 
                 <EventGrid
                   isEditable={false}
                   events={pastEvents}
-                  style="px-2"
+                  style="px-2 opacity-60"
                   gridNum="3"
-                  margin="px-6"
+                  margin="px-6 md:px-12 xl:px-24"
                   closeCardF={props.closeCardF}
                   showAttendees={false}
+                  opacity={0.5}
                 />
               </>
             : null

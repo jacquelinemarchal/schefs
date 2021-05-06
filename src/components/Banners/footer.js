@@ -10,7 +10,7 @@ const Footer = (props) => {
     }
     return (
         <div className="h-6">
-            <footer className="inset-x-0 fixed bottom-0 flex items-center px-8 justify-center bg-white h-8 md:justify-between md:text-xs md:h-6 md:bg-gray-300">
+            <footer className="inset-x-0 fixed bottom-0 flex items-center px-8 justify-center bg-white h-8 md:justify-between md:h-10 md:bg-gray-300">
                 <div className="block md:hidden">
                     <PillButton {...hostButton} />
                 </div>

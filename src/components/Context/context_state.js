@@ -261,7 +261,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
           }}
         >
           <Banner {...bannerProps} />
-          <NavBar scrollShadow={false} />
+          <NavBar scrollShadow={true} />
           <CardButton />        
           <Card right={true} />
           <Card right={false} />

@@ -20,21 +20,21 @@ const NavBar = (props) => {
         return (
           <>
             <nav className={"bg-white fixed z-10 top-0 md:top-auto w-full  " + (isScroll !== 0 ? 'shadow-lg' : '')}>
-                <div className="relative sm:flex sm:justify-start sm:mx-8 sm:px-0 my-4 mx-4 px-4 py-1">
+                <div className="relative sm:flex sm:justify-start pl-2 ml-6 md:ml-12 xl:ml-24 mt-6 mb-4 py-1">
                     <div className="flex items-center">
                         <a href="/index">
-                            <img className="h-6" src={logo}></img>
+                            <img src={logo} style={{height: '1.75rem'}}></img>
                         </a>
                         <div className={"sm:flex text-black "}>
-                        <a className="text-sm hover:text-gray-600 duration-300 ml-4" href="#">Host</a>
-                        <a className="text-sm hover:text-gray-600 duration-300 ml-4" href="/about">About</a>
-                        <a className="hidden sm:inline text-sm hover:text-gray-600 duration-300 ml-4" href="/openmindarchive">Open Mind Archive</a>
-                        <a className="sm:hidden text-sm hover:text-gray-600 duration-300 ml-4" href="/openmindarchive">OMA</a>
-                        <a className="hidden sm:inline text-sm hover:text-gray-600 duration-300 ml-4" href="/about">Ambassador Program</a></div>
+                        <a className="text-base hover:text-gray-600 duration-300 ml-4 md:ml-8" href="/eventbuilder">Host</a>
+                        <a className="text-base hover:text-gray-600 duration-300 ml-4" href="/about">About</a>
+                        <a className="hidden sm:inline text-base hover:text-gray-600 duration-300 ml-4" href="/openmindarchive">Open Mind Archive</a>
+                        <a className="sm:hidden text-base hover:text-gray-600 duration-300 ml-4" href="/openmindarchive">OMA</a>
+                        <a className="hidden sm:inline text-base hover:text-gray-600 duration-300 ml-4" href="/about">Ambassador Program</a></div>
                     </div>
                 </div>
             </nav>
-            <div className="h-10 md:h-20"></div>
+            <div className="h-12 md:h-20 md:mb-6"></div>
           </>
         )
     }
@@ -42,13 +42,13 @@ const NavBar = (props) => {
     return (
       <>
         <nav className="bg-white z-10 fixed w-full top-0 md:top-auto">
-            <div className="relative z-50 sm:flex sm:justify-start sm:mx-8 sm:px-0 my-4 mx-4 px-4 py-1">
+            <div className="relative z-50 sm:flex sm:justify-start pl-2 ml-6 md:ml-12 xl:ml-24 mt-6 mb-4 py-1">
                 <div className="flex items-center">
                     <a href="/index">
-                        <img className="h-6" src={logo}></img>
+                        <img src={logo} style={{height: '1.75rem'}}></img>
                     </a>
                     <div className={"sm:flex text-black "}>
-                    <a className="text-base hover:text-gray-600 duration-300 ml-4" href="/eventbuilder">Host</a>
+                    <a className="text-base hover:text-gray-600 duration-300 ml-4 md:ml-8" href="/eventbuilder">Host</a>
                     <a className="text-base hover:text-gray-600 duration-300 ml-4" href="/about">About</a>
                     <a className="hidden sm:inline text-base hover:text-gray-600 duration-300 ml-4" href="/openmindarchive">Open Mind Archive</a>
                     <a className="sm:hidden text-base hover:text-gray-600 duration-300 ml-4" href="/openmindarchive">OMA</a>
@@ -56,7 +56,7 @@ const NavBar = (props) => {
                 </div>
             </div>
         </nav>
-        <div className="h-8 md:h-16"></div>
+        <div className="h-12 md:h-20 md:mb-6"></div>
       </>
     )
 };
