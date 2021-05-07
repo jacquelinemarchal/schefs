@@ -90,8 +90,8 @@ firestore.collection('users').get().then((snap) => {
                 const data = doc.data();
 
                 // download thumbnail
-                const thumb_filename = 'chosenImages' + data.thumb.slice(data.thumb.lastIndexOf('/'));
-                const thumb_file = storage.file(thumb_filename);
+                const prefix = data.thumb.slice('gs://schefs.appspot.com/'.length);
+                const thumb_file = (await storage.getFiles({ prefix }))[0];
                 const thumb_path = await downloadImage(thumb_file);
 
                 // insert thumbnail into postgres
@@ -108,6 +108,7 @@ firestore.collection('users').get().then((snap) => {
                     thumb_id,
                     data.zoomLink,
                     data.zoomId,
+                    '', // no gcal ID
                     data.start_time.toDate(),
                     data.status,
                 ];
