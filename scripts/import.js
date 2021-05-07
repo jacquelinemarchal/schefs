@@ -19,7 +19,7 @@ admin.initializeApp({
         clientEmail: serviceAccount.client_email,
         projectId: serviceAccount.project_id,
     }),
-    database_url: process.env.FIREBASE_DATA_URL;
+    database_url: process.env.FIREBASE_DATA_URL,
 });
 
 const firestore = admin.firestore();
