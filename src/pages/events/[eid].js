@@ -9,6 +9,8 @@ import downloadLogo from "../../assets/bdownload.png"
 import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
 const { htmlToText } = require('html-to-text');
 import Head from 'next/head';
+import moment from 'moment';
+import 'moment-timezone';
 
 const EventPage = (props) => {
     const [clientTickets, setClientTickets] = useState(props.tickets)
@@ -19,6 +21,8 @@ const EventPage = (props) => {
     const [commentBody, setCommentBody] = useState("")
     const [reservedTicket, setReservedTicket] = useState(false)
     const context = useContext(Context);
+    // get timezone
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York";
 
     /* Get comments and new tickets for event every 10 seconds*/ 
     useEffect(() => {
@@ -64,7 +68,8 @@ const EventPage = (props) => {
         },2000); 
       };
     
-    const handleCommentSubmit = () => {
+    const handleCommentSubmit = (e) => {
+        e.preventDefault();
         if (context.profile){
             if (commentBody.replace(/\s/g, '').length) {
                 setClientComments([...clientComments, {
@@ -90,11 +95,12 @@ const EventPage = (props) => {
         else{
             context.handleToggleCard(false, true)
         }
+        return false;
     }
 
     // listen for escape key to close modals
     const enterFunction = (e) => {
-        if (e.key === 'Enter' && commentFocus)
+        if (e.keyCode === 13 && commentFocus)
            { console.log("up")
             handleCommentSubmit();}
     };
@@ -123,8 +129,8 @@ const EventPage = (props) => {
             context.handleToggleCard(false, true)
         }
     }
-
-    return (
+       
+     return (
         <div id="eventPgDiv" className="mb-4 sm:gap-24 mx-6 md:mx-12 xl:mx-24 ">
             <Head>
                 <title>{props.eventInfo.title}</title>
@@ -135,7 +141,8 @@ const EventPage = (props) => {
                     {props.eventInfo.title}
                 </div>
                 <div className="mb-2">
-                    {props.eventInfo.time_start}
+                    {moment(props.eventInfo.time_start).tz(timezone).format("dddd, MMMM Do")} @
+                    {moment(props.eventInfo.time_start).tz(timezone).format("[ ] h:mma [EDT]")}
                 </div>
                 <div className="mr-6 mb-4">
                     <img src={process.env.BASE_URL + props.eventInfo.img_thumbnail} className="sm:w-3/4 rounded-2xl"></img>
@@ -153,10 +160,10 @@ const EventPage = (props) => {
                 <div className="my-4 text-2xl">
                     Thoughts:
                 </div>
-                <div className="flex row-span-1 items-end justify-center">
+                <form className="flex row-span-1 items-end justify-center" onSubmit={handleCommentSubmit}>
                     <input className="w-full border-b border-black focus:outline-none" onFocus={() => {setCommentFocus(true)}} onBlur={() => {setCommentFocus(false)}} value={commentBody} onChange={(e) => setCommentBody(e.target.value)} type="text" placeholder="Share your thought here" aria-label="Add a comment" />
-                    <WhitePillButton handleClick={handleCommentSubmit} padding="px-4 flex" type="button" text="POST" size="lg" />
-                </div>
+                    <WhitePillButton padding="px-4 flex" type="submit" text="POST" size="lg" />
+                </form>
                 <div>
                     {clientComments.length
                         ? clientComments.sort((a, b) => {return new Date(b.time_created) - new Date(a.time_created)}).map((p, i) => <Comment key={i} time={p.time_created} name={p.name} university={p.school} thought={p.body} />) 
@@ -189,7 +196,7 @@ const EventPage = (props) => {
                                 {7-clientTickets} / 7 spots available
                             </div>
                             <div className="self-center">
-                                <WhitePillButton padding="px-4 flex" type="submit" text="RESERVE" size="xl" />
+                                <WhitePillButton padding="px-4 flex" type="button" text="RESERVE" size="xl" />
                             </div>
                         </footer>
                     </div>
