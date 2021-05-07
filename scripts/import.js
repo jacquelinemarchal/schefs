@@ -37,7 +37,6 @@ const pool = new Pool({
 
 // function to download images
 const downloadImage = async (file) => {
-    const fileurl = file.publicUrl();
     const filename = uuidv4();
     const filepath = path.resolve('../', 'public', 'images', filename);
 
