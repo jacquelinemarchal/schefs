@@ -1,15 +1,17 @@
+require('dotenv').config();
+
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
-const { createEvent, reserveTicket, createHost } = require('../src/utils/queries/events');
+const { createEvent, reserveTicket, createHost, postComment} = require('../src/utils/queries/events');
 const { uploadThumbnail } = require('../src/utils/queries/thumbnails');
 const { getUserFirebase, postSignup } = require('../src/utils/queries/users');
 const { postOpenMind } = require('../src/utils/queries/openmind');
 
 // initialize firebase
 const admin = require('firebase-admin');
-const serviceAccount = require('/Users/jacquelinemarchal/Documents/code/schefs/firebase-credentials.json');
+const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
 admin.initializeApp({
     credential: admin.credential.cert({
@@ -17,31 +19,21 @@ admin.initializeApp({
         clientEmail: serviceAccount.client_email,
         projectId: serviceAccount.project_id,
     }),
-    database_url: 'https://schefs.firebaseio.com',
+    database_url: process.env.FIREBASE_DATA_URL;
 });
 
 const firestore = admin.firestore();
 
-
-/*
 // initialize postgres
 const pool = new Pool({
-    user: 'Chris',
-    host: 'localhost',
-    database: 'schefs',
-    password: '',
-    port: 5432,
-});*/
-
-const pool = new Pool({
-    user: 'jacquelinemarchal',
-    host: 'localhost',
-    database: 'schefs',
-    password: 'phoebe tonkin',
-    port: 5432,
+    user: process.env.PG_USER,
+    host: process.env.PG_HOST,
+    database: process.env.PG_DATABASE,
+    password: process.env.PG_PASSWORD,
+    port: process.env.PG_PORT,
 });
 
-/*
+// function to download images
 const downloadImage = async (file) => {
     const fileurl = file.publicUrl();
     const filename = uuidv4();
@@ -89,6 +81,8 @@ firestore.collection('users').get().then((snap) => {
         }
     });
 }).then(() => {
+
+    // insert events
     firestore.collection('weekendevents').get().then((snap) => {
         snap.forEach(async (doc) => {
             try {
@@ -111,8 +105,8 @@ firestore.collection('users').get().then((snap) => {
                     data.desc,
                     data.req,
                     thumb_id,
-                    '', // no zoom link
-                    '', // no zoom id
+                    data.zoomLink,
+                    data.zoomId,
                     data.start_time.toDate(),
                     data.status,
                 ];
@@ -127,21 +121,44 @@ firestore.collection('users').get().then((snap) => {
                 const tickets_snap = await doc.ref.collection('tickets').get();
                 tickets_snap.forEach(async (ticket_doc) => {
                     try {
-                        const ticket_user_id = await pool.query(getUserFirebase, [ ticket_doc.id ]);
-                        await pool.query(reserveTicket, [ event_id, ticket_user_id.rows[0].uid ]);
+                        const ticket_user_id = (await pool.query(getUserFirebase, [ ticket_doc.id ])).rows[0].uid;
+                        await pool.query(reserveTicket, [ event_id, ticket_user_id ]);
                     } catch (err) {
                         console.log(err);
                     }
                 });
+
+                // insert comments into postgres
+                const comments_snap = await doc.ref.collection('comments').get();
+                if (!comments_snap.empty) {
+                    comments_snap.forEach(async (comment_doc) => {
+                        try {
+                            const comment_data = comment_doc.data();
+                            const comment_user = (await pool.query(getUserFirebase, [ comment_data.uid ])).rows[0];
+                            const comment_values = [
+                                comment_user.uid,
+                                comment_data.name,
+                                comment_data.content,
+                                comment_user.school,
+                                event_id,
+                            ];
+
+                            await pool.query(postComment, comment_values);
+                        } catch (err) {
+                            console.log(err);
+                        }
+                    });
+                }
+
             } catch (err) {
                 console.log(err);
-                //console.log(doc.data());
                 console.log(doc.id);
             }
         });
     });
-})*/
+}).then(() => {
 
+    // insert open mind archive
     firestore.collection('openmind').get().then((snap) => {
         snap.forEach(async (doc) => {
             try {
@@ -160,5 +177,4 @@ firestore.collection('users').get().then((snap) => {
             }
         });
     });
-
-
+})
