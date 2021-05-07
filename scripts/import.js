@@ -88,6 +88,7 @@ firestore.collection('users').get().then((snap) => {
         snap.forEach(async (doc) => {
             try {
                 const data = doc.data();
+                console.log(data);
 
                 // download thumbnail
                 let thumb_id = 1;
@@ -97,7 +98,7 @@ firestore.collection('users').get().then((snap) => {
                     const thumb_path = await downloadImage(thumb_file);
 
                     // insert thumbnail into postgres
-                    const thumb_id = (await pool.query(uploadThumbnail, [ thumb_path ])).rows[0].tid;
+                    thumb_id = (await pool.query(uploadThumbnail, [ thumb_path ])).rows[0].tid;
                 } catch (err) {
                     console.log(err);
                 }
