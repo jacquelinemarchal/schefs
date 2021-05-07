@@ -20,9 +20,11 @@ admin.initializeApp({
         projectId: serviceAccount.project_id,
     }),
     database_url: process.env.FIREBASE_DATA_URL,
+    storageBucket: 'schefs.appspot.com',
 });
 
 const firestore = admin.firestore();
+const storage = admin.storage().bucket();
 
 // initialize postgres
 const pool = new Pool({
