@@ -17,7 +17,7 @@ CREATE TABLE users (
     major         VARCHAR(255) NOT NULL,
     grad_year     VARCHAR(255) NOT NULL,
     is_admin      BOOLEAN NOT NULL DEFAULT FALSE,
-    time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE events (
