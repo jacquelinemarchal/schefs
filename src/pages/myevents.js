@@ -87,27 +87,29 @@ const MyEvents = (props) => {
           </Head>
           {futureEvents && pastEvents
             ? <>
-                <EventGrid
-                  isEditable={false}
-                  events={futureEvents}
-                  style="px-2"
-                  gridNum="3"
-                  margin="px-6"
-                  closeCardF={props.closeCardF}
-                  showAttendees={false}
-                />
+                <div className="md:mx-12 xl:mx-24">
+                    <EventGrid
+                    isEditable={false}
+                    events={futureEvents}
+                    style="px-2 md:px-0"
+                    gridNum="3"
+                    margin="px-6"
+                    closeCardF={props.closeCardF}
+                    showAttendees={false}
+                    />
 
-                <p className="text-3xl mt-8 mb-16 ml-6 pl-2">Past Events</p>
+                    <p className="text-3xl mt-8 mb-16 ml-6 pl-2 md:px-0">Past Events</p>
 
-                <EventGrid
-                  isEditable={false}
-                  events={pastEvents}
-                  style="px-2"
-                  gridNum="3"
-                  margin="px-6"
-                  closeCardF={props.closeCardF}
-                  showAttendees={true}
-                />
+                    <EventGrid
+                    isEditable={false}
+                    events={pastEvents}
+                    style="px-2 md:px-0"
+                    gridNum="3"
+                    margin="px-6"
+                    closeCardF={props.closeCardF}
+                    showAttendees={true}
+                    />
+                </div>
               </>
             : null
           }

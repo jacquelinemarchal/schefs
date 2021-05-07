@@ -19,7 +19,7 @@ const NavBar = (props) => {
 
         return (
           <>
-            <nav className={"bg-white fixed z-10 top-0 md:top-auto w-full  " + (isScroll !== 0 ? 'shadow-lg' : '')}>
+            <nav className={"bg-white fixed z-10 top-0 md:top-auto w-full " + (isScroll !== 0 ? 'shadow-lg' : '')}>
                 <div className="relative sm:flex sm:justify-start pl-2 ml-6 md:ml-12 xl:ml-24 mt-6 mb-4 py-1">
                     <div className="flex items-center">
                         <a href="/index">

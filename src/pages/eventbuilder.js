@@ -390,7 +390,8 @@ const EventBuilder = () => {
           <title>Schefs - Event Builder</title>
         </Head>
         {preLoad.first_name && context.profile && context.profile.isVerified
-          ? <Formik
+          ?<div className="px-2 md:px-0 md:mx-12 xl:mx-24">
+            <Formik
               initialValues={preLoad}
               onSubmit={handleSubmit}
               validationSchema={EventBuilderSchema}
@@ -716,6 +717,7 @@ const EventBuilder = () => {
                   </div>
               </Form>)}
             </Formik>
+            </div>
           : context.profile && context.profile.isVerified
             ? null
             : context.profile && !context.profile.isVerified

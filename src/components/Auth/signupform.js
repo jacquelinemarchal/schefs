@@ -99,7 +99,7 @@ const SignUpForm = (props) => {
 
                             <Field placeholder="School Email" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="signUpEmail"></Field>
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="signUpEmail"></ErrorMessage>
-                            <p id="emailHelp" className="text-sm text-center">A valid university email address is required.</p>
+                            <p id="emailHelp" className="text-sm text-center">* A valid university email address is required.</p>
                             
                             <Field type="password" placeholder="Password" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="signUpPassword"></Field>
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="signUpPassword"></ErrorMessage>
