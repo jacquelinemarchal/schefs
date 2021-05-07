@@ -55,7 +55,7 @@ firestore.collection('users').get().then((snap) => {
             // download profile picture
             let prof_path = '';
             try {
-                const prof_file = (await storage.getFiles({ prefix }))[0];
+                const prof_file = (await storage.getFiles({ prefix }))[0][0];
                 prof_path = await downloadImage(prof_file);
             } catch (err) {
                 console.log(err);
@@ -90,12 +90,17 @@ firestore.collection('users').get().then((snap) => {
                 const data = doc.data();
 
                 // download thumbnail
-                const prefix = data.thumb.slice('gs://schefs.appspot.com/'.length);
-                const thumb_file = (await storage.getFiles({ prefix }))[0];
-                const thumb_path = await downloadImage(thumb_file);
+                let thumb_id = 1;
+                try {
+                    const prefix = data.thumb.slice('gs://schefs.appspot.com/'.length);
+                    const thumb_file = (await storage.getFiles({ prefix }))[0][0];
+                    const thumb_path = await downloadImage(thumb_file);
 
-                // insert thumbnail into postgres
-                const thumb_id = (await pool.query(uploadThumbnail, [ thumb_path ])).rows[0].tid;
+                    // insert thumbnail into postgres
+                    const thumb_id = (await pool.query(uploadThumbnail, [ thumb_path ])).rows[0].tid;
+                } catch (err) {
+                    console.log(err);
+                }
                 
                 // insert event into postgres
                 const values = [
@@ -179,4 +184,4 @@ firestore.collection('users').get().then((snap) => {
             }
         });
     });
-})
+});
