@@ -1,20 +1,20 @@
-// Approval Portal
-import WhitePillButton from "../components/Buttons/wpillbutton"
-import React, { useState, useEffect, useContext, useRef} from "react";
-import axios from "axios"
-import upload from "../assets/upload-long.png"
-import EventGrid from "../components/Events/eventgrid"
-import NavBar from "../components/Banners/navbar";
-import Context from '../components/Context/context';
-import CountUp from 'react-countup';
-import Head from 'next/head';
+import React, { useState, useEffect, useContext, useRef} from 'react';
+import axios from 'axios';
 import moment from 'moment';
-const admin = require('../utils/firebase_admin');
+import upload from '../assets/upload-long.png';
+
+import Head from 'next/head';
+import CountUp from 'react-countup';
+import NavBar from '../components/Banners/navbar';
+import EventGrid from '../components/Events/eventgrid';
+import WhitePillButton from '../components/Buttons/wpillbutton';
+import Context from '../components/Context/context';
 
 // use https://www.npmjs.com/package/react-scrollable-list if issues with larger lists
 
-export default function ApprovalPortal() {
+const ApprovalPortal = () => {
     const context = useContext(Context);
+
     const [pendingEvents, setPendingEvents]  = useState(null); // [[eid, host_name, host_school, time_start, title]]
     const fileInput = useRef(null);
     const [ticketsNum, setTicketsNum] = useState(0);
@@ -190,3 +190,4 @@ export default function ApprovalPortal() {
     );
 };
 
+export default ApprovalPortal;
