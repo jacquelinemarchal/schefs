@@ -16,29 +16,6 @@ const MyEvents = (props) => {
     useEffect(async () => {
         const now = (new Date()).toISOString();
 
-        if (!context.events) {
-            const date_to = new Date();
-            date_to.setDate(date_to.getDate() + 17);
-
-            const query = {
-                params: {
-                    date_to: date_to,
-                    status: 'approved',
-                    type: 'detailed',
-                }
-            }
-
-            try {
-                const events = (await axios.get('/api/events', query)).data;
-                context.setHomeEvents(events);
-            } catch (err) {
-                if (err.response && err.response.data && err.response.data.err)
-                    console.log(err.response.data.err);
-                else
-                    console.log(err);
-            }
-        }
-
         if (context.profile && !context.rEvents) {
             try {
                 const res = await axios.get(`/api/users/${context.profile.uid}/events/live`);
@@ -56,23 +33,31 @@ const MyEvents = (props) => {
                     console.log(err);
             }
         }
-        
-        if (context.events && context.rEvents) {
-            const my_eids = context.rEvents.map((e) => e.eid);
-            const my_events = context.events.filter(
-                (e) => my_eids.includes(e.eid)
-            ).map((e) => {
-                console.log(e)
-                if (context.profile.uid === e.hosts[0].uid)
-                    e.border = true;
-                return e;
-            });
 
-            setFutureEvents(my_events.filter((e) => e.time_start > now));
-            setPastEvents(my_events.filter((e) => e.time_start <= now));
+        if (context.profile && !context.myEvents) {
+            try {
+                const res = await axios.get(`/api/users/${context.profile.uid}/events/past`);
+                const events = res.data.map((e) => {
+                    if (context.profile.uid === e.hosts[0].uid)
+                        e.border = true;
+                    return e;
+                });
+
+                context.handleSetMyEvents(events);
+            } catch (err) {
+                if (err.response && err.response.data && err.response.data.err)
+                    console.log(err.response.data.err);
+                else
+                    console.log(err);
+            }
+        }
+        
+        if (context.events && context.rEvents && context.myEvents) {
+            setFutureEvents(context.rEvents.filter((e) => e.time_start > now));
+            setPastEvents(context.myEvents);
         }
 
-    }, [context.events, context.rEvents, context.profile]);
+    }, [context.rEvents, context.myEvents, context.profile]);
 
     const ambassador = {
         left:  "We’re looking for engaged students to spread the word",
@@ -92,19 +77,19 @@ const MyEvents = (props) => {
                   events={futureEvents}
                   style="px-2"
                   gridNum="3"
-                  margin="px-6"
+                  margin="px-6 md:px-12 xl:px-24"
                   closeCardF={props.closeCardF}
                   showAttendees={false}
                 />
 
-                <p className="text-3xl mt-8 mb-16 ml-6 pl-2">Past Events</p>
+                <p className="text-3xl mt-8 mb-16 ml-6 md:ml-12 xl:ml-24 pl-2">Past Events</p>
 
                 <EventGrid
                   isEditable={false}
                   events={pastEvents}
                   style="px-2"
                   gridNum="3"
-                  margin="px-6"
+                  margin="px-6 md:px-12 xl:px-24"
                   closeCardF={props.closeCardF}
                   showAttendees={true}
                 />

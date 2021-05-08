@@ -65,7 +65,7 @@ const CardContent = (props) => {
         else if (context.lEvents)
             setEvents([...context.lEvents]);
 
-    }, [props.profile, context.profile, context.lEvents, context.rEvents, context.myEvents]);
+    }, [props.profile, context.profile, context.lEvents, context.rEvents]);
 
     const toggleDropDown = () => {
         setDropDown(!dropDown)
@@ -127,7 +127,7 @@ const CardContent = (props) => {
                     html={userInfo.current.uni}
                     onChange={(e) => {userInfo.current.uni=e.target.value; setEdited(true)}} 
                     placeholder={"Your University"}
-                    className="focus:outline-none text-sm"
+                    className="focus:outline-none text-sm mr-2"
                 />
                 <ContentEditable
                     disabled={disabled}

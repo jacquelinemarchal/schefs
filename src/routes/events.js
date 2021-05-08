@@ -1,7 +1,7 @@
 const moment = require('moment-timezone');
 const schedule = require('node-schedule');
 
-const { verifyFirebaseIdToken } = require('../middleware/auth');
+const { verifyFirebaseIdToken, verifyIsAdmin } = require('../middleware/auth');
 
 const express = require('express');
 const pool = require('../utils/db');
@@ -69,16 +69,6 @@ router.get('/countEvents', (req, res) => {
 /*
  * GET /api/events
  * List events (summary) within date range, in ascending order by date/time.
- * 
- *                  SAMPLE
- * let query = {
- *      params: {
- *          date_from:"2020-08-09",
- *          date_to:"2020-08-09",
- *      }
- * }
- * axios.get("backend.com/api/events", query)
- *
  *
  * Request Parameters:
  *  query:
@@ -103,8 +93,6 @@ router.get('/countEvents', (req, res) => {
  *      time_start    <Date>
  *      hosts         <array[object]> - if type = 'detailed'
  *        uid         <int>
- *        email       <string>
- *        phone       <string>
  *        first_name  <string>
  *        last_name   <string>
  *        img_profile <string>
@@ -176,8 +164,15 @@ router.get('', (req, res) => {
  *      time_start    <Date>
  *      hosts         <array[object]>
  *        uid         <int>
- *        email       <string>
- *        phone       <string>
+ *        first_name  <string>
+ *        last_name   <string>
+ *        img_profile <string>
+ *        bio         <string>
+ *        school      <string>
+ *        major       <string>
+ *        grad_year   <string>
+ *      attendees     <array[object]>
+ *        uid         <int>
  *        first_name  <string>
  *        last_name   <string>
  *        img_profile <string>
@@ -346,7 +341,6 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
     }
 });
 
-// TODO: update users bio and name in users relation
 /*
  * PATCH /api/events/{eid}
  * Update an event.
@@ -377,15 +371,10 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
  *  409: thumbnail already in use
  *  500: other postgres error
  */
-router.patch('/:eid', verifyFirebaseIdToken, async (req, res) => {
+router.patch('/:eid', verifyIsAdmin, async (req, res) => {
     if (!req.params.eid) {
         res.status(406).json({ err: 'eid is required' });
     	return;
-    }
-
-    if (!req.profile.is_admin) {
-        res.status(403).json({ err: 'Must be an admin to update an event' });
-        return;
     }
 
     if (req.body.status && req.body.status !== 'approved' && req.body.status !== 'denied') {
@@ -572,133 +561,9 @@ router.patch('/:eid', verifyFirebaseIdToken, async (req, res) => {
     }
 });
 
-
-/*
- * PUT /api/events/{eid}
- * Update an event.
- *
- * Authorization:
- *  Firebase ID Token
- *
- * Request Parameters
- *  path:
- *    eid <int> required
- *
- * Request Body:
- *  <object>
- *    host_name              <string>
- *    host_school            <string>
- *    host_bio               <string>
- *    title                  <string>
- *    description            <string>
- *    requirements           <string>
- *    thumbnail_id           <int> - id of the new thumbnail, if changing
- *    zoom_link              <string>
- *    zoom_id                <string>
- *    time_start             <Date>
- *    status                 <string>
- *
- * Response:
- *  201: successfully updated
- *  403: must be an admin to update an event
- *  406: eid missing
- *  409: thumbnail already in use
- *  500: other postgres error
- */
-router.put('/:eid', verifyFirebaseIdToken, async (req, res) => {
-    if (!req.params.eid) {
-        res.status(406).json({ err: 'eid is required' });
-    	return;
-    }
-
-    if (!req.profile.is_admin) {
-        res.status(403).json({ err: 'Must be an admin to update an event' });
-        return;
-    }
-
-    const values = [
-        req.body.host_name|| null,
-        req.body.host_school || null,
-        req.body.host_bio || null,
-        req.body.title || null,
-        req.body.description || null,
-        req.body.requirements || null,
-        req.body.thumbnail_id || null,
-        req.body.zoom_link || null,
-        req.body.zoom_id || null,
-        req.body.time_start || null,
-        req.body.status || null,
-        req.params.eid
-    ];
-
-    const client = await pool.connect();
-    try {
-        await client.query('BEGIN');
-       // if (req.body.thumbnail_id &&
-           // (await client.query(thumbnail_queries.checkThumbnail, [ req.body.thumbnail_id ])).rows.length > 0
-        //) {
-        //    await client.query('COMMIT');
-        //    res.status(409).json({ err: 'Thumbnail already in use' });
-        //} else {
-            const orig_event = (await client.query(queries.getEvent, [ req.params.eid ])).rows[0];
-
-            if (req.body.thumbnail_id)
-                await client.query(thumbnail_queries.replaceThumbnail, [
-                    orig_event.img_thumbnail,
-                    req.body.thumbnail_id,
-                ]);
-
-            await client.query(queries.updateEvent, values);
-            await client.query('COMMIT');
-
-            // send email on approval
-            if (orig_event.status !== 'approved' && req.body.status === 'approved') {
-                const event_time = req.body.time_start || orig_event.time_start;
-                for (const host of orig_event.hosts) {
-                    emails.sendEventApprovedEmail(
-                        host.email,
-                        host.first_name,
-                        req.body.title || orig_event.title,
-                        moment.tz(event_time, 'America/New_York').format('dddd, MMMM D, YYYY'),
-                        moment.tz(event_time, 'America/New_York').format('h:mm A, z'),
-                        process.env.BASE_URL + '/' + orig_event.eid,
-                        req.body.zoom_link || orig_event.zoom_link
-                    );
-                }
-
-            // or send email on denial
-            } else if (orig_event.status !== 'denied' && req.body.status === 'denied') {
-                for (const host of orig_event.hosts) {
-                    emails.sendEventDeniedEmail(
-                        host.email,
-                        host.first_name,
-                        req.body.title || orig_event.title,
-                        req.body.description || orig_event.description,
-                        req.body.requirements || orig_event.requirements,
-                        req.body.host_bio || orig_event.host_bio
-                    );
-                }
-            }
-
-            res.status(201).send();
-       // }
-    } catch (err) {
-        await client.query('ROLLBACK');
-        if (err.code === '23502') // not_null_violation
-            res.status(406).json({ err: 'Required field missing' });
-        else
-            res.status(500).json({ err: 'PSQL Error: ' + err.message });
-    } finally {
-        client.release();
-    }
-});
-
-
 /*
  * POST /api/events/{eid}/tickets
  * Reserve ticket associated with a specified event and user.
- *
- * TODO: Restrict to self/admin
  *
  * Authorization:
  *  Firebase ID Token
@@ -709,11 +574,17 @@ router.put('/:eid', verifyFirebaseIdToken, async (req, res) => {
  *
  * Response:
  *  201: success
+ *  403: must be self or admin
  *  404: event and/or user do not exist
  *  406: event sold out or ticket already reserved
  *  500: other postgres error
  */
 router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
+    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
+        res.status(403).send();
+        return;
+    }
+
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
@@ -790,8 +661,6 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
  * DELETE /api/events/{eid}/tickets/{uid}
  * Delete ticket associated with a specified event and user.
  *
- * TODO: Restrict to self/admin
- *
  * Authorization:
  *  Firebase ID Token
  *
@@ -802,10 +671,16 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
  *
  * Response:
  *  204: success
+ *  403: must be self or admin to delete a ticket
  *  404: event and/or user and/or ticket do not exist
  *  500: other postgres error
  */
 router.delete('/:eid/tickets/:uid', verifyFirebaseIdToken, (req, res) => {
+    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
+        res.status(403).send();
+        return;
+    }
+
     const values = [ req.params.eid, req.params.uid ];
     pool.query(queries.deleteTicket, values, (q_err, q_res) => {
         if (q_err)
@@ -859,7 +734,7 @@ router.get('/:eid/countTickets', (req, res) => {
  *    <boolean> 
  *  500: other postgres error
  */
-router.get('/:eid/:uid/ticketstatus', (req, res) => {
+router.get('/:eid/:uid/ticketstatus', verifyIsAdmin, (req, res) => {
     pool.query(queries.checkTicketStatus, [ req.params.eid, req.params.uid ], (q_err, q_res) => {
         if (q_err){
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -878,8 +753,7 @@ router.get('/:eid/:uid/ticketstatus', (req, res) => {
 
 /*
  * GET /api/events/{eid}/tickets
- * Get array of ticket objects for event of specified eid containing 
- * user's first name, last name, and uid.
+ * Get array of ticket objects for event of specified eid.
  *
  * Request Parameters:
  *  path:
@@ -894,8 +768,7 @@ router.get('/:eid/:uid/ticketstatus', (req, res) => {
  *  404: event does not exist
  *  500: other postgres error
  */
-router.get('/:eid/tickets', (req, res) => {
-    // check auth and other stuff here
+router.get('/:eid/tickets', verifyIsAdmin, (req, res) => {
     pool.query(queries.getReservedTickets, [ req.params.eid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -907,8 +780,7 @@ router.get('/:eid/tickets', (req, res) => {
 
 /*
  * GET /api/events/{eid}/comments
- * Get array of comment objects for event of specified eid containing 
- * cid, uid, name, body, time_created
+ * Get array of comment objects for event of specified eid.
  *
  * Request Parameters:
  *  path:
@@ -928,7 +800,6 @@ router.get('/:eid/tickets', (req, res) => {
  *  500: other postgres error
  */
 router.get('/:eid/comments', (req, res) => {
-    // check auth and other stuff here
     pool.query(queries.getComments, [ req.params.eid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -958,8 +829,7 @@ router.get('/:eid/comments', (req, res) => {
  *  500: other postgres error
  */
 
-router.post('/:eid/comment', (req, res) => {
-    // check auth and other stuff here
+router.post('/:eid/comment', verifyFirebaseIdToken, (req, res) => {
     const values = [req.body.user_id, req.body.name, req.body.body, req.body.school, req.params.eid]
     pool.query(queries.postComment, values, (q_err, q_res) => {
         if (q_err){
@@ -969,7 +839,6 @@ router.post('/:eid/comment', (req, res) => {
             res.status(201).send()
         }
     })
-
 });
 
 module.exports = router;

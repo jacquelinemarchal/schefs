@@ -88,7 +88,6 @@ firestore.collection('users').get().then((snap) => {
         snap.forEach(async (doc) => {
             try {
                 const data = doc.data();
-                console.log(data);
 
                 // download thumbnail
                 let thumb_id = 1;

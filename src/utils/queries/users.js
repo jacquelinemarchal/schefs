@@ -111,8 +111,8 @@ const getUserLiveEvents = `
         e.thumbnail_id = th.tid
     AND e.eid = eh.event_id
     AND (
-        (t.event_id = e.eid AND t.user_id = $1 AND eh.user_id != $1) OR
-        (e.status = 'approved' AND eh.user_id = $1)
+        (t.event_id = e.eid AND t.user_id = $1 AND eh.user_id != $1)
+     OR (e.status = 'approved' AND eh.user_id = $1)
     )
     ORDER BY e.time_start ASC
 `;
@@ -137,6 +137,71 @@ const getUserHostingEvents = `
     ORDER BY e.time_start ASC
 `;
 
+/*
+ * $1: uid <int> required
+ */
+const getUserPastEvents = `
+    SELECT DISTINCT ON (e.time_start, e.eid)
+    JSON_BUILD_OBJECT(
+        'eid', e.eid,
+        'host_name', e.host_name,
+        'host_school', e.host_school,
+        'host_bio', e.host_bio,
+        'title', e.title,
+        'img_thumbnail', t.location,
+        'time_start', e.time_start,
+        'hosts', (
+            SELECT JSON_AGG(ROW_TO_JSON(ROW(
+                u.uid,
+                u.first_name,
+                u.last_name,
+                u.img_profile,
+                u.bio,
+                u.school,
+                u.major,
+                u.grad_year
+            )))
+            FROM users AS u
+            LEFT JOIN event_hosts AS eh
+            ON u.uid = eh.user_id
+            WHERE eh.event_id = e.eid
+        ),
+        'attendees', (
+            SELECT JSON_AGG(ROW_TO_JSON(ROW(
+                u.uid,
+                u.first_name,
+                u.last_name,
+                u.img_profile,
+                u.bio,
+                u.school,
+                u.major,
+                u.grad_year
+            )))
+            FROM users AS u
+            LEFT JOIN tickets AS tk
+            ON u.uid = tk.user_id
+            WHERE tk.event_id = e.eid
+        )
+    )
+    FROM
+        events AS e,
+        thumbnails AS t,
+        event_hosts AS eh,
+        tickets AS tk
+    WHERE
+        e.status = 'approved'
+    AND t.tid = e.thumbnail_id
+    AND e.time_start < CURRENT_TIMESTAMP
+    AND (
+        (tk.event_id = e.eid AND tk.user_id = $1)
+     OR (eh.event_id = e.eid AND eh.user_id = $1)
+    )
+    ORDER BY
+        e.time_start DESC,
+        e.eid
+`;
+
+
 module.exports = {
     getUser,
     getUserCount,
@@ -145,4 +210,5 @@ module.exports = {
 	updateUser,
     getUserLiveEvents,
     getUserHostingEvents,
+    getUserPastEvents,
 };

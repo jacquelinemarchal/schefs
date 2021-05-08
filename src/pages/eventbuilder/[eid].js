@@ -498,7 +498,7 @@ const EventBuilder = (props) => {
                         </div>
                         : null
                     }
-                    <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6" onClick={() => {if (isCoHostOpen)setIsCoHostOpen(false);}}>
+                    <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-2 ml-6 md:ml-12 xl:ml-24" onClick={() => {if (isCoHostOpen)setIsCoHostOpen(false);}}>
                         <div className="grid col-span-3">
                             <Field 
                                 name="title" 

@@ -521,7 +521,7 @@ const EventBuilder = () => {
                     : null
                   }
   
-                  <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-6">
+                  <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-2 ml-6 md:ml-12 xl:ml-24">
                       <div className="grid col-span-3">
                           <Field 
                               name="title" 

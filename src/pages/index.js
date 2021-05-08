@@ -32,7 +32,7 @@ const Home = (props) => {
                 context.setHomeEvents(events);
 
                 setFutureEvents(events.filter((e) => e.time_start > now));
-                setPastEvents(events.filter((e) => e.time_start <= now));
+                setPastEvents(events.filter((e) => e.time_start <= now).reverse());
             } catch (err) {
                 if (err.response && err.response.data && err.response.data.err)
                     console.log(err.response.data.err);
@@ -43,7 +43,7 @@ const Home = (props) => {
         
         if (context.events) {
             setFutureEvents(context.events.filter((e) => e.time_start > now));
-            setPastEvents(context.events.filter((e) => e.time_start <= now));
+            setPastEvents(context.events.filter((e) => e.time_start <= now).reverse());
         }
 
     }, [context.events]);

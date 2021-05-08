@@ -39,14 +39,32 @@ const getEventsDetailed = `
         'img_thumbnail', t.location,
         'time_start', e.time_start,
         'hosts', (
-            SELECT JSON_AGG(ROW_TO_JSON(u))
+            SELECT JSON_AGG(ROW_TO_JSON(ROW(
+                u.uid,
+                u.first_name,
+                u.last_name,
+                u.img_profile,
+                u.bio,
+                u.school,
+                u.major,
+                u.grad_year
+            )))
             FROM users AS u
             LEFT JOIN event_hosts AS eh
                 ON u.uid = eh.user_id
             WHERE eh.event_id = e.eid
         ),
         'attendees', (
-            SELECT JSON_AGG(ROW_TO_JSON(u))
+            SELECT JSON_AGG(ROW_TO_JSON(ROW(
+                u.uid,
+                u.first_name,
+                u.last_name,
+                u.img_profile,
+                u.bio,
+                u.school,
+                u.major,
+                u.grad_year
+            )))
             FROM users AS u
             LEFT JOIN tickets AS tk
                 ON u.uid = tk.user_id
@@ -83,7 +101,16 @@ const getEvent = `
         'img_thumbnail', t.location,
         'time_start', e.time_start,
         'hosts', (
-            SELECT JSON_AGG(ROW_TO_JSON(u))
+            SELECT JSON_AGG(ROW_TO_JSON(ROW(
+                u.uid,
+                u.first_name,
+                u.last_name,
+                u.img_profile,
+                u.bio,
+                u.school,
+                u.major,
+                u.grad_year
+            )))
             FROM users AS u
             LEFT JOIN event_hosts AS eh
                 ON u.uid = eh.user_id

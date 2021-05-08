@@ -1,23 +1,30 @@
+
+import React, { useEffect, useContext, useState } from "react"
 import axios from 'axios';
+import moment from 'moment-timezone';
+const { htmlToText } = require('html-to-text');
+import Head from 'next/head';
+
 import pool from '../../utils/db';
 import queries from "../../utils/queries/events"
 import Comment from "../../components/Events/comment"
 import WhitePillButton from "../../components/Buttons/wpillbutton" //type, size (text), text, link
-import React, { useEffect, useContext, useState } from "react"
 import Context from '../../components/Context/context';
 import downloadLogo from "../../assets/bdownload.png"
-import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
-const { htmlToText } = require('html-to-text');
-import Head from 'next/head';
+import downloadHoverLogo from "../../assets/hdownload.png" 
 
 const EventPage = (props) => {
+    const context = useContext(Context);
+
+    // get timezone
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
+
     const [clientTickets, setClientTickets] = useState(props.tickets)
     const [clientComments, setClientComments] = useState(props.comments)
     const [inHover, setHover] = useState(downloadLogo);
     const [copyStatus, setCopyStatus] = useState("")
     const [commentBody, setCommentBody] = useState("")
     const [reservedTicket, setReservedTicket] = useState(false)
-    const context = useContext(Context);
 
     /* Get comments and new tickets for event every 10 seconds*/ 
     useEffect(() => {
@@ -38,7 +45,7 @@ const EventPage = (props) => {
             })
         }, 10000);
         return () => clearInterval(interval);
-      }, []); /*    necessary? [clientComments, clientTickets]);    */
+      }, []); 
       
     useEffect(() => {
         if (context.profile){
@@ -124,7 +131,7 @@ const EventPage = (props) => {
                     {props.eventInfo.title}
                 </div>
                 <div className="mb-2">
-                    {props.eventInfo.time_start}
+                    {moment(props.eventInfo.time_start).tz(timezone).format('dddd, MMMM D, YYYY @ h:mm A z')}
                 </div>
                 <div className="mr-6 mb-4">
                     <img src={process.env.BASE_URL + props.eventInfo.img_thumbnail} className="sm:w-3/4 rounded-2xl"></img>
