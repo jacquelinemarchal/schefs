@@ -18,6 +18,18 @@
     transition: none;
     outline: none;
 }
+
+#forgotPword:hover{
+    color: #8c8c8c;
+}
+#cardBtn:hover{
+    background-color: #737373;
+}
+
+#cardBtn{
+    background-color: #e7e7e7;
+}
+
 @media screen and (min-width: 666px) {
     #innerCardContainer {
         height: 240px
@@ -42,5 +54,38 @@
         min-width: 80vw;
         max-width: 90vw;
         min-height: 80vh;
+    }
+}
+
+@media screen and (min-width: 866px) {
+    #footerBreakpointBtn{
+        display: none;
+    }
+    #footerBreakpointText{
+        display: block;
+    }
+    #footer{
+        background-color: #e7e7e7;
+        justify-content: space-between;
+    }
+}
+
+@media screen and (max-width: 866px) {
+    #footerBreakpointBtn{
+        display: block;
+    }
+    #footerBreakpointText{
+        display: none;
+    }
+    #footer{
+        background-color: white;
+        justify-content: center;
+    }   
+}
+
+@media screen and (min-width: 990px) {
+    #eventPgDiv{
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 }

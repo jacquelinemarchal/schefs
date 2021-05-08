@@ -107,14 +107,14 @@ const CardContent = (props) => {
                 html={userInfo.current.first_name}
                 onChange={(e) => {userInfo.current.first_name=e.target.value; setEdited(true)}} 
                 placeholder={"First Name"}
-                className="text-5xl leading-none mb-4 focus:outline-none"
+                className="text-5xl font-bold leading-none mb-4 focus:outline-none"
             />
             <ContentEditable
                 disabled={disabled}
                 html={userInfo.current.last_name}
                 onChange={(e) => {userInfo.current.last_name=e.target.value; setEdited(true)}} 
                 placeholder={"Last Name"}
-                className="text-5xl leading-none mb-4 focus:outline-none"
+                className="text-5xl font-bold leading-none mb-4 focus:outline-none"
             />
 
             {!disabled && !context.profile.isVerified
@@ -164,7 +164,7 @@ const CardContent = (props) => {
             </div>
 
             {edited
-              ? <button onClick={saveUserInfo} className="flex-col flex px-4 my-2 bg-yellow-200 justify-center items-center bg-transparent focus:outline-none text-xs sm:text-sm text-black hover:bg-black hover:text-white border sm:border-2 border-black rounded-full">SAVE NEW INFO</button>
+              ? <><button onClick={saveUserInfo} className="flex-col flex px-4 my-2 bg-yellow-200 justify-center items-center bg-transparent focus:outline-none text-xs sm:text-sm text-black hover:bg-black hover:text-white border sm:border-2 border-black rounded-full">SAVE NEW INFO</button></>
               : null
             } 
 
