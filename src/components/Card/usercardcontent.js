@@ -198,25 +198,25 @@ const CardContent = (props) => {
         </div>
 
         {!disabled
-          ? <div className="w-11/12 absolute bottom-0 mb-2 ml-4 flex justify-between">
+          ? <div className="sm:w-11/12 absolute bottom-0 mb-2 ml-4 sm:flex space-x-3 sm:justify-between">
                 <WhitePillButton
                     text="MY EVENTS"
                     link="/myevents"
-                    padding="px-4"
+                    padding="sm:px-4 px-2"
                     size="xs bg-white sm:text-sm"
                     handleClick={context.handleCloseCard}
                 />
                 <WhitePillButton
                     text="HOST AN EVENT"
                     link="/eventbuilder"
-                    padding="px-4"
+                    padding="sm:px-4 px-2"
                     size="xs bg-white sm:text-sm"
                     handleClick={context.handleCloseCard}
                 /> 
                 <WhitePillButton
                     text="LOG OUT"
                     link=""
-                    padding="px-4"
+                    padding="sm:px-4 px-2"
                     size="xs bg-white sm:text-sm"
                     handleClick={context.handleLogout}
                 />

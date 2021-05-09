@@ -107,7 +107,7 @@ const SignUpForm = (props) => {
                             <Field placeholder="University" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="university"></Field>
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="university"></ErrorMessage>
                             
-                            <Field as="select" name="gradYear" className={" my-2 px-3 py-1 bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full"}>
+                            <Field as="select" name="gradYear" className={"my-2 px-3 bg-transparent focus:outline-none text-black border-2 sm:border-2 border-black rounded-full"} style={{padding: "0.38rem"}}>
                                 <option value="" disabled>Select your grad year</option>
                                 <option value="Class of 2021" label="Class of 2021" />
                                 <option value="Class of 2022" label="Class of 2022" />
@@ -120,13 +120,13 @@ const SignUpForm = (props) => {
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="major"></ErrorMessage>
 
                             <div className="mx-auto">
-                                <button disabled={!isValid || !dirty || isSubmitting} type="submit" className={"flex px-16 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }>CREATE ACCOUNT</button>
+                                <button disabled={!isValid || !dirty || isSubmitting} type="submit" className={"sm:text-base mt-10 text-sm flex px-10 sm:px-16 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border-2 border-black rounded-full " + (!isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }>CREATE ACCOUNT</button>
                             </div>
                         </div>
                     </div>
-                    <footer className="my-2 mt-6 justify-between flex">
-                            <p>Already have an account?</p>
-                            <WhitePillButton handleClick={props.function} text="LOG IN" link="" padding="flex mx-2 px-6"/>
+                    <footer className="my-2 sm:justify-between sm:items-center sm:flex space-y-1 text-center">
+                            <p className="sm:flex">Already have an account?</p>
+                            <WhitePillButton handleClick={props.function} text="LOG IN" link="" padding="sm:text-base text-sm sm:flex mx-2 px-6"/>
                     </footer>
 
                 </Form>

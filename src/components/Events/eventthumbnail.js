@@ -32,8 +32,8 @@ const EventThumbnail = (props) => {
                     : null
                   }
               </div>
-              <p className="mb-1 text-base">{props.title}</p> 
-              <p className="text-sm">
+              <p className="mb-1 text-xl sm:text-base">{props.title}</p> 
+              <p className="text-base sm:text-sm">
                   Hosted by {props.host_name.split(' ')[0]} • {props.host_school}<br/>
                   {moment(props.time_start).tz(timezone).format('dddd, MMMM D @ h:mm A z')}
               </p>

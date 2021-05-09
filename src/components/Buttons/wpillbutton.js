@@ -10,7 +10,7 @@ const WhitePillButton = (props) => {
     }
 
     return (
-        <button onClick={handleClick} type={props.type} className={"justify-center items-center text-left bg-transparent focus:outline-none text-" + props.size + " text-black hover:bg-black hover:text-white border sm:border-2 border-black " + props.padding + " rounded-full"}>{props.text}</button>  
+        <button onClick={handleClick} type={props.type} className={"justify-center items-center text-left bg-transparent focus:outline-none text-" + props.size + " text-black hover:bg-black hover:text-white border-2 border-black " + props.padding + " rounded-full"}>{props.text}</button>  
     )
 };
 

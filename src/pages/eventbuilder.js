@@ -345,7 +345,7 @@ const EventBuilder = () => {
             
         return (
             <button onClick={handleSelectThumbnail}>
-                <img src={process.env.BASE_URL +  props.thumbnail.location} className="hover:bg-yellow-300 focus:outline-none p-2 cursor-pointer rounded-3xl"></img>
+                <img src={process.env.BASE_URL +  props.thumbnail.location} className="hover:bg-yellow-300 focus:outline-none px-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
     }
@@ -472,7 +472,7 @@ const EventBuilder = () => {
                       : null}
                   
                   {isSchedulerOpen
-                    ? <div className="fixed transform -translate-x-1/2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20" style={{left: '50%'}}>
+                    ? <div className="fixed transform -translate-x-1/2 border sm:border-2 border-black rounded-xl md:mt-12 top-0 bg-white justify-center z-20" style={{left: '50%'}}>
                           <div className="flex justify-end">
                               <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
                                   <HighlightOff/>
@@ -522,7 +522,7 @@ const EventBuilder = () => {
                     : null
                   }
   
-                  <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-2 ml-6 md:ml-12 xl:ml-24">
+                  <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 ml-6 md:ml-2 ">
                       <div className="grid col-span-3">
                           <Field 
                               name="title" 
@@ -538,7 +538,7 @@ const EventBuilder = () => {
                           <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
 
                           <div className="flex flex-row">
-                            <WhitePillButton handleClick={() => setIsSchedulerOpen(true)} type="button" text="SELECT DATE & TIME" padding="px-6 flex w-3/4 md:w-1/2 xl:w-1/3 mr-4" />
+                            <WhitePillButton handleClick={() => setIsSchedulerOpen(true)} type="button" text="SELECT DATE & TIME" padding="px-6 flex w-3/4 md:w-1/2 xl:w-1/3"/>
                             {datetimeConfirmed ? selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z') : null}
                           </div>
   

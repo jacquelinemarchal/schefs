@@ -54,7 +54,7 @@ const LoginForm = (props) => {
             </div>
             <div className="grid col-span-1">
                 <div className="flex flex-col">
-                    <img className="justify-self-center self-center h-48" src={sampleCard}></img>
+                    <img className="justify-self-center self-center sm:mt-0 mt-6 h-44 sm:h-48" src={sampleCard}></img>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@ const LoginForm = (props) => {
                                 <Field placeholder="School Email" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 " + error[2]} name="email"></Field>
                                 <Field type="password" placeholder="Password" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 mb-3 py-1 " + error[3]} name="password"></Field>
                             <div className="mx-auto">
-                                <button disabled={!isValid || !dirty} type="submit" className={"flex px-16 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white") }>LOG IN</button>
+                                <button disabled={!isValid || !dirty} type="submit" className={"flex px-16 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border-2 border-black rounded-full " + (!isValid || !dirty ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white") }>LOG IN</button>
                             </div>
                         </div>
                         <a id="forgotPword" onClick={props.resetFunction} className="underline text-center cursor-pointer justify-self-center">Forgot Your Password?</a>
@@ -88,7 +88,7 @@ const LoginForm = (props) => {
                                 ? "mt-16"
                                 : "mt-24")}>
                     <p>Don't have an account?</p>
-                    <WhitePillButton handleClick={props.function} text="SIGN UP" padding="flex px-6"/>
+                    <WhitePillButton handleClick={props.function} text="SIGN UP" padding="flex px-4 sm:px-6 "/>
                 </footer>
             </Form>
             )}

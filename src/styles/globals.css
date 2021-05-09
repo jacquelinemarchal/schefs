@@ -48,10 +48,10 @@
         height: ""
     }
     #innerCardContainer {
-        height: 200px;
+        height: 300px;
     }
     #cardSize{
-        min-width: 80vw;
+        min-width: 90vw;
         max-width: 90vw;
         min-height: 80vh;
     }

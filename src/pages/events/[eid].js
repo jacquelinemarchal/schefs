@@ -143,19 +143,19 @@ const EventPage = (props) => {
                 <div className="text-5xl">
                     {props.eventInfo.title}
                 </div>
-                <div className="mb-2">
+                <div className="sm:mb-2 mb-4 mt-2 sm:mt-0">
                     {moment(props.eventInfo.time_start).tz(timezone).format('dddd, MMMM D, YYYY @ h:mm A z')}
                 </div>
-                <div className="mr-6 mb-4">
-                    <img src={process.env.BASE_URL + props.eventInfo.img_thumbnail} className="sm:w-3/4 rounded-2xl"></img>
+                <div className="mb-6">
+                    <img src={process.env.BASE_URL + props.eventInfo.img_thumbnail} className="sm:w-5/6 w-auto rounded-2xl"></img>
                 </div>
-                <div className="mb-2">
+                <div className=" sm:mr-8 lg:mr-16 mb-4">
                     {htmlToText(props.eventInfo.description)}
                 </div>
                 <div className="text-2xl">
                     What to Prepare
                 </div>
-                <div className="mb-4">
+                <div className="mb-4 sm:mb-6 sm:mr-8 lg:mr-16">
                     {props.eventInfo.requirements ? htmlToText(props.eventInfo.requirements) : "This event has no requirements."}
                 </div>
                 <hr></hr>
@@ -206,10 +206,10 @@ const EventPage = (props) => {
                         </footer>
                     </div>
 
-                    <div className="text-sm my-2">
+                    <div className="text-sm my-2 sm:text-left text-center">
                         Hosted by:
                     </div>
-                    <div className="sm:mr-8 shadow-md sm:shadow-none mr-4 border-solid border-black border sm:border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
+                    <div className="justify-center sm:ml-0 sm:mr-8 shadow-md sm:shadow-none mx-2 border-solid border-black border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
                         <div className="p-4 grid-rows-3">
                             <div className="row-span-1 flex">
                                 <img src={process.env.BASE_URL + props.eventInfo.hosts[0].img_profile
