@@ -16,7 +16,8 @@ CREATE TABLE users (
     school        VARCHAR(255) NOT NULL,
     major         VARCHAR(255) NOT NULL,
     grad_year     VARCHAR(255) NOT NULL,
-    is_admin      BOOLEAN NOT NULL DEFAULT FALSE
+    is_admin      BOOLEAN NOT NULL DEFAULT FALSE,
+    time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE events (
@@ -30,6 +31,7 @@ CREATE TABLE events (
     thumbnail_id  INT NOT NULL REFERENCES thumbnails(tid),
     zoom_link     VARCHAR(255),
     zoom_id       VARCHAR(31),
+    gcal_id       VARCHAR(63),
     time_start    TIMESTAMP NOT NULL,
     time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status        VARCHAR(31)

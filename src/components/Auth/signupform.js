@@ -32,11 +32,14 @@ const SignUpForm = (props) => {
         .then((res)=>{
             console.log("success making account", res)
             context.handleLoginWithEmailAndPassword(values.signUpEmail, values.signUpPassword)
-                .then((res) =>{
-                    console.log("success logging in", res)
+                .then(() =>{
+                    console.log("success logging in");
                     // send verification email
                     var user = firebase.auth().currentUser;
-                    user.sendEmailVerification().then(() => {
+                    user.sendEmailVerification({
+                        url: "https://www.schefs.us",
+                    }).then(() => {
+                        props.showVerify(values.signUpEmail);
                     }).catch(function(error) {
                         console.log(error)
                     });
@@ -49,7 +52,10 @@ const SignUpForm = (props) => {
         })
         .catch((err)=>{
             var div = (err.response.data.err).split(':')
-            setError(div[1].concat(':', div[2]))
+            if (div[1] === "Firebase error: "){
+                setError(div[2])
+            }
+            console.log(err.response.data.err)
         })
     }
 
@@ -93,7 +99,7 @@ const SignUpForm = (props) => {
 
                             <Field placeholder="School Email" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="signUpEmail"></Field>
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="signUpEmail"></ErrorMessage>
-                            <p id="emailHelp" className="text-sm text-center">A valid university email address is required.</p>
+                            <p id="emailHelp" className="text-sm text-center">* A valid university email address is required.</p>
                             
                             <Field type="password" placeholder="Password" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="signUpPassword"></Field>
                             <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="signUpPassword"></ErrorMessage>

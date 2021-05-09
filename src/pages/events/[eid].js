@@ -1,22 +1,31 @@
+
+import React, { useEffect, useContext, useState } from "react"
 import axios from 'axios';
+import moment from 'moment-timezone';
+const { htmlToText } = require('html-to-text');
+import Head from 'next/head';
+
 import pool from '../../utils/db';
 import queries from "../../utils/queries/events"
 import Comment from "../../components/Events/comment"
 import WhitePillButton from "../../components/Buttons/wpillbutton" //type, size (text), text, link
-import React, { useEffect, useContext, useState } from "react"
 import Context from '../../components/Context/context';
 import downloadLogo from "../../assets/bdownload.png"
-import downloadHoverLogo from "../../assets/hdownload.png" //https://fkhadra.github.io/react-toastify/introduction/
-const { htmlToText } = require('html-to-text');
+import downloadHoverLogo from "../../assets/hdownload.png" 
 
 const EventPage = (props) => {
+    const context = useContext(Context);
+
+    // get timezone
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
+
     const [clientTickets, setClientTickets] = useState(props.tickets)
     const [clientComments, setClientComments] = useState(props.comments)
     const [inHover, setHover] = useState(downloadLogo);
     const [copyStatus, setCopyStatus] = useState("")
+    const [commentFocus, setCommentFocus] = useState(false)
     const [commentBody, setCommentBody] = useState("")
     const [reservedTicket, setReservedTicket] = useState(false)
-    const context = useContext(Context);
 
     /* Get comments and new tickets for event every 10 seconds*/ 
     useEffect(() => {
@@ -37,7 +46,7 @@ const EventPage = (props) => {
             })
         }, 10000);
         return () => clearInterval(interval);
-      }, []); /*    necessary? [clientComments, clientTickets]);    */
+      }, []); 
       
     useEffect(() => {
         if (context.profile){
@@ -78,9 +87,9 @@ const EventPage = (props) => {
                     body:commentBody,
                     school: context.profile.school,
                 }
+                setCommentBody("")
                 axios.post(`/api/events/${props.eventInfo.eid}/comment`, sendComment)
                 .then((res)=>{
-                    setCommentBody("")
                     console.log(res)
                 })
                 .catch((err)=>{alert(err)})
@@ -89,11 +98,24 @@ const EventPage = (props) => {
         else{
             context.handleToggleCard(false, true)
         }
-        
+        return false;
     }
-    const reserveTicket = (e) => {
-        e.preventDefault()
-        if (context.profile){
+
+    // listen for escape key to close modals
+    const enterFunction = (e) => {
+        if (e.keyCode === 13 && commentFocus)
+           { console.log("up")
+            handleCommentSubmit();}
+    };
+
+    // enter keylistener
+    useEffect(() => {
+        document.addEventListener('keydown', enterFunction, false);
+        return () => document.removeEventListener('keydown', enterFunction, false);
+    }, []);
+
+    const reserveTicket = () => {
+        if (context.profile && context.profile.isVerified){
             let userContent = {
                 user_id: context.profile.uid,
             }
@@ -109,17 +131,20 @@ const EventPage = (props) => {
         else{
             context.handleToggleCard(false, true)
         }
-        
     }
-
-    return (
-        <div className="mb-4 sm:gap-24 sm:grid sm:grid-cols-5 mx-8">
+       
+     return (
+        <div id="eventPgDiv" className="mb-4 sm:gap-24 mx-6 md:mx-12 xl:mx-24 ">
+            <Head>
+                <title>{props.eventInfo.title}</title>
+                <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+            </Head>
             <div className="sm:col-span-3">
                 <div className="text-5xl">
                     {props.eventInfo.title}
                 </div>
                 <div className="mb-2">
-                    {props.eventInfo.time_start}
+                    {moment(props.eventInfo.time_start).tz(timezone).format('dddd, MMMM D, YYYY @ h:mm A z')}
                 </div>
                 <div className="mr-6 mb-4">
                     <img src={process.env.BASE_URL + props.eventInfo.img_thumbnail} className="sm:w-3/4 rounded-2xl"></img>
@@ -137,11 +162,11 @@ const EventPage = (props) => {
                 <div className="my-4 text-2xl">
                     Thoughts:
                 </div>
-                <form className="flex row-span-1 items-end justify-center">
-                    <input className="w-full border-b border-black focus:outline-none" value={commentBody} onChange={(e) => setCommentBody(e.target.value)} type="text" placeholder="Share your thought here" aria-label="Add a comment" />
-                    <WhitePillButton handleClick={handleCommentSubmit} padding="px-4 flex" type="submit" text="POST" size="lg" />
+                <form className="flex row-span-1 items-end justify-center" onSubmit={handleCommentSubmit}>
+                    <input className="w-full border-b border-black focus:outline-none" onFocus={() => {setCommentFocus(true)}} onBlur={() => {setCommentFocus(false)}} value={commentBody} onChange={(e) => setCommentBody(e.target.value)} type="text" placeholder="Share your thought here" aria-label="Add a comment" />
+                    <WhitePillButton padding="px-4 flex" type="submit" text="POST" size="lg" />
                 </form>
-                <div className="">
+                <div>
                     {clientComments.length
                         ? clientComments.sort((a, b) => {return new Date(b.time_created) - new Date(a.time_created)}).map((p, i) => <Comment key={i} time={p.time_created} name={p.name} university={p.school} thought={p.body} />) 
                         : <p className="my-4 text-gray-500">There are no comments yet...start the conversation!</p>}
@@ -152,11 +177,14 @@ const EventPage = (props) => {
                 <div className="sm:fixed">
                     <div className="hidden sm:inline-block">
                         <div className="flex">
-                            {clientTickets > 14 
-                                ? <button className={"flex justify-center items-center focus:outline-none text-xl text-gray-500 border sm:border-2 border-gray-500 px-4 cursor-default rounded-full"}>SOLD OUT</button>  
-                                : reservedTicket 
+                            {Date(props.eventInfo.time_start) > new Date()
+                              ? clientTickets > 14 
+                                  ? <button className={"flex justify-center items-center focus:outline-none text-xl text-gray-500 border sm:border-2 border-gray-500 px-4 cursor-default rounded-full"}>SOLD OUT</button>  
+                                  : reservedTicket 
                                     ? <button className={"flex justify-center items-center bg-yellow-300 focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-not-allowed rounded-full"}>RESERVED</button> 
-                                    : <form onSubmit={reserveTicket}><WhitePillButton type = "submit" size="xl" padding="px-4 flex" text="RESERVE FOR ZOOM" handleClick= {reserveTicket}/></form>}
+                                    : <WhitePillButton type="button" size="xl" padding="px-4 flex" text="RESERVE FOR ZOOM" handleClick={reserveTicket}/>
+                              : <WhitePillButton type="button" size="xl" padding="px-4 flex" text="EVENT HAS PASSED" />
+                            }
                             <button onMouseEnter={() => setHover(downloadHoverLogo)} onMouseLeave={() => setHover(downloadLogo)} onClick={copyLink} className="ml-2 flex space-x-2 text-gray-700 items-center h-8 w-8 bg-gray-400 rounded-full focus:outline-none">
                                 <img src={inHover} className="p-2"></img><p>{copyStatus}</p>
                             </button>
@@ -173,7 +201,7 @@ const EventPage = (props) => {
                                 {7-clientTickets} / 7 spots available
                             </div>
                             <div className="self-center">
-                                <WhitePillButton padding="px-4 flex" type="submit" text="RESERVE" size="xl" />
+                                <WhitePillButton padding="px-4 flex" type="button" text="RESERVE" size="xl" />
                             </div>
                         </footer>
                     </div>
@@ -187,14 +215,14 @@ const EventPage = (props) => {
                                 <img src={process.env.BASE_URL + props.eventInfo.hosts[0].img_profile
                                 //TODO: update for cohosts
                                 } className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
-                                <p className="self-center ml-4 text-3xl">{props.eventInfo.host_name}</p>
+                                <p className="self-center mb-4 ml-4 text-3xl">{props.eventInfo.host_name}</p>
                             </div>
-                            <div className="mb-8 row-span-1 text-center justify-center">
+                            <div className="mb-4 mt-4 row-span-1 text-center justify-center">
                                 <p>{props.eventInfo.host_school} • 2023</p>
                                 <p>Computer Engineering</p>
                             </div>
-                            <div className="row-span-1 text-center justify-center">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                            <div className="row-span-1 justify-center">
+                                {props.eventInfo.host_bio}
                             </div>                        
                         </div>
                     </div>

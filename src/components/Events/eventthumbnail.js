@@ -1,40 +1,42 @@
-import React, {useEffect, useState, useContext} from "react";
+import React, { useContext } from 'react';
+import moment from 'moment-timezone';
+
 import Link from 'next/link';
 import Context from '../Context/context';
 import WhitePillButton from '../Buttons/wpillbutton';
 
 const EventThumbnail = (props) => {
     const context = useContext(Context);
-    const [link, setLink] = useState('');
 
-    useEffect(() => {
-        if (!props.isEditable) {
-            setLink(`/events/${props.eid}`) 
-        }
-        else{
-            setLink(`eventbuilder/${props.eid}`)
-        }
-    }, [])
+    // get timezone
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
 
     return (
-        <div className={"col-span-1 mb-4 " + props.style} >
-            <a className="cursor-pointer" onClick={context.handleCloseCard} href={link}>
-                <div className="relative">
-                    <img
-                      src={process.env.BASE_URL + props.img_thumbnail}
-                      className="mb-2 rounded-2xl"
-                      style={{zIndex:-1}}
-                    ></img>
-                    {props.border
-                      ? <div
-                          style={{boxShadow: 'inset 0 0 0 4px #FDFE86'}}
-                          className="absolute inset-0 w-full h-full mb-2 rounded-2xl"
-                        ></div>
-                      : null
-                    }
-                </div>
-                <p className="mb-1 text-sm">{props.title}</p> 
-                <p className="text-xs">Hosted by {props.host_name.split(' ')[0]} • {props.host_school}<br></br> at {props.time_start}</p>
+        <div className={"col-span-1 mb-8 " + props.style} >
+            <a
+              className="cursor-pointer"
+              onClick={context.handleCloseCard}
+              href={props.isEditable ? `/eventbuilder/${props.eid}` : `/events/${props.eid}`}
+            >
+              <div className="relative">
+                  <img
+                    src={process.env.BASE_URL + props.img_thumbnail}
+                    className="mb-2 rounded-2xl"
+                    style={{opacity: props.opacity}}
+                  ></img>
+                  {props.border
+                    ? <div
+                        style={{boxShadow: 'inset 0 0 0 4px #FDFE86'}}
+                        className="absolute inset-0 w-full h-full mb-2 rounded-2xl"
+                      ></div>
+                    : null
+                  }
+              </div>
+              <p className="mb-1 text-base">{props.title}</p> 
+              <p className="text-sm">
+                  Hosted by {props.host_name.split(' ')[0]} • {props.host_school}<br/>
+                  {moment(props.time_start).tz(timezone).format('dddd, MMMM D @ h:mm A z')}
+              </p>
             </a>
 
             {props.showAttendees && props.hosts && props.attendees

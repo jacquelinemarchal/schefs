@@ -2,6 +2,8 @@ const express = require('express');
 const pool = require('../utils/db');
 const queries = require('../utils/queries/openmind');
 
+const { verifyFirebaseIdToken, verifyIsAdmin } = require('../middleware/auth');
+
 const router = express.Router();
 
 /*
@@ -22,8 +24,6 @@ const router = express.Router();
  *  500: other postgres error
  */
 router.get('', (req, res) => {
-    // check auth and other stuff here
-    
     pool.query(queries.getOpenMind, [ req.query.last_id ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -47,9 +47,7 @@ router.get('', (req, res) => {
  *      omid    <int>
  *  500: other postgres error
  */
-router.post('', (req, res) => {
-    // check auth and other stuff here
-
+router.post('', verifyFirebaseIdToken, (req, res) => {
     const values = [
         req.body.user_id,
         req.body.body
@@ -76,9 +74,7 @@ router.post('', (req, res) => {
  *  404: OMA entry does not exist
  *  500: other postgres error
  */
-router.delete('/:omid', (req, res) => {
-    // check auth and other stuff here
-
+router.delete('/:omid', verifyFirebaseIdToken, (req, res) => {
     pool.query(queries.deleteOpenMind, [ req.params.omid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });

@@ -32,20 +32,39 @@ const getEventsDetailed = `
         'eid', e.eid,
         'host_name', e.host_name,
         'host_school', e.host_school,
+        'host_bio', e.host_bio,
         'title', e.title,
         'description', e.description,
         'requirements', e.requirements,
         'img_thumbnail', t.location,
         'time_start', e.time_start,
         'hosts', (
-            SELECT JSON_AGG(ROW_TO_JSON(u))
+            SELECT JSON_AGG(ROW_TO_JSON(ROW(
+                u.uid,
+                u.first_name,
+                u.last_name,
+                u.img_profile,
+                u.bio,
+                u.school,
+                u.major,
+                u.grad_year
+            )))
             FROM users AS u
             LEFT JOIN event_hosts AS eh
                 ON u.uid = eh.user_id
             WHERE eh.event_id = e.eid
         ),
         'attendees', (
-            SELECT JSON_AGG(ROW_TO_JSON(u))
+            SELECT JSON_AGG(ROW_TO_JSON(ROW(
+                u.uid,
+                u.first_name,
+                u.last_name,
+                u.img_profile,
+                u.bio,
+                u.school,
+                u.major,
+                u.grad_year
+            )))
             FROM users AS u
             LEFT JOIN tickets AS tk
                 ON u.uid = tk.user_id
@@ -75,13 +94,23 @@ const getEvent = `
         'eid', e.eid,
         'host_name', e.host_name,
         'host_school', e.host_school,
+        'host_bio', e.host_bio,
         'title', e.title,
         'description', e.description,
         'requirements', e.requirements,
         'img_thumbnail', t.location,
         'time_start', e.time_start,
         'hosts', (
-            SELECT JSON_AGG(ROW_TO_JSON(u))
+            SELECT JSON_AGG(ROW_TO_JSON(ROW(
+                u.uid,
+                u.first_name,
+                u.last_name,
+                u.img_profile,
+                u.bio,
+                u.school,
+                u.major,
+                u.grad_year
+            )))
             FROM users AS u
             LEFT JOIN event_hosts AS eh
                 ON u.uid = eh.user_id
@@ -101,9 +130,10 @@ const getEvent = `
  * $6:  requirements  <string>
  * $7:  thumbnail_id  <int>    required
  * $8:  zoom_link     <string>
- * $9:  zoom_id       <string>
- * $10: time_start    <Date>   required
- * $11: status        <string>
+ * $9:  zoom_id       <long>
+ * $10: gcal_id       <string>
+ * $11: time_start    <Date>   required
+ * $12: status        <string>
  */
 const createEvent = `
     WITH thumb AS (
@@ -121,6 +151,7 @@ const createEvent = `
         thumbnail_id,
         zoom_link,
         zoom_id,
+        gcal_id,
         time_start,
         status
     ) VALUES (
@@ -134,7 +165,8 @@ const createEvent = `
         $8,
         $9,
         $10,
-        $11
+        $11,
+        $12
     )
     RETURNING eid
 `;
@@ -157,6 +189,44 @@ const createHost = `
 `;
 
 /*
+ * $1:  host_name    <string>
+ * $2:  host_school  <string>
+ * $3:  host_bio     <string>
+ * $4:  title        <string>
+ * $5:  description  <string>
+ * $6:  requirements <string>
+ * $7:  thumbnail_id <int>
+ * $8:  time_start   <Date>
+ * $9:  status       <string>
+ * $10: eid          <int>
+ */
+const updateEvent = `
+    UPDATE events
+    SET host_name = COALESCE($1, host_name),
+        host_school = COALESCE($2, host_school),
+        host_bio = COALESCE($3, host_bio),
+        title = COALESCE($4, title),
+        description = COALESCE($5, description),
+        requirements = COALESCE($6, requirements),
+        thumbnail_id = COALESCE($7, thumbnail_id),
+        time_start = COALESCE($8, time_start),
+        time_created = CURRENT_TIMESTAMP,
+        status = COALESCE($9, status)
+    WHERE eid = $10
+`;
+
+/*
+ * $1: time_start <Date>
+ * $2: time_end   <Date>
+ */
+const checkTimeAvailable = `
+    SELECT (COUNT(eid) = 0) AS available
+    FROM events
+    WHERE time_start >= $1
+    AND time_start <= $2
+`
+
+/*
  * $1: eid <int>
  */
 const getReservedTicketsCount = `
@@ -165,11 +235,37 @@ const getReservedTicketsCount = `
 `;
 
 /*
-* $1: date_from <string | Date> - if string, must be of form 'YYY-MM-DD'
-* $2: date_to   <string | Date> - if string, must be of form 'YYY-MM-DD'
+* $1: date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
+* $2: date_to   <string | Date> - if string, must be of form 'YYYY-MM-DD'
 */
 const getAllReservedTicketsCount = `
-    SELECT COUNT(*) FROM tickets
+    SELECT COUNT(*) FROM tickets AS t
+    WHERE (
+        COALESCE($1) = '' OR
+        t.time_created >= TO_DATE($1, 'YYYY-MM-DD')
+    ) AND (
+        COALESCE($2) = '' OR
+        t.time_created <= TO_DATE($2, 'YYYY-MM-DD')
+    )
+`;
+
+/*
+* $1: date_from <string | Date> - if string, must be of form 'YYYY-MM-DD'
+* $2: date_to   <string | Date> - if string, must be of form 'YYYY-MM-DD'
+* $3: status    <string> default 'approved' - one of 'approved', 'denied', 'pending', 'all'
+*/
+const getAllEventsCount = `
+    SELECT COUNT(*) FROM events AS e
+    WHERE (
+        COALESCE($1) = '' OR
+        e.time_created >= TO_DATE($1, 'YYYY-MM-DD')
+    ) AND (
+        COALESCE($2) = '' OR
+        e.time_created <= TO_DATE($2, 'YYYY-MM-DD')
+    ) AND (
+        'all' = $3 OR
+        e.status = $3
+    )
 `;
 
 /*
@@ -238,10 +334,13 @@ module.exports = {
     getEvent,
     getReservedTickets,
     getReservedTicketsCount,
+    checkTimeAvailable,
     getAllReservedTicketsCount,
+    getAllEventsCount,
     checkTicketStatus,
     reserveTicket,
     deleteTicket,
     createEvent,
+    updateEvent,
     createHost,
 };

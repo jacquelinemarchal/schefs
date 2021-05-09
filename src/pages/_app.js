@@ -3,16 +3,23 @@ import '../styles/card.css';
 
 import React from 'react';
 import ContextState from '../components/Context/context_state';
+import Head from 'next/head'
 
 const hostBanner = {
-    left: "Host & attend small group themed conversations via Zoom on any topic. By & for college students.",
+    left: "Lead & join intimate, themed conversations via Zoom on topics you care about. By & for college students.",
+    left_small: "Lead & join intimate, themed conversations",
     buttonText: "HOST AN EVENT",
     link: "google.com",
 }
 
 const App = ({ Component, pageProps }) => {
     return (
-        <ContextState Component={Component} pageProps={pageProps} bannerProps={hostBanner} />
+        <>
+          <Head>
+            <link rel="shortcut icon" href="/favicon.ico" />
+          </Head>
+          <ContextState Component={Component} pageProps={pageProps} bannerProps={hostBanner} />
+        </>
     );
 };
 

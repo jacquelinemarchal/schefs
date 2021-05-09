@@ -2,7 +2,7 @@ import EventThumbnail from "./eventthumbnail"
 
 const EventGrid = (props) => {
     return (
-        <div className={"grid grid-cols-1 sm:grid-cols-" + props.gridNum}>
+        <div className={"duration-300 grid gap-3 lg:gap-4 grid-cols-1 sm:grid-cols-" + props.gridNum + ' ' + props.margin}>
             {props.events.length != 0 
               ? props.events.map(p =>
                   <EventThumbnail
@@ -13,6 +13,7 @@ const EventGrid = (props) => {
                     key={-p.eid}
                     closeCardF={props.closeCardF}
                     showAttendees={Boolean(props.showAttendees)}
+                    opacity={props.opacity}
                   />
                 )
               : null

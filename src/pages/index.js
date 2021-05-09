@@ -1,22 +1,26 @@
-import Footer from "../components/Banners/footer"
-import EventGrid from "../components/Events/eventgrid"
-import NavBar from "../components/Banners/navbar";
-import React, { useState, useEffect, useContext } from "react";
-import axios from "axios"
+import React, { useState, useEffect, useContext } from 'react';
+import axios from 'axios';
+
+import Head from 'next/head';
+import Footer from '../components/Banners/footer';
+import EventGrid from '../components/Events/eventgrid';
+import NavBar from '../components/Banners/navbar';
 import Context from '../components/Context/context';
 
-export default function Home(props) {
+const Home = (props) => {
     const context = useContext(Context);
-    const [allEvents, setAllEvents]  = useState(null); // [[eid, host_name, host_school, time_start, title]]
+    const [futureEvents, setFutureEvents] = useState(null); // [[eid, host_name, host_school, time_start, title]]
+    const [pastEvents, setPastEvents] = useState(null);
 
     useEffect(async () => {
+        const now = (new Date()).toISOString();
+
         if (!context.events) {
             const date_to = new Date();
             date_to.setDate(date_to.getDate() + 17);
 
             const query = {
                 params: {
-                    date_from: '2018-01-01',
                     date_to: date_to,
                     status: 'approved',
                     type: 'detailed',
@@ -24,21 +28,25 @@ export default function Home(props) {
             }
 
             try {
-                const events = (await axios.get("/api/events", query)).data;
+                const events = (await axios.get('/api/events', query)).data;
                 context.setHomeEvents(events);
-                setAllEvents(events);
+
+                setFutureEvents(events.filter((e) => e.time_start > now));
+                setPastEvents(events.filter((e) => e.time_start <= now).reverse());
             } catch (err) {
                 if (err.response && err.response.data && err.response.data.err)
-                    console.log(err.response.data.err)
+                    console.log(err.response.data.err);
                 else
                     console.log(err);
             }
         }
         
-        if (context.events)
-            setAllEvents(context.events);
+        if (context.events) {
+            setFutureEvents(context.events.filter((e) => e.time_start > now));
+            setPastEvents(context.events.filter((e) => e.time_start <= now).reverse());
+        }
 
-    }, [context.events, allEvents]);
+    }, [context.events]);
 
     const ambassador = {
         left:  "We’re looking for engaged students to spread the word",
@@ -48,18 +56,39 @@ export default function Home(props) {
 
     return (
         <>
-            {allEvents
-              ? <EventGrid
+          <Head>
+              <title>Schefs - Learn From Each Other</title>
+          </Head>
+          {futureEvents && pastEvents
+            ? <>
+                <EventGrid
                   isEditable={false}
-                  events={allEvents}
+                  events={futureEvents}
                   style="px-2"
-                  gridNum="3 mx-6"
+                  gridNum="3"
+                  margin="px-6 md:px-12 xl:px-24"
                   closeCardF={props.closeCardF}
-                  showAttendees={true}
-                /> 
-              : null
-            }
-            <Footer {...ambassador} />
+                  showAttendees={false}
+                />
+
+                <p className="text-3xl mt-4 mb-6 ml-6 md:ml-12 xl:ml-24 pl-2">Past Events</p>
+
+                <EventGrid
+                  isEditable={false}
+                  events={pastEvents}
+                  style="px-2 opacity-60"
+                  gridNum="3"
+                  margin="px-6 md:px-12 xl:px-24"
+                  closeCardF={props.closeCardF}
+                  showAttendees={false}
+                  opacity={0.5}
+                />
+              </>
+            : null
+          }
+          <Footer {...ambassador} />
         </>
     );
 };
+
+export default Home;

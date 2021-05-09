@@ -22,6 +22,7 @@ const CardContent = (props) => {
         first_name: props.profile.first_name,
         last_name: props.profile.last_name,
         uni: props.profile.school,
+        major: props.profile.major
     });
 
     const [dropDown, setDropDown] = useState(false);
@@ -29,8 +30,6 @@ const CardContent = (props) => {
     const [edited, setEdited] = useState(false);
 
     const [events, setEvents] = useState(null);
-    const [myEvents, setMyEvents] = useState(null);
-    const [isDisplayMyEvents, setIsDisplayMyEvents] = useState(false);
 
     useEffect(() => {
         if (context.profile && context.profile.uid === props.profile.uid && !context.rEvents) {
@@ -61,22 +60,12 @@ const CardContent = (props) => {
                 .catch(err => console.log(err.response.data.err));
         }
 
-        if (context.profile && context.profile.uid === props.profile.uid && !context.myEvents) {
-            axios
-                .get(`/api/users/${context.profile.uid}/events/hosting`)
-                .then(res => context.handleSetMyEvents(res.data.map(event => ({...event, border: true}))))
-                .catch(err => console.log(err.response.data.err));
-        }
-
         if (context.profile && context.profile.uid === props.profile.uid && context.rEvents)
             setEvents([...context.rEvents]);
         else if (context.lEvents)
             setEvents([...context.lEvents]);
 
-        if (context.profile && context.profile.uid === props.profile.uid && context.myEvents)
-            setMyEvents([...context.myEvents]);
-
-    }, [props.profile, context.profile, context.lEvents, context.rEvents, context.myEvents]);
+    }, [props.profile, context.profile, context.lEvents, context.rEvents]);
 
     const toggleDropDown = () => {
         setDropDown(!dropDown)
@@ -102,7 +91,8 @@ const CardContent = (props) => {
             first_name: userInfo.current.first_name,
             last_name: userInfo.current.last_name,
             school: userInfo.current.uni,
-            grad_year: gradYear
+            grad_year: gradYear,
+            major: userInfo.current.major
         }
 
         context.handleUpdateProfile(uid, updated_fields);
@@ -117,28 +107,36 @@ const CardContent = (props) => {
                 html={userInfo.current.first_name}
                 onChange={(e) => {userInfo.current.first_name=e.target.value; setEdited(true)}} 
                 placeholder={"First Name"}
-                className="text-5xl leading-none mb-4 focus:outline-none"
+                className="text-5xl font-bold leading-none mb-4 focus:outline-none"
             />
             <ContentEditable
                 disabled={disabled}
                 html={userInfo.current.last_name}
                 onChange={(e) => {userInfo.current.last_name=e.target.value; setEdited(true)}} 
                 placeholder={"Last Name"}
-                className="text-5xl leading-none mb-4 focus:outline-none"
+                className="text-5xl font-bold leading-none mb-4 focus:outline-none"
             />
 
             {!disabled && !context.profile.isVerified
                 ? <div className="text-sm text-red-600">Please verify your account via email before using Schefs.us</div>
                 : null
             }
-
-            <ContentEditable
-                disabled={disabled}
-                html={userInfo.current.uni}
-                onChange={(e) => {userInfo.current.uni=e.target.value; setEdited(true)}} 
-                placeholder={"Your University"}
-                className="focus:outline-none text-sm"
-            />
+            <div className="flex space-x-2">
+                <ContentEditable
+                    disabled={disabled}
+                    html={userInfo.current.uni}
+                    onChange={(e) => {userInfo.current.uni=e.target.value; setEdited(true)}} 
+                    placeholder={"Your University"}
+                    className="focus:outline-none text-sm mr-2"
+                />
+                <ContentEditable
+                    disabled={disabled}
+                    html={userInfo.current.major}
+                    onChange={(e) => {userInfo.current.major=e.target.value; setEdited(true)}} 
+                    placeholder={"Your Major"}
+                    className="focus:outline-none text-sm"
+                />
+            </div>
             <div className="relative inline-block text-left text-sm">
                 <div>
                     <span className="rounded-md">
@@ -166,75 +164,51 @@ const CardContent = (props) => {
             </div>
 
             {edited
-              ? <button onClick={saveUserInfo} className="flex-col flex px-4 my-2 bg-yellow-200 justify-center items-center bg-transparent focus:outline-none text-xs sm:text-sm text-black hover:bg-black hover:text-white border sm:border-2 border-black rounded-full">SAVE NEW INFO</button>
+              ? <><button onClick={saveUserInfo} className="flex-col flex px-4 my-2 bg-yellow-200 justify-center items-center bg-transparent focus:outline-none text-xs sm:text-sm text-black hover:bg-black hover:text-white border sm:border-2 border-black rounded-full">SAVE NEW INFO</button></>
               : null
             } 
 
-            {isDisplayMyEvents
-              ? myEvents
-                  ? <>
-                        {myEvents.length === 0
-                          ? <div className="text-gray-500 mt-6 text-sm hidden">
-                                You're not hosting any upcoming events... click the button below to do so!
-                            </div>
-                          : null
-                        }
-                        <a onClick={closeCard} className="underline text-sm cursor-pointer"> 
-                            Browse upcoming events
-                        </a>
+            {events
+              ? <>
+                  {events.length === 0
+                    ? <div className="text-gray-500 mt-6 text-sm">
+                          Your upcoming events will be displayed here... so go start reserving tickets already!
+                      </div>
+                    : null
+                  }
+                  <a onClick={closeCard} className="underline text-sm cursor-pointer"> 
+                      Browse upcoming events
+                  </a>
 
-                        {myEvents.length
-                          ? <div className="mt-4 text-sm">
-                                <>Events I'm hosting:</>
-                                <div id="innerCardContainer" className="overflow-scroll mt-2">
-                                    <EventGrid isEditable={false} events={myEvents} style="mr-12" gridNum="1"/>
-                                </div>
-                            </div>
-                          : null
-                        }
-                    </>
-                  : null
-              : events
-                  ? <>
-                        {events.length === 0
-                          ? <div className="text-gray-500 mt-6 text-sm">
-                                Your upcoming events will be displayed here... so go start reserving tickets already!
-                            </div>
-                          : null
-                        }
-                        <a onClick={closeCard} className="underline text-sm cursor-pointer"> 
-                            Browse upcoming events
-                        </a>
-
-                        {events.length
-                          ? <div className="mt-4 text-sm">
-                                {disabled
-                                    ? <>{props.profile.first_name}'s upcoming events:</>
-                                    : <>My upcoming events:</>
-                                }
-                                <div id="innerCardContainer" className="overflow-scroll mt-2">
-                                    <EventGrid isEditable={false} events={events} style="mr-12" gridNum="1"/>
-                                </div>
-                            </div>
-                          : null
-                        }
-                    </>
-                  : null
+                  {events.length
+                    ? <div className="mt-4 text-sm">
+                          {disabled
+                              ? <>{props.profile.first_name}'s upcoming events:</>
+                              : <>My upcoming events:</>
+                          }
+                          <div id="innerCardContainer" className="overflow-scroll mt-2">
+                              <EventGrid isEditable={false} events={events} style="mr-12" gridNum="1"/>
+                          </div>
+                      </div>
+                    : null
+                  }
+                </>
+              : null
             }
         </div>
 
         {!disabled
           ? <div className="w-11/12 absolute bottom-0 mb-2 ml-4 flex justify-between">
                 <WhitePillButton
-                    text={isDisplayMyEvents ? 'MY TICKETS' : 'MY EVENTS'}
-                    link=""
+                    text="MY EVENTS"
+                    link="/myevents"
                     padding="px-4"
                     size="xs bg-white sm:text-sm"
-                    handleClick={() => setIsDisplayMyEvents(!isDisplayMyEvents)}
+                    handleClick={context.handleCloseCard}
                 />
                 <WhitePillButton
                     text="HOST AN EVENT"
-                    link={process.env.BASE_URL + 'eventbuilder'}
+                    link="/eventbuilder"
                     padding="px-4"
                     size="xs bg-white sm:text-sm"
                     handleClick={context.handleCloseCard}
