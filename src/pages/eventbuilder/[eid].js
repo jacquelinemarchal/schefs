@@ -515,7 +515,7 @@ const EventBuilder = (props) => {
 
                             <div className="flex flex-row">
                                 <WhitePillButton handleClick={() => {if(editMode) setIsSchedulerOpen(true);}} type="button" text="CHANGE DATE &amp; TIME" padding={"px-6 flex w-3/4 md:w-1/2 xl:w-1/3 mr-4 " + (editMode ?  "": "cursor-not-allowed")} />
-                                {selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')}
+                                <p className="self-center ml-2">{selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')}</p> 
                             </div>
   
                             <div className="mr-6 mt-2 mb-10 w-9/12">

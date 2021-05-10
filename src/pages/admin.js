@@ -62,7 +62,7 @@ const ApprovalPortal = () => {
             params: {
                 date_from: '2020-01-31',
                 date_to: '2022-01-31',
-                status: 'denied',
+                status: 'pending',
                 type: 'summary',
             }
         }
@@ -167,7 +167,7 @@ const ApprovalPortal = () => {
                   </div>
                 </div>
                 
-                <h2 className="pl-8 text-2xl pl-2 ml-6 md:ml-12 xl:ml-24 pt-12">All Time</h2>
+                <h2 className="text-2xl pl-2 ml-6 md:ml-12 xl:ml-24 pt-12 pb-12">All Time</h2>
               
                 <div className="flex flex-row justify-between px-2 mx-6 md:mx-12 xl:mx-24 pb-12">
                   <div className="flex flex-col">

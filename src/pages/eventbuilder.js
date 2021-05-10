@@ -539,7 +539,7 @@ const EventBuilder = () => {
 
                           <div className="flex flex-row">
                             <WhitePillButton handleClick={() => setIsSchedulerOpen(true)} type="button" text="SELECT DATE & TIME" padding="px-6 flex w-3/4 md:w-1/2 xl:w-1/3"/>
-                            {datetimeConfirmed ? selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z') : null}
+                            {datetimeConfirmed ? <p className="self-center ml-2">{selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')}</p> : null}
                           </div>
   
                           <div className="mr-6 mt-2 mb-10 w-9/12">
