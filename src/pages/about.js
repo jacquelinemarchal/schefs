@@ -276,37 +276,37 @@ const About = () => {
                 </div>
                 </div>
             </div>
+            <div className="lg:hidden">
+                <p className="text-2xl mt-8 mb-4 lg:text-4xl">How to host:</p>
+                <p className="text-4xl sm:text-6xl mb-4 sm:mb-8">1.</p>
+                <p className="text-lg sm:text-2xl mb-4 sm:mb-8">Pick your topic</p>
+                <p className="sm:text-lg">
+                What are you studying? What have you been interested in lately? You only have to be an enthusiast, not an expert, to host a Schefs event.<br />
+                Check out our <a className="text-blue-500 underline" href="/openmindarchive">Open Mind Archive</a> for inspiration.
+                </p>
 
-            <p className="text-2xl mt-8 mb-4 lg:text-4xl">How to host:</p>
-            <p className="text-4xl sm:text-6xl mb-4 sm:mb-8">1.</p>
-            <p className="text-lg sm:text-2xl mb-4 sm:mb-8">Pick your topic</p>
-            <p className="sm:text-lg">
-            What are you studying? What have you been interested in lately? You only have to be an enthusiast, not an expert, to host a Schefs event.<br />
-            Check out our <a className="text-blue-500 underline" href="/openmindarchive">Open Mind Archive</a> for inspiration.
-            </p>
+                <p className="text-4xl sm:text-6xl mb-4 mt-6 sm:mb-8">2.</p>
+                <p className="text-lg sm:text-2xl mb-4 sm:mb-8">Create your event</p>
+                <p className="sm:text-lg">
+                Using our event builder, you’ll come up with a title, description, time and date. We’ll set up the Zoom + all logistics.
+                </p>
 
-            <p className="text-4xl sm:text-6xl mb-4 mt-6 sm:mb-8">2.</p>
-            <p className="text-lg sm:text-2xl mb-4 sm:mb-8">Create your event</p>
-            <p className="sm:text-lg">
-            Using our event builder, you’ll come up with a title, description, time and date. We’ll set up the Zoom + all logistics.
-            </p>
+                <p className="text-4xl sm:text-6xl mb-4 mt-6 sm:mb-8">3.</p>
+                <p className="text-lg sm:text-2xl mb-4 sm:mb-8">Any college student can attend</p>
+                <p className="sm:text-lg">
+                Your event will appear on our site within 24 hours of submission, and anyone can reserve a ticket for free. We’ll make a
+                custom flyer for your event that we’ll both use to promote.</p>
 
-            <p className="text-4xl sm:text-6xl mb-4 mt-6 sm:mb-8">3.</p>
-            <p className="text-lg sm:text-2xl mb-4 sm:mb-8">Any college student can attend</p>
-            <p className="sm:text-lg">
-            Your event will appear on our site within 24 hours of submission, and anyone can reserve a ticket for free. We’ll make a
-            custom flyer for your event that we’ll both use to promote.</p>
+                <p className="text-4xl sm:text-6xl mb-4 mt-6 sm:mb-8">4.</p>
+                <p className="text-lg sm:text-2xl mb-4 sm:mb-8">Facilitate conversation</p>
+                <p className="sm:text-lg mb-12">
+                You’ll show up to your event along with all attendees. Everyone is there because they care about the topic at hand, but 
+                    it’s your job to initially introduce yourself, the subject matter, and ask some questions to get the conversation rolling!
+                </p>
 
-            <p className="text-4xl sm:text-6xl mb-4 mt-6 sm:mb-8">4.</p>
-            <p className="text-lg sm:text-2xl mb-4 sm:mb-8">Facilitate conversation</p>
-            <p className="sm:text-lg mb-12">
-            You’ll show up to your event along with all attendees. Everyone is there because they care about the topic at hand, but 
-                it’s your job to initially introduce yourself, the subject matter, and ask some questions to get the conversation rolling!
-            </p>
-
-            <hr className="border-black" />
+                <hr className="border-black" />
            
-            <div className="mt-12">
+                <div className="mt-12">
                     <p className="text-4xl sm:text-6xl mx-12 leading-tight">Schefs<br />IS...</p>               
                     <svg width="100" className="absolute" style={{left: '18%',}} height="25" viewBox="0 0 299 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M2 27.7058C43.1673 20.2208 83.9535 4.62738 126.367 4.62738C147.037 4.62738 167.578 2.06311 188.622 2.06311C225.74 2.06311 260.998 0.782751 296.89 9.75591" stroke="#FF0000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -335,7 +335,7 @@ const About = () => {
                         <WhitePillButton link="/eventbuilder" text="SIGN UP TO HOST" padding="flex sm:text-xl px-4 sm:px-6 mb-6"/>
                     </div>
                 </div>
-            
+            </div>
           </div>
         </>
     );
