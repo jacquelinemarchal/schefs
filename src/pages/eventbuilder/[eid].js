@@ -32,7 +32,7 @@ import cohost from '../../assets/cohost.png';
 // grad year z-index in card
 // runtime error in pages > events > [eid]
 
-const EventBuilder = (props) => {
+const EventEditor = ({ eventInfo }) => {
     // import Context
     const context = useContext(Context);
 
@@ -56,7 +56,7 @@ const EventBuilder = (props) => {
 
     const defaultThumbnail = {
         tid: -1,
-        location: props.eventInfo.img_thumbnail,
+        location: eventInfo.img_thumbnail,
         is_used: true,
     }
 
@@ -72,7 +72,7 @@ const EventBuilder = (props) => {
     const [zoom, setZoom] = useState(1)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
-    const [profilePictureURL, setProfilePictureURL] = useState(props.eventInfo.hosts[0].img_profile);
+    const [profilePictureURL, setProfilePictureURL] = useState(eventInfo.hosts[0].img_profile);
 
     // thumbnail selection modal state
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)  
@@ -87,7 +87,7 @@ const EventBuilder = (props) => {
     const [isSchedulerOpen, setIsSchedulerOpen] = useState(false)
 
     // selected date & time for scheduler
-    const defaultDatetime = moment(props.eventInfo.time_start)
+    const defaultDatetime = moment(eventInfo.time_start)
     const [datetimeConfirmed, setDatetimeConfirmed] = useState(true);
     const [selectedDate, setSelectedDate] = useState(defaultDatetime);
     const [selectedTime, setSelectedTime] = useState(defaultDatetime.tz(timezone).format("h:mm A z"));
@@ -163,19 +163,19 @@ const EventBuilder = (props) => {
 
     useEffect(() => {
         console.log(props)
-        setSelectedDate(moment(props.eventInfo.time_start));
-        setSelectedTime(moment(props.eventInfo.time_start).format("h:mm A"));
+        setSelectedDate(moment(eventInfo.time_start));
+        setSelectedTime(moment(eventInfo.time_start).format("h:mm A"));
         setPreLoad({
             coHostEmail: "",
-            title: `${props.eventInfo.title}`,
-            bio: `${props.eventInfo.host_bio}`,
-            description: `${props.eventInfo.description}`,
-            requirements: `${props.eventInfo.requirements}`,
-            first_name: `${props.eventInfo.hosts[0].first_name}`,
-            last_name: `${props.eventInfo.hosts[0].last_name}`,
-            grad_year: `${props.eventInfo.hosts[0].grad_year}`,
-            school: `${props.eventInfo.host_school}`,
-            major: `${props.eventInfo.hosts[0].major}`,
+            title: `${eventInfo.title}`,
+            bio: `${eventInfo.host_bio}`,
+            description: `${eventInfo.description}`,
+            requirements: `${eventInfo.requirements}`,
+            first_name: `${eventInfo.hosts[0].first_name}`,
+            last_name: `${eventInfo.hosts[0].last_name}`,
+            grad_year: `${eventInfo.hosts[0].grad_year}`,
+            school: `${eventInfo.host_school}`,
+            major: `${eventInfo.hosts[0].major}`,
         })
     }, [editMode]);
     
@@ -290,7 +290,7 @@ const EventBuilder = (props) => {
         }
 
         try {
-            await axios.patch(`/api/events/${props.eventInfo.eid}`, eventData);
+            await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
             console.log("successfully submitted");
         } catch (err) {
             if (err.response && err.response.status === 409) {
@@ -324,7 +324,7 @@ const EventBuilder = (props) => {
             
             userData.append('img_profile', blob);
 
-            await axios.put('/api/users/' + props.eventInfo.hosts[0].uid, userData, {
+            await axios.put('/api/users/' + eventInfo.hosts[0].uid, userData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -341,13 +341,13 @@ const EventBuilder = (props) => {
     const Thumbnail = (props) => {
         const handleSelectThumbnail = (e) => {
             e.preventDefault();
-            setSelectedThumbnail({...props.thumbnail});
+            setSelectedThumbnail({...thumbnail});
             setIsPhotoDisplayOpen(false);
         }
             
         return (
             <button onClick={handleSelectThumbnail}>
-                <img src={process.env.BASE_URL + props.thumbnail.location} className="hover:bg-yellow-300 focus:outline-none p-2 cursor-pointer rounded-3xl"></img>
+                <img src={process.env.BASE_URL + thumbnail.location} className="hover:bg-yellow-300 focus:outline-none p-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
     }
@@ -399,7 +399,7 @@ const EventBuilder = (props) => {
                 <Form>
                     <Greyout />           
                     <Head>
-                        <title>Editing: {props.eventInfo.title}</title>
+                        <title>Editing: {eventInfo.title}</title>
                         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
                     </Head>
                     {isPhotoDisplayOpen ? 
@@ -745,22 +745,21 @@ const EventBuilder = (props) => {
     );
 };
 
-export default EventBuilder;
+export default EventEditor;
 
 export const getServerSideProps = async (context) => {
-    const eventInfo = await new Promise((resolve, reject) => 
-        pool.query(queries.getEvent, [ context.params.eid ], (err, results) => {
-            if (err)
-                reject(err);
-            else if (results.rows.length == 0)
-                reject({ err: 'No such event' });
-            else
-                resolve((results.rows[0].event));
-        })
-    )
-    return {
-        props: {
-            eventInfo,
-        },
+
+    try {
+        const eventInfo = (await pool.query(queries.getEvent, [ context.params.eid ])).rows[0].event;
+        return {
+            props: {
+                eventInfo,
+            },
+        };
+    } catch (err) {
+        console.log(err);
+        return {
+            notFound: true,
+        };
     }
 }

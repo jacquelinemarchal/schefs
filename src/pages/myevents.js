@@ -7,12 +7,11 @@ import EventGrid from '../components/Events/eventgrid';
 import NavBar from '../components/Banners/navbar';
 import Context from '../components/Context/context';
 
-const MyEvents = (props) => {
+const MyEvents = ({ closeCardF }) => {
     const context = useContext(Context);
     const [futureEvents, setFutureEvents] = useState(null); // [[eid, host_name, host_school, time_start, title]]
     const [pastEvents, setPastEvents] = useState(null);
 
-    // TODO: make this more efficient - get detailed users events
     useEffect(async () => {
         const now = (new Date()).toISOString();
 
@@ -79,7 +78,7 @@ const MyEvents = (props) => {
                     style="px-2 md:px-0"
                     gridNum="3"
                     margin="px-6"
-                    closeCardF={props.closeCardF}
+                    closeCardF={closeCardF}
                     showAttendees={false}
                     />
 
@@ -91,7 +90,7 @@ const MyEvents = (props) => {
                     style="px-2 md:px-0"
                     gridNum="3"
                     margin="px-6"
-                    closeCardF={props.closeCardF}
+                    closeCardF={closeCardF}
                     showAttendees={true}
                     />
                 </div>

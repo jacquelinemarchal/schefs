@@ -7,9 +7,9 @@ import EventGrid from '../components/Events/eventgrid';
 import NavBar from '../components/Banners/navbar';
 import Context from '../components/Context/context';
 
-const Home = (props) => {
+const Home = ({ closeCardF }) => {
     const context = useContext(Context);
-    const [futureEvents, setFutureEvents] = useState(null); // [[eid, host_name, host_school, time_start, title]]
+    const [futureEvents, setFutureEvents] = useState(null); 
     const [pastEvents, setPastEvents] = useState(null);
 
     useEffect(async () => {
@@ -23,9 +23,8 @@ const Home = (props) => {
                 params: {
                     date_to: date_to,
                     status: 'approved',
-                    type: 'detailed',
                 }
-            }
+            };
 
             try {
                 const events = (await axios.get('/api/events', query)).data;
@@ -67,7 +66,7 @@ const Home = (props) => {
                   style="px-2"
                   gridNum="3"
                   margin="px-6 md:px-12 xl:px-24"
-                  closeCardF={props.closeCardF}
+                  closeCardF={closeCardF}
                   showAttendees={false}
                 />
 
@@ -79,7 +78,7 @@ const Home = (props) => {
                   style="px-2 opacity-60"
                   gridNum="3"
                   margin="px-6 md:px-12 xl:px-24"
-                  closeCardF={props.closeCardF}
+                  closeCardF={closeCardF}
                   showAttendees={false}
                   opacity={0.5}
                 />

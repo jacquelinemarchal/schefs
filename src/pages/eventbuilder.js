@@ -345,7 +345,7 @@ const EventBuilder = () => {
             
         return (
             <button onClick={handleSelectThumbnail}>
-                <img src={process.env.BASE_URL +  props.thumbnail.location} className="hover:bg-yellow-300 focus:outline-none px-2 cursor-pointer rounded-3xl"></img>
+              <img src={props.thumbnail.location} className="hover:bg-yellow-300 focus:outline-none px-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
     }
@@ -543,7 +543,7 @@ const EventBuilder = () => {
                           </div>
   
                           <div className="mr-6 mt-2 mb-10 w-9/12">
-                              <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={process.env.BASE_URL + selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
+                              <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
                           </div>
                           <div className="items-center flex space-x-2">
                               <p>Your event description:</p>
