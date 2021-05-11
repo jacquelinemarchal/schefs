@@ -263,78 +263,95 @@ const EventEditor = ({ eventInfo }) => {
     }
 
     const handleSubmit = async (values, { setSubmitting }) => {
-        //values not yet in the endpoint= [coHostEmail, lastName, gradYear, major]
-
-        setSubmitting(false);
-        setEditMode(false);
-
-        const time_start = moment.tz(
-            selectedDate.format('YYYY-MM-DD') + ' ' + selectedTime,
-            'YYYY-MM-DD h:mm A',
-            timezone
-        ).toDate();
-
-        console.log(values);
+        //values not yet in the endpoint= [lastName, gradYear, major]
         
-        const eventData = {
-            title: values.title,
-            description: values.description,
-            requirements: values.requirements,
-            host_bio: values.bio,
-            time_start: time_start,
-            host_name: values.first_name + ' ' + values.last_name,
-            host_school: values.school,
+        // SAVE button
+        if (editMode){
+            setSubmitting(false);
+            setEditMode(false);
+
+            const time_start = moment.tz(
+                selectedDate.format('YYYY-MM-DD') + ' ' + selectedTime,
+                'YYYY-MM-DD h:mm A',
+                timezone
+            ).toDate();
+            const time_start_moment = moment.tz(
+                selectedDate.format('YYYY-MM-DD') + 'T' + selectedTime,
+                'YYYY-MM-DDTHH:mm:ss',
+                timezone
+            )
+
+            const eventData = {
+                title: values.title,
+                description: values.description,
+                requirements: values.requirements,
+                host_bio: values.bio,
+                host_name: values.first_name + ' ' + values.last_name,
+                host_school: values.school,
+            }
+            if (selectedThumbnail.tid !== -1){
+                eventData.thumbnail_id = selectedThumbnail.tid;
+            }
+            console.log(time_start_moment, defaultDatetime)
+            console.log(time_start_moment.isSame(defaultDatetime))
+
+            if (time_start_moment !== defaultDatetime){
+                eventData.time_start = time_start;
+            }
+
+            try {
+                await axios.patch(`/api/events/${props.eventInfo.eid}`, eventData);
+                console.log("successfully submitted");
+            } catch (err) {
+                if (err.response && err.response.status === 409) {
+                    if (err.response.data.err === 'Thumbnail already in use') {
+                        alert('Thumbnail already in use, choose a different one');
+                        queryThumbnails();
+                        setSelectedThumbnail(defaultThumbnail);
+                    } else if (err.response.data.err === 'Time unavailable') {
+                        alert("Time unavailable");
+                        queryAvailableTimes();
+                        setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
+                        setDatetimeConfirmed(false);
+                    }
+                } else
+                    alert(err.response.data.err)
+                return;
+            }
+
+            const userData = new FormData();
+            userData.append('first_name', values.first_name);
+            userData.append('last_name', values.last_name);
+            userData.append('bio', values.bio);
+            userData.append('school', values.school);
+            userData.append('major', values.major);
+            userData.append('grad_year', values.grad_year);
+
+            try {
+                console.log(props);
+                const res = await fetch(profilePictureURL);
+                const blob = await res.blob();
+                
+                userData.append('img_profile', blob);
+
+                await axios.put('/api/users/' + props.eventInfo.hosts[0].uid, userData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+
+                alert('event successfully submitted');
+                window.location.href = '/admin';
+            } catch (err) {
+                if (err.response && err.response.data)
+                    alert(err.response.data.err);
+                else
+                    alert(err);
+            }
         }
-        if (selectedThumbnail.tid !== -1){
-            eventData.thumbnail_id = selectedThumbnail.tid;
-        }
 
-        try {
-            await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
-            console.log("successfully submitted");
-        } catch (err) {
-            if (err.response && err.response.status === 409) {
-                if (err.response.data.err === 'Thumbnail already in use') {
-                    alert('Thumbnail already in use, choose a different one');
-                    queryThumbnails();
-                    setSelectedThumbnail(defaultThumbnail);
-                } else if (err.response.data.err === 'Time unavailable') {
-                    alert("Time unavailable");
-                    queryAvailableTimes();
-                    setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
-                    setDatetimeConfirmed(false);
-                }
-            } else
-                alert(err.response.data.err)
-            return;
-        }
-
-		const userData = new FormData();
-		userData.append('first_name', values.first_name);
-		userData.append('last_name', values.last_name);
-		userData.append('bio', values.bio);
-		userData.append('school', values.school);
-		userData.append('major', values.major);
-		userData.append('grad_year', values.grad_year);
-
-        try {
-            console.log(props);
-            const res = await fetch(profilePictureURL);
-            const blob = await res.blob();
-            
-            userData.append('img_profile', blob);
-
-            await axios.put('/api/users/' + eventInfo.hosts[0].uid, userData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-
-            alert('event successfully submitted');
-            window.location.href = '/admin';
-		} catch (err) {
-            if (err.response && err.response.data)
-                alert(err.response.data.err);
-            else
-                alert(err);
+        // APPROVE button
+        else {
+            setSubmitting(false);
+            setEditMode(false);
         }
 	}
 
