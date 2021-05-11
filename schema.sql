@@ -68,3 +68,13 @@ CREATE TABLE openmind (
     body          VARCHAR(255) NOT NULL,
     time_created  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE reminders (
+    rid           SERIAL PRIMARY KEY,
+    time_send     TIMESTAMP NOT NULL,
+    email_type    VARCHAR(31) NOT NULL,
+    email_address VARCHAR(255) NOT NULL,
+    first_name    VARCHAR(255) NOT NULL,
+    event_title   VARCHAR(255) NOT NULL,
+    zoom_link     VARCHAR(255)
+);
