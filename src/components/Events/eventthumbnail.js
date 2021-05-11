@@ -17,6 +17,7 @@ const EventThumbnail = (props) => {
               className="cursor-pointer"
               onClick={context.handleCloseCard}
               href={props.isEditable ? `/eventbuilder/${props.eid}` : `/events/${props.eid}`}
+              style={props.disabled ? {pointerEvents: 'none'} : null}
             >
               <div className="relative">
                   <img
