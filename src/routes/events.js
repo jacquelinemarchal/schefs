@@ -321,7 +321,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
             );
 
             await client.query('COMMIT');
-            res.status(201).send();
+            res.status(201).json({ eid });
         }
 
     // if not valid, delete the Zoom and GCal events

@@ -289,8 +289,9 @@ const EventBuilder = () => {
             hosts: [{ ...context.profile }],
         }
 
+        let eid;
         try {
-            await axios.post('/api/events', eventData);
+            eid = (await axios.post('/api/events', eventData)).data.eid;
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
@@ -326,8 +327,7 @@ const EventBuilder = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            alert('event successfully submitted');
-            window.location.href = '/';
+            window.location.href = '/posteventsubmit?eid=' + eid;
         } catch (err) {
             if (err.response && err.response.data)
                 alert(err.response.data.err);

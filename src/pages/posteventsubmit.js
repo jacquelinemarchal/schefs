@@ -69,6 +69,7 @@ const PostEventSubmit = (props) => {
                   border={true}
                   showAttendees={false}
                   isEditable={false}
+                  disabled={true}
                 />
               </div>
               <div className="w-full flex flex-row">
