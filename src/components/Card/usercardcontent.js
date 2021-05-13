@@ -32,6 +32,8 @@ const CardContent = (props) => {
     const [events, setEvents] = useState(null);
 
     useEffect(() => {
+        const now = (new Date()).toISOString();
+
         if (context.profile && context.profile.uid === props.profile.uid && !context.rEvents) {
             axios
                 .get(`/api/users/${context.profile.uid}/events/live`)
@@ -61,9 +63,9 @@ const CardContent = (props) => {
         }
 
         if (context.profile && context.profile.uid === props.profile.uid && context.rEvents)
-            setEvents([...context.rEvents]);
+            setEvents([...context.rEvents.filter((e) => e.time_start > now).reverse()]);
         else if (context.lEvents)
-            setEvents([...context.lEvents]);
+            setEvents([...context.lEvents.filter((e) => e.time_start > now).reverse()]);
 
     }, [props.profile, context.profile, context.lEvents, context.rEvents]);
 
