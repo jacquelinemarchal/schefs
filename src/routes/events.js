@@ -1,5 +1,4 @@
 const moment = require('moment-timezone');
-const schedule = require('node-schedule');
 
 const { verifyFirebaseIdToken, verifyIsAdmin } = require('../middleware/auth');
 
@@ -8,6 +7,7 @@ const pool = require('../utils/db');
 const queries = require('../utils/queries/events');
 const thumbnail_queries = require('../utils/queries/thumbnails');
 const emails = require('../utils/emails');
+const reminders = require('../utils/reminders');
 const gcal = require('../utils/gcalendar');
 const zoom = require('../utils/zoom');
 
@@ -321,7 +321,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
             );
 
             await client.query('COMMIT');
-            res.status(201).send();
+            res.status(201).json({ eid });
         }
 
     // if not valid, delete the Zoom and GCal events
@@ -616,30 +616,17 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
             // schedule 24 hour email 
             time_24hr = new Date(event.time_start);
             time_24hr.setDate(time_24hr.getDate() - 1);
-            schedule.scheduleJob(time_24hr, () => emails.send24HourReminderEmail(
-                req.profile.email,
-                req.profile.first_name,
-                event.title
-            ));
+            reminders.schedule(time_24hr, '24h', req.profile.email, req.profile.first_name, event.title);
 
             // schedule 30 minute email
             time_30min = new Date(event.time_start);
             time_30min.setMinutes(time_30min.getMinutes() - 30);
-            schedule.scheduleJob(time_30min, () => emails.send30MinuteReminderEmail(
-                req.profile.email,
-                req.profile.first_name,
-                event.title,
-                event.zoom_link
-            ));
+            reminders.schedule(time_30min, '30m', req.profile.email, req.profile.first_name, event.title, event.zoom_link);
 
             // schedule post-event email
             time_post = new Date(event.time_start);
             time_post.setHours(time_post.getHours() + 2);
-            schedule.scheduleJob(time_post, () => emails.sendPostEventEmail(
-                req.profile.email,
-                req.profile.first_name,
-                event.title
-            ));
+            reminders.schedule(time_post, 'post', req.profile.email, req.profile.first_name, event.title);
 
             await client.query('COMMIT');
             res.status(201).send();

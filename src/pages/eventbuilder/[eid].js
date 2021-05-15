@@ -28,7 +28,6 @@ import Context from '../../components/Context/context';
 import WhitePillButton from '../../components/Buttons/wpillbutton';
 import cohost from '../../assets/cohost.png';
 
-// TODO: escape not working on modals
 // grad year z-index in card
 // runtime error in pages > events > [eid]
 
@@ -466,56 +465,57 @@ const EventEditor = ({ eventInfo }) => {
                         : null}
 
                     {isSchedulerOpen
-                        ? <div className="fixed transform -translate-x-1/2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20" style={{left: '50%'}}>
+                        ? <div className="w-1/2 fixed transform -translate-x-1/2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20" style={{left: '50%'}}>
                             <div className="flex justify-end">
-                                <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
-                                    <HighlightOff/>
-                                </button>
+                              <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
+                                <HighlightOff/>
+                              </button>
                             </div>
                             <div className="flex flex-row" style={{maxHeight: '304px'}}>
-                                <div className="flex flex-col px-6">
-                                <div className="overflow-hidden">
-                                    {unavailableDatetimes !== null
-                                    ? <MuiPickersUtilsProvider utils={MomentUtils}>
-                                        <Calendar 
-                                            date={selectedDate}
-                                            onChange={(date, isFinish) => {
-                                                setSelectedDate(date);
-                                                setShowTimes(true);
-                                            }}
-                                            shouldDisableDate={isDateDisabled} 
-                                            maxDate={moment().add(60, 'days')}
-                                            minDate={moment().add(3, 'days')}
-                                        />
-                                        </MuiPickersUtilsProvider>
-                                    : null
-                                    }
-                                </div>
-                                </div>
-                                {dailyTimes
-                                ? <div className="px-6 overflow-scroll" style={{maxWidth: '200px'}}>
-                                    {dailyTimes.map(time => {
-                                        const date = moment(selectedDate).format('YYYY-MM-DD');
-                                        if (date in unavailableDatetimes && unavailableDatetimes[date].includes(time))
-                                            return null;
-                                        return (
-                                            <WhitePillButton
+                              <div className="flex flex-col px-6">
+                              <div className="overflow-hidden">
+                                {unavailableDatetimes !== null
+                                  ? <MuiPickersUtilsProvider utils={MomentUtils}>
+                                      <Calendar 
+                                        date={selectedDate}
+                                        onChange={(date, isFinish) => {
+                                          setSelectedDate(date);
+                                          setShowTimes(true);
+                                        }}
+                                        shouldDisableDate={isDateDisabled} 
+                                        maxDate={moment().add(60, 'days')}
+                                        minDate={moment().add(3, 'days')}
+                                      />
+                                    </MuiPickersUtilsProvider>
+                                  : null
+                                }
+                              </div>
+                            </div>
+                            {dailyTimes
+                              ? <div className="px-6 overflow-scroll" style={{maxWidth: '200px'}}>
+                                  {dailyTimes.map(time => {
+                                      const date = moment(selectedDate).format('YYYY-MM-DD');
+                                      if (date in unavailableDatetimes && unavailableDatetimes[date].includes(time))
+                                          return null;
+                                      return (
+                                          <WhitePillButton
                                             handleClick={selectedTime === time ? () => {setIsSchedulerOpen(false); setDatetimeConfirmed(true)} : () => setSelectedTime(time)}
                                             type="button"
                                             text={selectedTime === time ? 'CONFIRM' : time}
                                             padding="my-1 w-full text-center"
                                             key={time}
-                                            />
-                                        );
-                                    })}
-                                    </div>
-                                : null
-                                }
-                            </div>
+                                          />
+                                      );
+                                  })}
+                                </div>
+                              : null
+                            }
+                          </div>
                         </div>
-                        : null
+                      : null
                     }
-                    <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-2 ml-6 md:ml-12 xl:ml-24" onClick={() => {if (isCoHostOpen)setIsCoHostOpen(false);}}>
+
+                    <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-2 ml-6 md:ml-12 xl:ml-24">
                         <div className="grid col-span-3">
                             <Field 
                                 name="title" 

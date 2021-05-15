@@ -205,6 +205,16 @@ const EventBuilder = () => {
         return false;
     }
 
+    const confirmDatetime = () => {
+        setDatetimeConfirmed(true);
+        setTimeout(() => setIsSchedulerOpen(false), 1000);
+    }
+
+    const selectDatetime = (time) => {
+        setDatetimeConfirmed(false);
+        setSelectedTime(time);
+    }
+
     // math for cropping profile pictures
     const makeCroppedImage = () => {
         const image = new Image()
@@ -289,8 +299,9 @@ const EventBuilder = () => {
             hosts: [{ ...context.profile }],
         }
 
+        let eid;
         try {
-            await axios.post('/api/events', eventData);
+            eid = (await axios.post('/api/events', eventData)).data.eid;
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
@@ -326,8 +337,7 @@ const EventBuilder = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            alert('event successfully submitted');
-            window.location.href = '/';
+            window.location.href = '/posteventsubmit?eid=' + eid;
         } catch (err) {
             if (err.response && err.response.data)
                 alert(err.response.data.err);
@@ -360,7 +370,7 @@ const EventBuilder = () => {
               unmountOnExit
             >
               <div onClick={closeModals} className="fixed inset-0 z-10">
-                <div className="absolute inset-0 bg-gray-700 bg-opacity-75"></div>
+                <div className="absolute inset-0 bg-black" style={{opacity: .4}}></div>
               </div>
             </CSSTransition>
         )
@@ -472,20 +482,23 @@ const EventBuilder = () => {
                       : null}
                   
                   {isSchedulerOpen
-                    ? <div className="fixed transform -translate-x-1/2 border sm:border-2 border-black rounded-xl md:mt-12 top-0 bg-white justify-center z-20" style={{left: '50%'}}>
-                          <div className="flex justify-end">
-                              <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
-                                  <HighlightOff/>
-                              </button>
-                          </div>
-                          <div className="flex flex-row" style={{maxHeight: '304px'}}>
-                            <div className="flex flex-col px-6">
-                              <div className="overflow-hidden">
+                    ? <div className="overflow-hidden fixed transform -translate-x-1/2 border sm:border-2 border-black rounded-xl md:mt-12 top-0 bg-white justify-center z-20" style={{left: '50%', width: '40rem', height: '30rem'}}>
+                        <div className="flex justify-end">
+                          <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
+                            <HighlightOff/>
+                          </button>
+                        </div>
+                        <div className="flex flex-row h-full">
+                          <div className="w-2/3 px-8">
+                              <p className="text-base mb-8">Choose a time to host your event:</p>
+                              <div className="overflow-hidden pl-8"> 
                                 {unavailableDatetimes !== null
                                   ? <MuiPickersUtilsProvider utils={MomentUtils}>
                                       <Calendar 
                                         date={selectedDate}
                                         onChange={(date, isFinish) => {
+                                            setDatetimeConfirmed(false);
+                                            setSelectedTime(null);
                                             setSelectedDate(date);
                                             setShowTimes(true);
                                         }}
@@ -497,27 +510,42 @@ const EventBuilder = () => {
                                   : null
                                 }
                               </div>
-                            </div>
-                            {dailyTimes
-                              ? <div className="px-6 overflow-scroll" style={{maxWidth: '200px'}}>
+                          </div>
+
+                          {dailyTimes
+                            ? <div className="w-1/3 px-8 pb-16 overflow-y-scroll">
                                   {dailyTimes.map(time => {
                                     const date = moment(selectedDate).format('YYYY-MM-DD');
                                     if (date in unavailableDatetimes && unavailableDatetimes[date].includes(time))
                                         return null;
                                     return (
                                         <WhitePillButton
-                                          handleClick={selectedTime === time ? () => {setIsSchedulerOpen(false); setDatetimeConfirmed(true)} : () => setSelectedTime(time)}
+                                          handleClick={selectedTime === time ? confirmDatetime : () => selectDatetime(time)}
                                           type="button"
-                                          text={selectedTime === time ? 'CONFIRM' : time}
-                                          padding="my-1 w-full text-center"
+                                          text={
+                                            selectedTime === time
+                                              ? datetimeConfirmed
+                                                ? 'CONFIRMED'
+                                                : 'CONFIRM?'
+                                              : time
+                                          }
+                                          padding={
+                                            'my-1 w-full text-center ' + (
+                                                selectedTime === time
+                                                  ? datetimeConfirmed
+                                                    ? 'bg-yellow-200'
+                                                    : 'bg-gray-400'
+                                                  : ''
+                                            )
+                                          }
                                           key={time}
                                         />
                                     );
                                   })}
-                                </div>
-                              : null
-                            }
-                          </div>
+                              </div>
+                            : null
+                          }
+                        </div>
                       </div>
                     : null
                   }
@@ -538,8 +566,12 @@ const EventBuilder = () => {
                           <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
 
                           <div className="flex flex-row">
-                            <WhitePillButton handleClick={() => setIsSchedulerOpen(true)} type="button" text="SELECT DATE & TIME" padding="px-6 flex w-3/4 md:w-1/2 xl:w-1/3 my-2"/>
-                            {datetimeConfirmed ? <p className="self-center ml-2">{selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')}</p> : null}
+                            <WhitePillButton
+                              handleClick={() => setIsSchedulerOpen(true)}
+                              type="button"
+                              text={datetimeConfirmed ? selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z') : 'SELECT DATE & TIME'}
+                              padding="px-6 flex w-auto"
+                            />
                           </div>
   
                           <div className="mr-6 mt-2 mb-10 w-9/12">

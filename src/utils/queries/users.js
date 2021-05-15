@@ -114,7 +114,7 @@ const getUserLiveEvents = `
         (t.event_id = e.eid AND t.user_id = $1 AND eh.user_id != $1)
      OR (e.status = 'approved' AND eh.user_id = $1)
     )
-    ORDER BY e.time_start ASC
+    ORDER BY e.time_start DESC
 `;
 
 /*
@@ -134,7 +134,7 @@ const getUserHostingEvents = `
         e.thumbnail_id = th.tid
     AND e.eid = eh.event_id
     AND eh.user_id = $1
-    ORDER BY e.time_start ASC
+    ORDER BY e.time_start DESC
 `;
 
 /*

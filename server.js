@@ -2,9 +2,11 @@ const next = require('next');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
-const db = require('./src/utils/db');
 const routers = require('./src/routes')
+
+const pool = require('./src/utils/db');
+const rs = require('./src/utils/reminders');
+const queries = require('./src/utils/queries/reminders');
 
 const normalizePort = val => {
     const port = parseInt(val, 10);
@@ -20,6 +22,28 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
+    // check for reminder emails not yet sent
+    pool.query(queries.getReminders, (q_err, q_res) => {
+        if (q_err)
+            console.log(q_err.message);
+        else {
+            const reminders = q_res.rows;
+            for (r of reminders) {
+                rs.schedule(
+                    r.time_send,
+                    r.email_type,
+                    r.email_address,
+                    r.first_name,
+                    r.event_title,
+                    r.zoom_link,
+                    r.rid
+                );
+            }
+        }
+    });
+
+
+    // boot server
     const server = express();
     
     server.use(express.json());
