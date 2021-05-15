@@ -27,7 +27,7 @@ import cohost from '../assets/cohost.png';
 const defaultProfilePicture = 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2FScreen%20Shot%202021-01-24%20at%2010.57.18%20AM.jpeg?alt=media&token=a88fcb5e-4919-4bc6-b792-23d725324040';
 const defaultThumbnail = {
     tid: -1,
-    location: 'images/placeholder.png',
+    location: 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fplaceholder.png?alt=media&token=2702460e-7c14-4afe-8703-63432f82909b',
     is_used: true,
 }
 
@@ -355,7 +355,7 @@ const EventBuilder = () => {
             
         return (
             <button onClick={handleSelectThumbnail}>
-              <img src={props.thumbnail.location} className="hover:bg-yellow-300 focus:outline-none px-2 cursor-pointer rounded-3xl"></img>
+              <img src={props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
     }
@@ -438,17 +438,17 @@ const EventBuilder = () => {
   
                   {isPhotoDisplayOpen ? 
                       <>
-                        <div className="fixed overflow-scroll m-8 sm:border-2 top-0 mt-10 shadow rounded-xl bg-white justify-center z-10">
+                        <div id="imageContainerEB" className="fixed overflow-scroll sm:border-2 top-0 mt-12 left-0 mx-4 shadow rounded-xl bg-white justify-center z-10">
                             <div className="flex justify-end">
                                 <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
                                     <HighlightOff/>
                                 </button>
                             </div>
-                            <div className="m-2 pb-6 flex justify-between">
+                            <div className="mx-4 my-2 pb-6 flex justify-between">
                                 <p>Don't see a photo you like? Pick one of these images as a placeholder for now and<br></br> email schefs.us@gmail with the name of your event &amp; your new image of choice.</p>
                                 <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
                             </div>
-                            <div id="imageContainerEB" className="mx-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
+                            <div className="m-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
 								  {thumbnails.length
 								    ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
 								    : null

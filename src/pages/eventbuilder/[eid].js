@@ -419,27 +419,26 @@ const EventEditor = ({ eventInfo }) => {
                         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
                     </Head>
                     {isPhotoDisplayOpen ? 
-                        <>
-                            <div className="h-screen fixed w-screen" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}></div>
-                            <div className="fixed overflow-scroll m-8 sm:border-2 top-0 mt-10 shadow rounded-xl bg-white justify-center z-10">
-                                <div className="flex justify-end">
-                                    <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
-                                        <HighlightOff/>
-                                    </button>
-                                </div>
-                                <div className="m-2 pb-6 flex justify-between">
-                                    <p>Don't see a photo you like? Pick one of these images as a placeholder for now and<br></br> email schefs.us@gmail with the name of your event &amp; your new image of choice.</p>
-                                    <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
-                                </div>
-                                <div id="imageContainerEB" className="mx-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
-                                    {thumbnails.length
-                                    ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
-                                    : null
-                                    }
-                                </div>
-                            </div> 
-                        </>
-                        : null}
+                      <>
+                        <div id="imageContainerEB" className="fixed overflow-scroll sm:border-2 top-0 mt-12 left-0 mx-4 shadow rounded-xl bg-white justify-center z-10">
+                            <div className="flex justify-end">
+                                <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
+                                    <HighlightOff/>
+                                </button>
+                            </div>
+                            <div className="mx-4 my-2 pb-6 flex justify-between">
+                                <p>Don't see a photo you like? Pick one of these images as a placeholder for now and<br></br> email schefs.us@gmail with the name of your event &amp; your new image of choice.</p>
+                                <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
+                            </div>
+                            <div className="m-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
+								  {thumbnails.length
+								    ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
+								    : null
+								  }
+                              </div>
+                          </div> 
+                      </>
+                      : null}
 
                     {isCoHostOpen ? 
                         <>

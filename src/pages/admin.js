@@ -8,6 +8,7 @@ import CountUp from 'react-countup';
 import NavBar from '../components/Banners/navbar';
 import EventGrid from '../components/Events/eventgrid';
 import WhitePillButton from '../components/Buttons/wpillbutton';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import Context from '../components/Context/context';
 
 // use https://www.npmjs.com/package/react-scrollable-list if issues with larger lists
@@ -17,8 +18,10 @@ const ApprovalPortal = () => {
 
     const [pendingEvents, setPendingEvents]  = useState(null); // [[eid, host_name, host_school, time_start, title]]
     const fileInput = useRef(null);
+    const [isUploading, setIsUploading] = useState(false);
     const [ticketsNum, setTicketsNum] = useState(0);
     const [usersNum, setUsersNum] = useState(0);
+    const [uploadStatus, setUploadStatus] = useState("")
     const [eventsNum, setEventsNum] = useState(0);
 
     const [dayTicketsNum, setDayTicketsNum] = useState(0);
@@ -92,14 +95,19 @@ const ApprovalPortal = () => {
         for (let [key, value] of Object.entries(images)) {
             const file = value;
             const userData = new FormData();
+            setIsUploading(true);
             try {
                 userData.append('img_thumbnail', file);
 
                 await axios.post('/api/thumbnails/', userData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-
-                alert('images successfully submitted');
+                setIsUploading(false);
+                setUploadStatus("Images uploaded successfully")
+                setTimeout(() => {
+                    setUploadStatus("");
+                },3000); 
+              //  alert('images successfully submitted');
             } catch (err) {
                 if (err.response && err.response.data)
                     alert(err.response.data);
@@ -132,9 +140,16 @@ const ApprovalPortal = () => {
                     />
                   : <div className="text-center">No Events</div>
                 }
-  
-                <h2 className="pl-2 ml-6 md:ml-12 xl:ml-24 text-2xl">Upload to Image Bank</h2>
-        
+
+                <h2 className="pl-2 ml-6 md:ml-12 xl:ml-24 text-2xl">Upload to Image Bank</h2> 
+                <p className="text-lg text-center text-green-500 font-bold">{uploadStatus}</p>
+                {isUploading ? 
+                <div className="ml-20 pl-8 my-4" style={{width: "60rem"}}>
+                    <LinearProgress/>
+                </div>
+                :null
+                }
+
                 <div className="w-full h-24">
                   <input
                     className="hidden"
@@ -149,7 +164,7 @@ const ApprovalPortal = () => {
                     <img className="w-full" src={upload}></img>
                   </div>
                 </div>
-  
+
                 <h2 className="pt-32 pb-12 pl-2 ml-6 md:ml-12 xl:ml-24 text-2xl">Today</h2>
   
                 <div className="flex flex-row justify-between px-2 mx-6 md:mx-12 xl:mx-24">

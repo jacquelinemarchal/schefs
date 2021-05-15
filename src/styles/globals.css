@@ -35,7 +35,7 @@
         height: 240px
     }
     #imageContainerEB {
-        height: 30rem;
+        max-height: 35rem;
     }
     #cardSize{
         width: 430px;
@@ -43,10 +43,19 @@
     }
 }
 
-@media screen and (max-width: 666px){
+@media screen and (min-width: 450px) and (max-width:666px) {
     #imageContainerEB {
-        height: ""
+        max-height: 45rem;
     }
+}
+
+@media screen and (max-width: 450px) {
+    #imageContainerEB {
+        max-height: 55rem;
+    }
+}
+
+@media screen and (max-width: 666px){
     #innerCardContainer {
         height: 300px;
     }

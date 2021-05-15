@@ -181,11 +181,11 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                 <div className="sm:my-4 text-2xl mt-6 mb-4">
                     Thoughts:
                 </div>
-                <form className="flex row-span-1 items-end justify-center" onSubmit={handleCommentSubmit}>
+                <form className="mr-16 flex row-span-1 items-end justify-center" onSubmit={handleCommentSubmit}>
                     <input className="w-full border-b border-black focus:outline-none" onFocus={() => {setCommentFocus(true)}} onBlur={() => {setCommentFocus(false)}} value={commentBody} onChange={(e) => setCommentBody(e.target.value)} type="text" placeholder="Share your thought here" aria-label="Add a comment" />
-                    <WhitePillButton padding="px-4 flex" type="submit" text="POST" size="lg" />
+                    <WhitePillButton padding="px-4 ml-2 flex" type="submit" text="POST" size="lg" />
                 </form>
-                <div>
+                <div className="mr-16">
                     {clientComments.length
                         ? clientComments.sort((a, b) => {return new Date(b.time_created) - new Date(a.time_created)}).map((p, i) => <Comment key={i} time={p.time_created} name={p.name} university={p.school} thought={p.body} />) 
                         : <p className="my-4 text-gray-500">There are no comments yet...start the conversation!</p>}
@@ -260,13 +260,13 @@ export const getServerSideProps = async (context) => {
         const comments = (await pool.query(queries.getComments, [ context.params.eid ])).rows.map(
             (comment) => ({...comment, time_created: comment.time_created.toISOString()})
         );
-
-        if (eventInfo.status !== 'approved) {
+/*
+        if (eventInfo.status !== 'approved') {
             return {
                 notFound: true,
             };
         }
-
+*/
         return {
             props: {
                 eventInfo,
