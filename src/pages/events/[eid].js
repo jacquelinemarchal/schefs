@@ -260,17 +260,11 @@ export const getServerSideProps = async (context) => {
         const comments = (await pool.query(queries.getComments, [ context.params.eid ])).rows.map(
             (comment) => ({...comment, time_created: comment.time_created.toISOString()})
         );
-<<<<<<< HEAD
-/*
-=======
-
->>>>>>> b2a3941e268e03d8a0d73706f0039ba7754293a1
         if (eventInfo.status !== 'approved') {
             return {
                 notFound: true,
             };
         }
-*/
         return {
             props: {
                 eventInfo,

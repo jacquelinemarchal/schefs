@@ -142,7 +142,7 @@ const ApprovalPortal = () => {
                 }
 
                 <h2 className="pl-2 ml-6 md:ml-12 xl:ml-24 text-2xl">Upload to Image Bank</h2> 
-                <p className="text-lg text-center text-green-500 font-bold">{uploadStatus}</p>
+                <p className="text-lg text-center font-bold">{uploadStatus}</p>
                 {isUploading ? 
                 <div className="ml-20 pl-8 my-4" style={{width: "60rem"}}>
                     <LinearProgress/>

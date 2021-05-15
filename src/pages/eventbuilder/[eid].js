@@ -262,97 +262,132 @@ const EventEditor = ({ eventInfo }) => {
     }
 
     const handleSubmit = async (values, { setSubmitting }) => {
-        //values not yet in the endpoint= [lastName, gradYear, major]
-        
+        console.log("in saving button")
+
+        //values not yet in the endpoint= [gradYear, major]
         // SAVE button
-        if (editMode){
-            setSubmitting(false);
-            setEditMode(false);
+        setSubmitting(false);
+        setEditMode(false);
 
-            const time_start = moment.tz(
-                selectedDate.format('YYYY-MM-DD') + ' ' + selectedTime,
-                'YYYY-MM-DD h:mm A',
-                timezone
-            ).toDate();
-            const time_start_moment = moment.tz(
-                selectedDate.format('YYYY-MM-DD') + 'T' + selectedTime,
-                'YYYY-MM-DDTHH:mm:ss',
-                timezone
-            )
-
-            const eventData = {
-                title: values.title,
-                description: values.description,
-                requirements: values.requirements,
-                host_bio: values.bio,
-                host_name: values.first_name + ' ' + values.last_name,
-                host_school: values.school,
-            }
-            if (selectedThumbnail.tid !== -1){
-                eventData.thumbnail_id = selectedThumbnail.tid;
-            }
-            console.log(time_start_moment, defaultDatetime)
-            console.log(time_start_moment.isSame(defaultDatetime))
-
-            if (time_start_moment !== defaultDatetime){
-                eventData.time_start = time_start;
-            }
-
-            try {
-                await axios.patch(`/api/events/${props.eventInfo.eid}`, eventData);
-                console.log("successfully submitted");
-            } catch (err) {
-                if (err.response && err.response.status === 409) {
-                    if (err.response.data.err === 'Thumbnail already in use') {
-                        alert('Thumbnail already in use, choose a different one');
-                        queryThumbnails();
-                        setSelectedThumbnail(defaultThumbnail);
-                    } else if (err.response.data.err === 'Time unavailable') {
-                        alert("Time unavailable");
-                        queryAvailableTimes();
-                        setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
-                        setDatetimeConfirmed(false);
-                    }
-                } else
-                    alert(err.response.data.err)
-                return;
-            }
-
-            const userData = new FormData();
-            userData.append('first_name', values.first_name);
-            userData.append('last_name', values.last_name);
-            userData.append('bio', values.bio);
-            userData.append('school', values.school);
-            userData.append('major', values.major);
-            userData.append('grad_year', values.grad_year);
-
-            try {
-                console.log(props);
-                const res = await fetch(profilePictureURL);
-                const blob = await res.blob();
-                
-                userData.append('img_profile', blob);
-
-                await axios.put('/api/users/' + props.eventInfo.hosts[0].uid, userData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-
-                alert('event successfully submitted');
-                window.location.href = '/admin';
-            } catch (err) {
-                if (err.response && err.response.data)
-                    alert(err.response.data.err);
-                else
-                    alert(err);
-            }
+        const time_start = moment.tz(
+            selectedDate.format('YYYY-MM-DD') + ' ' + selectedTime,
+            'YYYY-MM-DD h:mm A',
+            timezone
+        );
+        
+        const eventData = {
+            title: values.title,
+            description: values.description,
+            requirements: values.requirements,
+            host_bio: values.bio,
+            host_name: values.first_name + ' ' + values.last_name,
+            host_school: values.school,
         }
+        
+        if (selectedThumbnail.tid !== -1){
+            eventData.thumbnail_id = selectedThumbnail.tid;
+        }
+        if (!time_start.isSame(defaultDatetime)){
+            eventData.time_start = time_start;
+        }
+        //TODO: are we including major and grad year here? 
+        
+        //TODO: submit profile picture if changed
+        /*
+        const userData = new FormData();
+        try {
+            const res = await fetch(profilePictureURL);
+            const blob = await res.blob();
+            
+            userData.append('img_profile', blob);
 
-        // APPROVE button
-        else {
-            setSubmitting(false);
-            setEditMode(false);
+            await axios.put('/api/users/' + eventInfo.hosts[0].uid, userData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            alert('profile picture successfully submitted');
+        } catch (err) {
+            if (err.response && err.response.data)
+                alert(err.response.data.err);
+            else
+                alert(err);
+        }
+        */
+        try {
+            await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
+            console.log("successfully saved");
+        } catch (err) {
+            if (err.response && err.response.status === 409) {
+                if (err.response.data.err === 'Thumbnail already in use') {
+                    alert('Thumbnail already in use, choose a different one');
+                    queryThumbnails();
+                    setSelectedThumbnail(defaultThumbnail);
+                } else if (err.response.data.err === 'Time unavailable') {
+                    alert("Time unavailable");
+                    queryAvailableTimes();
+                    setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
+                    setDatetimeConfirmed(false);
+                }
+            } else
+                alert(err.response.data.err)
+            return;
         }
 	}
+
+    //TODO: ask chris if these catches are necessary - not sure how calendar/reserving dates works
+    const handleApproval = async () => {
+        console.log("in approving button")
+        const eventData = {
+            status: 'approved'
+        }
+        console.log(eventData)
+        try {
+            await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
+            console.log("successfully approved");
+        } catch (err) {
+            if (err.response && err.response.status === 409) {
+                if (err.response.data.err === 'Thumbnail already in use') {
+                    alert('Thumbnail already in use, choose a different one');
+                    queryThumbnails();
+                    setSelectedThumbnail(defaultThumbnail);
+                } else if (err.response.data.err === 'Time unavailable') {
+                    alert("Time unavailable");
+                    queryAvailableTimes();
+                    setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
+                    setDatetimeConfirmed(false);
+                }
+            } else
+                alert(err.response.data.err)
+            return;
+        }
+    }
+
+    const handleDeny = async () => {
+        console.log("in denying button")
+        const eventData = {
+            status: 'denied'
+        }
+        console.log(eventData)
+        try {
+            await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
+            console.log("successfully denied");
+        } catch (err) {
+            if (err.response && err.response.status === 409) {
+                if (err.response.data.err === 'Thumbnail already in use') {
+                    alert('Thumbnail already in use, choose a different one');
+                    queryThumbnails();
+                    setSelectedThumbnail(defaultThumbnail);
+                } else if (err.response.data.err === 'Time unavailable') {
+                    alert("Time unavailable");
+                    queryAvailableTimes();
+                    setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
+                    setDatetimeConfirmed(false);
+                }
+            } else
+                alert(err.response.data.err)
+            return;
+        }
+    }
 
     const Thumbnail = (props) => {
         const handleSelectThumbnail = (e) => {
@@ -369,8 +404,8 @@ const EventEditor = ({ eventInfo }) => {
     }
 
     const EventBuilderSchema = Yup.object().shape({
-        coHostEmail: Yup.string()
-            .email('This is not a valid email'),
+        /*coHostEmail: Yup.string()
+            .email('This is not a valid email'),*/
         requirements: Yup.string(),
         first_name: Yup.string()
             .required('This field is required'),
@@ -411,7 +446,7 @@ const EventEditor = ({ eventInfo }) => {
                     enableReinitialize={true}
                     validationSchema={EventBuilderSchema}
                 >
-                {({isValid, dirty, isSubmitting, setFieldTouched, handleChange, resetForm}) => (
+                {({isValid, dirty, isSubmitting, setFieldTouched, handleChange, resetForm, submitForm}) => (
                 <Form>
                     <Greyout />           
                     <Head>
@@ -573,18 +608,18 @@ const EventEditor = ({ eventInfo }) => {
                                     <button
                                     disabled={
                                         !isValid ||
-                                        !dirty ||
                                         isSubmitting
                                     }
-                                    type="submit"
-                                    className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                    type="button"
+                                    onClick={() => {handleApproval(); submitForm();}}
+                                    className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
                                     >
                                         APPROVE
                                     </button>
                                     <button
                                         type="button"
                                         className="flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white "
-                                        onClick={() => {setEditMode(true)}}>
+                                        onClick={() => {handleDeny(); submitForm();}}>
                                         DENY
                                     </button>
 
@@ -621,7 +656,7 @@ const EventEditor = ({ eventInfo }) => {
                                     null}
                                 <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-20" style={{ maxWidth: "350px"}}>
                                     <p>Hosted by:</p>
-                                    <p className="cursor-pointer hover:underline hover:text-blue-900" onClick={() => setIsCoHostOpen(!isCoHostOpen)}>Add a co-host</p>
+                                    <p className="hidden cursor-pointer hover:underline hover:text-blue-900" onClick={() => setIsCoHostOpen(!isCoHostOpen)}>Add a co-host</p>
                                 </div>
                                 <div className="mx-auto ml-20 mb-16 sm:ml-0 sm:mb-0 sm:mr-8 shadow-md sm:shadow-none border-solid border-black border sm:border-2 rounded-2xl" style={{ maxWidth: "300px"}}>
                                     <div className="p-4 grid-rows-3">
