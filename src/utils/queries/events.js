@@ -7,7 +7,8 @@ const getEventsSummary = `
     SELECT
         e.eid, e.host_name, e.host_school,
         e.host_bio, e.title, e.time_start,
-        t.location AS img_thumbnail
+        t.location AS img_thumbnail,
+        e.status
     FROM events AS e, thumbnails AS t
     WHERE (
         COALESCE($1) = '' OR
@@ -38,6 +39,7 @@ const getEventsDetailed = `
         'requirements', e.requirements,
         'img_thumbnail', t.location,
         'time_start', e.time_start,
+        'status', e.status,
         'hosts', (
             SELECT JSON_AGG(ROW_TO_JSON(r))
             FROM (
@@ -104,6 +106,7 @@ const getEvent = `
         'requirements', e.requirements,
         'img_thumbnail', t.location,
         'time_start', e.time_start,
+        'status', e.status,
         'hosts', (
             SELECT JSON_AGG(ROW_TO_JSON(r))
             FROM (
