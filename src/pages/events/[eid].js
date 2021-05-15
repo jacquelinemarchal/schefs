@@ -261,7 +261,7 @@ export const getServerSideProps = async (context) => {
             (comment) => ({...comment, time_created: comment.time_created.toISOString()})
         );
 
-        if (eventInfo.status !== 'approved) {
+        if (eventInfo.status !== 'approved') {
             return {
                 notFound: true,
             };
