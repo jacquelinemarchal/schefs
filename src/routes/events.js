@@ -433,8 +433,7 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
         } else {
 
             // get and keep track of event pre-update
-            const orig_event = (await client.query(queries.getEvent, [ req.params.eid ])).rows[0];
-
+            const orig_event = (await client.query(queries.getEvent, [ req.params.eid ])).rows[0].event;
             // update thumbnail in PSQL if it has changed
             if (req.body.thumbnail_id) {
                 await client.query(thumbnail_queries.replaceThumbnail, [
