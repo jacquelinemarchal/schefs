@@ -10,7 +10,7 @@ const Footer = (props) => {
     }
     return (
         <div className="h-6">
-            <footer id="footer" className="inset-x-0 fixed bottom-0 flex items-center h-10 sm:h-8 md:h-10 px-8 md:px-12 xl:px-24">
+            <footer id="footer" className="inset-x-0 fixed bottom-0 flex items-center h-12 sm:h-8 md:h-10 px-8 md:px-12 xl:px-24" >
                 <div id="footerBreakpointBtn">
                     <PillButton {...hostButton} />
                 </div>

@@ -139,7 +139,7 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                 <meta name="viewport" content="initial-scale=1.0, width=device-width" />
             </Head>
             <div className="sm:col-span-3">
-                <p className="text-5xl leading-tight">
+                <p className="text-5xl mb-2" style={{lineHeight:'1.15'}}>
                   {eventInfo.title}
                 </p>
                 <div className="sm:mb-2 mb-4 mt-2 sm:mt-0">
@@ -158,7 +158,27 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                     {eventInfo.requirements ? htmlToText(eventInfo.requirements) : "This event has no requirements."}
                 </div>
                 <hr></hr>
-                <div className="my-4 text-2xl">
+                <div className="mb-2 mt-4 sm:hidden sm:text-left text-center">
+                        Hosted by:
+                </div>
+                <div className="justify-center sm:hidden shadow-md mx-2 border-solid border-black border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
+                    <div className="p-4 grid-rows-3">
+                        <div className="row-span-1 flex">
+                            <img src={process.env.BASE_URL + eventInfo.hosts[0].img_profile
+                            //TODO: update for cohosts
+                            } className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
+                            <p className="self-center mb-4 ml-4 text-3xl" style={{lineHeight: "1.15"}}>{eventInfo.host_name}</p>
+                        </div>
+                        <div className="mb-4 mt-4 row-span-1 text-center justify-center">
+                            <p>{eventInfo.host_school} • 2023</p>
+                            <p>Computer Engineering</p>
+                        </div>
+                        <div className="row-span-1 justify-center">
+                            {eventInfo.host_bio}
+                        </div>                        
+                    </div>
+                </div>
+                <div className="sm:my-4 text-2xl mt-6 mb-4">
                     Thoughts:
                 </div>
                 <form className="flex row-span-1 items-end justify-center" onSubmit={handleCommentSubmit}>
@@ -173,7 +193,7 @@ const EventPage = ({eventInfo, tickets, comments}) => {
             </div>
 
             <div className="sm:col-span-2 mb-20 sm:m-0">
-                <div className="sm:fixed">
+                <div className="sm:fixed h-0 sm:h-auto">
                     <div className="hidden sm:inline-block">
                         <div className="flex">
                             {new Date(eventInfo.time_start) > new Date()
@@ -205,16 +225,16 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                         </footer>
                     </div>
 
-                    <div className="text-sm my-2 sm:text-left text-center">
+                    <div className="my-2 hidden sm:block sm:text-left text-center">
                         Hosted by:
                     </div>
-                    <div className="justify-center sm:ml-0 sm:mr-8 shadow-md sm:shadow-none mx-2 border-solid border-black border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
+                    <div className="justify-center hidden sm:block sm:ml-0 sm:mr-8 shadow-md sm:shadow-none mx-2 border-solid border-black border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
                         <div className="p-4 grid-rows-3">
                             <div className="row-span-1 flex">
                                 <img src={process.env.BASE_URL + eventInfo.hosts[0].img_profile
                                 //TODO: update for cohosts
                                 } className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
-                                <p className="self-center mb-4 ml-4 text-3xl">{eventInfo.host_name}</p>
+                                <p className="self-center mb-4 ml-4 text-3xl" style={{lineHeight: "1.15"}}>{eventInfo.host_name}</p>
                             </div>
                             <div className="mb-4 mt-4 row-span-1 text-center justify-center">
                                 <p>{eventInfo.host_school} • 2023</p>
@@ -222,7 +242,7 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                             </div>
                             <div className="row-span-1 justify-center">
                                 {eventInfo.host_bio}
-                            </div>                        
+                            </div>
                         </div>
                     </div>
                 </div>

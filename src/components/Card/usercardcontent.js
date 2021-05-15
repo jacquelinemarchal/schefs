@@ -107,7 +107,7 @@ const CardContent = (props) => {
                 html={userInfo.current.first_name}
                 onChange={(e) => {userInfo.current.first_name=e.target.value; setEdited(true)}} 
                 placeholder={"First Name"}
-                className="text-5xl font-bold leading-none mb-4 focus:outline-none"
+                className="text-5xl font-bold leading-tight focus:outline-none"
             />
             <ContentEditable
                 disabled={disabled}

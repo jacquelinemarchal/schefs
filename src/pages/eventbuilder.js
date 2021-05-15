@@ -401,7 +401,7 @@ const EventBuilder = () => {
                   <Greyout />
                   {isModalOpen ? 
                       <>
-                          <div className="fixed overflow-scroll m-16 top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
+                          <div className="fixed border-black border-2 overflow-scroll m-16 top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
                               <div className="flex justify-end">
                                   <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
                                       <HighlightOff/>
@@ -527,7 +527,7 @@ const EventBuilder = () => {
                           <Field 
                               name="title" 
                               validate={charCounter}
-                              className="text-left text-5xl leading-snug mb-1 focus:outline-none"
+                              className="text-left text-5xl leading-snug focus:outline-none"
                               placeholder="My event title..."
                               onChange={e => {
                                   setFieldTouched('title');
@@ -538,7 +538,7 @@ const EventBuilder = () => {
                           <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
 
                           <div className="flex flex-row">
-                            <WhitePillButton handleClick={() => setIsSchedulerOpen(true)} type="button" text="SELECT DATE & TIME" padding="px-6 flex w-3/4 md:w-1/2 xl:w-1/3"/>
+                            <WhitePillButton handleClick={() => setIsSchedulerOpen(true)} type="button" text="SELECT DATE & TIME" padding="px-6 flex w-3/4 md:w-1/2 xl:w-1/3 my-2"/>
                             {datetimeConfirmed ? <p className="self-center ml-2">{selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')}</p> : null}
                           </div>
   

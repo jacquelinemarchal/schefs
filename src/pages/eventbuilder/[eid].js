@@ -162,7 +162,7 @@ const EventEditor = ({ eventInfo }) => {
     }, []);
 
     useEffect(() => {
-        console.log(props)
+       // console.log(props)
         setSelectedDate(moment(eventInfo.time_start));
         setSelectedTime(moment(eventInfo.time_start).format("h:mm A"));
         setPreLoad({
@@ -620,7 +620,7 @@ const EventEditor = ({ eventInfo }) => {
                                     </div>
                                     :
                                     null}
-                                <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-20" style={{ maxWidth: "300px"}}>
+                                <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-20" style={{ maxWidth: "350px"}}>
                                     <p>Hosted by:</p>
                                     <p className="cursor-pointer hover:underline hover:text-blue-900" onClick={() => setIsCoHostOpen(!isCoHostOpen)}>Add a co-host</p>
                                 </div>
