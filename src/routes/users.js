@@ -279,11 +279,6 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), (req, r
  *  500: postgres error
  */
 router.get('/:uid/events/live', verifyFirebaseIdToken, (req, res) => {
-    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
-        res.status(403).send();
-        return;
-    }
-
     pool.query(queries.getUserLiveEvents, [ req.params.uid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -324,6 +319,46 @@ router.get('/:uid/events/hosting', verifyFirebaseIdToken, (req, res) => {
     }
 
     pool.query(queries.getUserHostingEvents, [ req.params.uid ], (q_err, q_res) => {
+        if (q_err)
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+        else
+            res.status(200).json(q_res.rows);
+    });
+});
+
+/*
+ * GET /api/users/{uid}/events/upcoming
+ * Get events that a specified user has submitted, is hosting, or has tickets for.
+ *
+ * Authorization:
+ *  Firebase ID Token
+ *
+ * Request Parameters:
+ *  path:
+ *    uid <int> required
+ *
+ * Response:
+ *  200: success
+ *    <array[object]>
+ *      eid           <int>
+ *      host_name     <string>
+ *      host_school   <string>
+ *      host_bio      <string>
+ *      host_id       <int>
+ *      title         <string>
+ *      img_thumbnail <string>
+ *      time_start    <Date>
+ *      status        <string>
+ *  403: must be self or admin
+ *  500: postgres error
+ */
+router.get('/:uid/events/upcoming', verifyFirebaseIdToken, (req, res) => {
+    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
+        res.status(403).send();
+        return;
+    }
+
+    pool.query(queries.getUserUpcomingEvents, [ req.params.uid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else

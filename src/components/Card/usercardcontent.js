@@ -36,12 +36,17 @@ const CardContent = (props) => {
 
         if (context.profile && context.profile.uid === props.profile.uid && !context.rEvents) {
             axios
-                .get(`/api/users/${context.profile.uid}/events/live`)
+                .get(`/api/users/${context.profile.uid}/events/upcoming`)
                 .then(res => {
-                    res.data = res.data.map(event => {
-                        if (context.profile.uid === event.host_id)
-                            event.border = true;
-                        return event;
+                    res.data = res.data.map((e) => {
+                        if (context.profile.uid === e.host_id)
+                            e.border = true;
+                        if (e.status !== 'approved') {
+                            e.opacity = '35%';
+                            e.disabled = true;
+                        }
+
+                        return e;
                     });
                     context.handleSetREvents(res.data);
                 })
@@ -52,10 +57,10 @@ const CardContent = (props) => {
             axios
                 .get(`/api/users/${props.profile.uid}/events/live`)
                 .then(res => {
-                    res.data = res.data.map(event => {
-                        if (props.profile.uid === event.host_id)
-                            event.border = true;
-                        return event;
+                    res.data = res.data.map((e) => {
+                        if (props.profile.uid === e.host_id)
+                            e.border = true;
+                        return e;
                     });
                     context.handleSetLEvents(res.data);
                 })
@@ -63,9 +68,9 @@ const CardContent = (props) => {
         }
 
         if (context.profile && context.profile.uid === props.profile.uid && context.rEvents)
-            setEvents([...context.rEvents.filter((e) => e.time_start > now).reverse()]);
+            setEvents(context.rEvents.filter((e) => e.time_start > now).reverse());
         else if (context.lEvents)
-            setEvents([...context.lEvents.filter((e) => e.time_start > now).reverse()]);
+            setEvents(context.lEvents.reverse());
 
     }, [props.profile, context.profile, context.lEvents, context.rEvents]);
 
@@ -185,7 +190,7 @@ const CardContent = (props) => {
                   {events.length
                     ? <div className="mt-4 text-sm">
                           {disabled
-                              ? <>{props.profile.first_name}'s upcoming events:</>
+                              ? <>{props.profile.first_name}'s events:</>
                               : <>My upcoming events:</>
                           }
                           <div id="innerCardContainer" className="overflow-scroll mt-2">
@@ -206,14 +211,14 @@ const CardContent = (props) => {
                     link="/myevents"
                     padding="px-4"
                     size="bg-white text-sm"
-                    handleClick={context.handleCloseCard}
+                    handleClick={() => context.handleCloseCard(true, true)}
                 />
                 <WhitePillButton
                     text="HOST AN EVENT"
                     link="/eventbuilder"
                     padding="px-4 hidden sm:block"
                     size="bg-white text-sm"
-                    handleClick={context.handleCloseCard}
+                    handleClick={() => context.handleCloseCard(true, true)}
                 /> 
                 <WhitePillButton
                     text="LOG OUT"

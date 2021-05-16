@@ -109,10 +109,9 @@ const getUserLiveEvents = `
         thumbnails AS th
     WHERE
         e.thumbnail_id = th.tid
-    AND e.eid = eh.event_id
     AND (
-        (t.event_id = e.eid AND t.user_id = $1 AND eh.user_id != $1)
-     OR (e.status = 'approved' AND eh.user_id = $1)
+        (e.eid = t.event_id AND t.user_id = $1)
+     OR (e.eid = eh.event_id AND e.status = 'approved' AND eh.user_id = $1)
     )
     ORDER BY e.time_start DESC
 `;
@@ -135,6 +134,32 @@ const getUserHostingEvents = `
     AND e.eid = eh.event_id
     AND eh.user_id = $1
     ORDER BY e.time_start DESC
+`;
+
+/*
+ * $1: uid <int> required
+ */
+const getUserUpcomingEvents = `
+    SELECT DISTINCT
+        e.eid, e.host_name, e.host_school,
+        e.host_bio, e.title, e.time_start,
+        eh.user_id AS host_id,
+        th.location AS img_thumbnail,
+        e.status
+    FROM
+        events AS e,
+        event_hosts AS eh,
+        tickets AS t,
+        thumbnails AS th
+    WHERE
+        e.time_start >= CURRENT_TIMESTAMP
+    AND e.status != 'denied'
+    AND e.thumbnail_id = th.tid
+    AND (
+        (e.eid = t.event_id AND t.user_id = $1)
+     OR (e.eid = eh.event_id AND eh.user_id = $1)
+    )
+    ORDER BY e.time_start
 `;
 
 /*
@@ -214,5 +239,6 @@ module.exports = {
 	updateUser,
     getUserLiveEvents,
     getUserHostingEvents,
+    getUserUpcomingEvents,
     getUserPastEvents,
 };

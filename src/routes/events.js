@@ -191,8 +191,7 @@ router.get('/:eid', (req, res) => {
             res.status(404).json({ err: 'Event does not exist: ' + req.params.eid });
         else {
             const e = q_res.rows[0].event;
-            e.hosts = e.hosts.map((host) => {...host, email: ''});
-
+            e.hosts = e.hosts.map((host) => ({...host, email: ''}));
             res.status(200).json(e);
         }
     });
