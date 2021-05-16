@@ -15,6 +15,7 @@ import downloadHoverLogo from "../../assets/hdownload.png"
 const EventPage = ({eventInfo, tickets, comments}) => {
     const context = useContext(Context);
     // get timezone
+    console.log(eventInfo)
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
 
     const [clientTickets, setClientTickets] = useState(tickets)
@@ -163,14 +164,12 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                 <div className="justify-center sm:hidden shadow-md mx-2 border-solid border-black border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
                     <div className="p-4 grid-rows-3">
                         <div className="row-span-1 flex">
-                            <img src={process.env.BASE_URL + eventInfo.hosts[0].img_profile
-                            //TODO: update for cohosts
-                            } className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
+                            <img src={process.env.BASE_URL + eventInfo.hosts[0].img_profile} className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
                             <p className="self-center mb-4 ml-4 text-3xl" style={{lineHeight: "1.15"}}>{eventInfo.host_name}</p>
                         </div>
                         <div className="mb-4 mt-4 row-span-1 text-center justify-center">
-                            <p>{eventInfo.host_school} • 2023</p>
-                            <p>Computer Engineering</p>
+                            <p>{eventInfo.host_school} • {eventInfo.hosts[0].grad_year}</p>
+                            <p>{eventInfo.hosts[0].major}</p>
                         </div>
                         <div className="row-span-1 justify-center">
                             {eventInfo.host_bio}
@@ -230,14 +229,12 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                     <div className="justify-center hidden sm:block sm:ml-0 sm:mr-8 shadow-md sm:shadow-none mx-2 border-solid border-black border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
                         <div className="p-4 grid-rows-3">
                             <div className="row-span-1 flex">
-                                <img src={process.env.BASE_URL + eventInfo.hosts[0].img_profile
-                                //TODO: update for cohosts
-                                } className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
+                                <img src={process.env.BASE_URL + eventInfo.hosts[0].img_profile} className="rounded-full p-2 h-24 w-24 items-center justify-center"></img>
                                 <p className="self-center mb-4 ml-4 text-3xl" style={{lineHeight: "1.15"}}>{eventInfo.host_name}</p>
                             </div>
                             <div className="mb-4 mt-4 row-span-1 text-center justify-center">
-                                <p>{eventInfo.host_school} • 2023</p>
-                                <p>Computer Engineering</p>
+                                <p>{eventInfo.host_school} • {eventInfo.hosts[0].grad_year}</p>
+                                <p>{eventInfo.hosts[0].major}</p>
                             </div>
                             <div className="row-span-1 justify-center">
                                 {eventInfo.host_bio}

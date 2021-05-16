@@ -63,11 +63,11 @@ const Home = ({ closeCardF }) => {
                 <title>Schefs - Learn From Each Other</title>
             </Head>
             <div className="px-8 md:px-12 xl:px-24">
-                <p className="text-2xl mx-2 mb-12">Schefs Festivals</p>
-                <div className="grid grid-cols-2">
+                <p className="text-2xl mx-2 mb-8 sm:mb-12">Schefs Festivals</p>
+                <div className="sm:grid sm:grid-cols-2">
                     <div className="col-span-1">
                         <img className="left-0 mt-2" src={social} style={{width: '23rem'}}/>
-                        <p className="left-0 text-2xl my-6">January 04-10 2021</p>
+                        <p className="text-center sm:text-left left-0 text-2xl my-6">January 04-10 2021</p>
                     </div>
                     <div className="col-span-1 mb-10">
                         <p className="mx-8">
@@ -78,16 +78,16 @@ const Home = ({ closeCardF }) => {
                             <WhitePillButton 
                                 size="sm"
                                 text="EXPLORE EVENTS" 
-                                link="/socialFestival"
+                                link="/socialfestival"
                                 padding="px-8 mt-8 "
                             />
                         </div>
                     </div>
                 </div>
-                <div className="grid grid-cols-2 mt-10 mb-8">
+                <div className="sm:grid sm:grid-cols-2 mt-10 mb-8">
                     <div className="col-span-1">
                             <img className="left-0 mt-2" src={multi} style={{width: '23rem'}}/>
-                            <p className="left-0 text-2xl my-6">August 17-23 2020</p>
+                            <p className="text-center sm:text-left left-0 text-2xl my-6">August 17-23 2020</p>
                     </div>
                     <div className="col-span-1">
                         <p className="mx-8">
@@ -98,7 +98,7 @@ const Home = ({ closeCardF }) => {
                             <WhitePillButton 
                                 size="sm"
                                 text="EXPLORE EVENTS" 
-                                link="/multiplicitiesFestival"
+                                link="/multiplicitiesfestival"
                                 padding="px-8 mt-8 "
                             />
                         </div>
