@@ -264,7 +264,6 @@ const EventEditor = ({ eventInfo }) => {
     const handleSubmit = async (values, { setSubmitting }) => {
         console.log("in saving button")
 
-        //values not yet in the endpoint= [gradYear, major]
         // SAVE button
         setSubmitting(false);
         setEditMode(false);
@@ -282,6 +281,7 @@ const EventEditor = ({ eventInfo }) => {
             host_bio: values.bio,
             host_name: values.first_name + ' ' + values.last_name,
             host_school: values.school,
+            //TODO: add host_major and host_grad_year to end point
         }
         
         if (selectedThumbnail.tid !== -1){
@@ -290,7 +290,6 @@ const EventEditor = ({ eventInfo }) => {
         if (!time_start.isSame(defaultDatetime)){
             eventData.time_start = time_start;
         }
-        //TODO: are we including major and grad year here? 
         
         //TODO: submit profile picture if changed
         /*
@@ -732,14 +731,14 @@ const EventEditor = ({ eventInfo }) => {
                                                     <p className="mx-3">•</p>
                                                     <Field 
                                                         placeholder="My grad year..." 
-                                                        disabled={true}//{!editMode}
+                                                        disabled={!editMode}
                                                         className={"leading-snug focus:outline-none overflow-hidden text-center"} 
                                                         name="grad_year" 
                                                     />
                                                 </div>
                                                 <Field 
                                                     placeholder="My major..." 
-                                                    disabled={true}//{!editMode}
+                                                    disabled={!editMode}
                                                     className={"leading-snug focus:outline-none overflow-hidden text-center"} 
                                                     name="major" 
                                                 />

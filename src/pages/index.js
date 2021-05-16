@@ -6,6 +6,10 @@ import Footer from '../components/Banners/footer';
 import EventGrid from '../components/Events/eventgrid';
 import NavBar from '../components/Banners/navbar';
 import Context from '../components/Context/context';
+import WhitePillButton from '../components/Buttons/wpillbutton.js'
+
+import social from '../assets/socialLogo.png';
+import multi from '../assets/multiplicitiesLogo.png';
 
 const Home = ({ closeCardF }) => {
     const context = useContext(Context);
@@ -55,9 +59,52 @@ const Home = ({ closeCardF }) => {
 
     return (
         <>
-          <Head>
-              <title>Schefs - Learn From Each Other</title>
-          </Head>
+            <Head>
+                <title>Schefs - Learn From Each Other</title>
+            </Head>
+            <div className="px-8 md:px-12 xl:px-24">
+                <p className="text-2xl mx-2 mb-12">Schefs Festivals</p>
+                <div className="grid grid-cols-2">
+                    <div className="col-span-1">
+                        <img className="left-0 mt-2" src={social} style={{width: '23rem'}}/>
+                        <p className="left-0 text-2xl my-6">January 04-10 2021</p>
+                    </div>
+                    <div className="col-span-1 mb-10">
+                        <p className="mx-8">
+                            Tenetur et est enim sed quas amet voluptatem inventore. Corrupti ut itaque nam delectus ratione nisi. Doloribus quo et aut voluptatum impedit tenetur.
+                            Distinctio possimus nulla vitae. Itaque ea qui in vel aperiam nihil sed sed debitis. Fugit accusantium et eos possimus deleniti voluptate. Sint sit eius.
+                        </p>
+                        <div className="text-center">
+                            <WhitePillButton 
+                                size="sm"
+                                text="EXPLORE EVENTS" 
+                                link="/socialFestival"
+                                padding="px-8 mt-8 "
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 mt-10 mb-8">
+                    <div className="col-span-1">
+                            <img className="left-0 mt-2" src={multi} style={{width: '23rem'}}/>
+                            <p className="left-0 text-2xl my-6">August 17-23 2020</p>
+                    </div>
+                    <div className="col-span-1">
+                        <p className="mx-8">
+                            Tenetur et est enim sed quas amet voluptatem inventore. Corrupti ut itaque nam delectus ratione nisi. Doloribus quo et aut voluptatum impedit tenetur.
+                            Distinctio possimus nulla vitae. Itaque ea qui in vel aperiam nihil sed sed debitis. Fugit accusantium et eos possimus deleniti voluptate. Sint sit eius.
+                        </p>
+                        <div className="text-center">
+                            <WhitePillButton 
+                                size="sm"
+                                text="EXPLORE EVENTS" 
+                                link="/multiplicitiesFestival"
+                                padding="px-8 mt-8 "
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
           {futureEvents && pastEvents
             ? <>
                 <EventGrid
@@ -85,6 +132,7 @@ const Home = ({ closeCardF }) => {
               </>
             : null
           }
+
           <Footer {...ambassador} />
         </>
     );
