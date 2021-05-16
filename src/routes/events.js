@@ -189,8 +189,11 @@ router.get('/:eid', (req, res) => {
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else if (!q_res.rows.length)
             res.status(404).json({ err: 'Event does not exist: ' + req.params.eid });
-        else
-            res.status(200).json(q_res.rows[0].json_build_object);
+        else {
+            const e = q_res.rows[0].event;
+            e.hosts = e.hosts.map((host) => ({...host, email: ''}));
+            res.status(200).json(e);
+        }
     });
 });
 

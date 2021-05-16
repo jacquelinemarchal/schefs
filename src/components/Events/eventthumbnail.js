@@ -12,18 +12,23 @@ const EventThumbnail = (props) => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
 
     return (
-        <div className={"col-span-1 mb-8 " + props.style} >
+        <div className={"col-span-1 mb-8 " + props.style} style={{opacity: props.opacity}}>
             <a
-              className="cursor-pointer"
-              onClick={context.handleCloseCard}
-              href={props.isEditable ? `/eventbuilder/${props.eid}` : `/events/${props.eid}`}
-              style={props.disabled ? {pointerEvents: 'none'} : null}
+              className={props.disabled ? '' : 'cursor-pointer'}
+              onClick={props.disabled ? null : context.handleCloseCard}
+              href={
+                props.disabled
+                  ? null
+                  : props.isEditable
+                    ? `/eventbuilder/${props.eid}`
+                    : `/events/${props.eid}`
+              }
             >
               <div className="relative">
                   <img
                     src={process.env.BASE_URL + props.img_thumbnail}
                     className="mb-2 rounded-2xl"
-                    style={{opacity: props.opacity}}
+                    style={{opacity: props.photoOpacity}}
                   ></img>
                   {props.border
                     ? <div
@@ -42,7 +47,7 @@ const EventThumbnail = (props) => {
 
             {props.showAttendees && props.hosts && props.attendees
               ? <>
-                  <p>Hosted by:</p>
+                  <p className="mt-2">Hosted by:</p>
                   {props.hosts.map(host => 
                     <WhitePillButton
                       text={host.first_name + ' ' + host.last_name}

@@ -161,20 +161,19 @@ const EventBuilder = () => {
 
     // set pre-fill values whenever profile updates
     useEffect(() => {
-        if (context.profile){
-            var user = context.profile;
+        if (context.profile) {
             setPreLoad({
                 coHostEmail: "",
 				title: "",
 				description: "",
 				requirements: "",
-                first_name: user.first_name,
-                last_name: user.last_name,
-                grad_year: user.grad_year,
-                school: user.school,
-                major: user.major,
-                bio: user.bio,
-            })
+                first_name: context.profile.first_name,
+                last_name: context.profile.last_name,
+                grad_year: context.profile.grad_year,
+                school: context.profile.school,
+                major: context.profile.major,
+                bio: context.profile.bio,
+            });
         }
     }, [context.profile]);
 
@@ -337,6 +336,10 @@ const EventBuilder = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
+            // trigger MyEvents update
+            context.handleSetMyEvents(null);
+
+            // redirect to PostEventSubmit confirmation
             window.location.href = '/posteventsubmit?eid=' + eid;
         } catch (err) {
             if (err.response && err.response.data)

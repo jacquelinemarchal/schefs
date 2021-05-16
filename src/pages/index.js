@@ -122,12 +122,12 @@ const Home = ({ closeCardF }) => {
                 <EventGrid
                   isEditable={false}
                   events={pastEvents}
-                  style="px-2 opacity-60"
+                  style="px-2"
                   gridNum="3"
                   margin="px-6 md:px-12 xl:px-24"
                   closeCardF={closeCardF}
                   showAttendees={false}
-                  opacity={0.5}
+                  photoOpacity={0.5}
                 />
               </>
             : null
