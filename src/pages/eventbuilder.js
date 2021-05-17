@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
+import { useRouter } from 'next/router';
 import axios from 'axios';
 import moment from 'moment-timezone';
 import { htmlToText } from 'html-to-text';
@@ -31,8 +32,9 @@ const defaultThumbnail = {
 }
 
 const EventBuilder = () => {
-    // import Context
+    // import Context and Router
     const context = useContext(Context);
+    const router = useRouter();
 
     // get timezone
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
@@ -348,7 +350,7 @@ const EventBuilder = () => {
             context.handleSetMyEvents(null);
 
             // redirect to PostEventSubmit confirmation
-            window.location.href = '/posteventsubmit?eid=' + eid;
+            router.push('/posteventsubmit?eid=' + eid);
         } catch (err) {
             if (err.response && err.response.data)
                 alert(err.response.data.err);

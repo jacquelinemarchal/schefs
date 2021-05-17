@@ -105,6 +105,9 @@ const getEvent = `
         'description', e.description,
         'requirements', e.requirements,
         'img_thumbnail', t.location,
+        'zoom_link', e.zoom_link,
+        'zoom_id', e.zoom_id,
+        'gcal_id', e.gcal_id,
         'time_start', e.time_start,
         'status', e.status,
         'hosts', (

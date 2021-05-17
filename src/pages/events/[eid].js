@@ -14,8 +14,8 @@ import downloadHoverLogo from "../../assets/hdownload.png"
 
 const EventPage = ({eventInfo, tickets, comments}) => {
     const context = useContext(Context);
+
     // get timezone
-    console.log(eventInfo)
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
 
     const [clientTickets, setClientTickets] = useState(tickets)
@@ -100,19 +100,6 @@ const EventPage = ({eventInfo, tickets, comments}) => {
         return false;
     }
 
-    // listen for escape key to close modals
-    const enterFunction = (e) => {
-        if (e.keyCode === 13 && commentFocus)
-           { console.log("up")
-            handleCommentSubmit();}
-    };
-
-    // enter keylistener
-    useEffect(() => {
-        document.addEventListener('keydown', enterFunction, false);
-        return () => document.removeEventListener('keydown', enterFunction, false);
-    }, []);
-
     const reserveTicket = () => {
         if (context.profile && context.profile.isVerified){
             let userContent = {
@@ -180,8 +167,8 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                     Thoughts:
                 </div>
                 <form className="mr-16 flex row-span-1 items-end justify-center" onSubmit={handleCommentSubmit}>
-                    <input className="w-full border-b border-black focus:outline-none" onFocus={() => {setCommentFocus(true)}} onBlur={() => {setCommentFocus(false)}} value={commentBody} onChange={(e) => setCommentBody(e.target.value)} type="text" placeholder="Share your thought here" aria-label="Add a comment" />
-                    <WhitePillButton padding="px-4 ml-2 flex" type="submit" text="POST" size="lg" />
+                    <input className="w-full border-b border-black focus:outline-none mr-4" onFocus={() => {setCommentFocus(true)}} onBlur={() => {setCommentFocus(false)}} value={commentBody} onChange={(e) => setCommentBody(e.target.value)} type="text" placeholder="Share your thought here" aria-label="Add a comment" />
+                    <WhitePillButton padding="px-4 flex" type="submit" text="POST" size="lg" />
                 </form>
                 <div className="mr-16">
                     {clientComments.length
