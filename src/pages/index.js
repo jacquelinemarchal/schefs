@@ -87,53 +87,54 @@ const Home = ({ closeCardF }) => {
                   showAttendees={false}
                   photoOpacity={0.5}
                 />
+
+                <div className="px-8 md:px-12 xl:px-24 mt-24 mb-16 sm:mb-0">
+                  <p className="text-2xl mx-2 mb-8 sm:mb-12">Schefs Festivals</p>
+                  <div className="sm:grid sm:grid-cols-2 mb-16 sm:mb-0">
+                    <div className="col-span-1 sm:w-1/2 flex flex-col justify-center sm:block">
+                      <img className="left-0 mt-2 h-16 sm:h-20 w-auto" src={social} />
+                      <p className="text-center sm:text-left left-0 text-2xl my-6">January 04&ndash;10, 2021</p>
+                    </div>
+                    <div className="col-span-1 mb-10 sm:w-2/3">
+                      <p className="mx-8">
+                        Tenetur et est enim sed quas amet voluptatem inventore. Corrupti ut itaque nam delectus ratione nisi. Doloribus quo et aut voluptatum impedit tenetur.
+                        Distinctio possimus nulla vitae. Itaque ea qui in vel aperiam nihil sed sed debitis. Fugit accusantium et eos possimus deleniti voluptate. Sint sit eius.
+                      </p>
+                      <div className="text-center">
+                        <WhitePillButton 
+                          size="sm"
+                          text="EXPLORE EVENTS" 
+                          link="/socialfestival"
+                          padding="px-8 mt-8"
+                        />
+                      </div>
+                    </div>
+                  </div>
+  
+                  <div className="sm:grid sm:grid-cols-2 mt-10 mb-8">
+                    <div className="col-span-1 sm:w-1/2 flex flex-col justify-center sm:block">
+                      <img className="left-0 mt-2 h-32 w-auto" src={multi} />
+                      <p className="text-center sm:text-left left-0 text-2xl my-6">August 17&ndash;23, 2020</p>
+                    </div>
+                    <div className="col-span-1 sm:w-2/3">
+                      <p className="mx-8">
+                        Tenetur et est enim sed quas amet voluptatem inventore. Corrupti ut itaque nam delectus ratione nisi. Doloribus quo et aut voluptatum impedit tenetur.
+                        Distinctio possimus nulla vitae. Itaque ea qui in vel aperiam nihil sed sed debitis. Fugit accusantium et eos possimus deleniti voluptate. Sint sit eius.
+                      </p>
+                      <div className="text-center">
+                        <WhitePillButton 
+                          size="sm"
+                          text="COMING SOON"
+                          padding="px-8 mt-8 "
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </>
             : null
           }
 
-          <div className="px-8 md:px-12 xl:px-24 mt-24">
-            <p className="text-2xl mx-2 mb-8 sm:mb-12">Schefs Festivals</p>
-            <div className="sm:grid sm:grid-cols-2">
-              <div className="col-span-1 w-1/2">
-                <img className="left-0 mt-2 h-20 w-auto" src={social} />
-                <p className="text-center sm:text-left left-0 text-2xl my-6">January 04&ndash;10 2021</p>
-              </div>
-              <div className="col-span-1 mb-10 w-2/3">
-                <p className="mx-8">
-                  Tenetur et est enim sed quas amet voluptatem inventore. Corrupti ut itaque nam delectus ratione nisi. Doloribus quo et aut voluptatum impedit tenetur.
-                  Distinctio possimus nulla vitae. Itaque ea qui in vel aperiam nihil sed sed debitis. Fugit accusantium et eos possimus deleniti voluptate. Sint sit eius.
-                </p>
-                <div className="text-center">
-                  <WhitePillButton 
-                    size="sm"
-                    text="EXPLORE EVENTS" 
-                    link="/socialfestival"
-                    padding="px-8 mt-8 "
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="sm:grid sm:grid-cols-2 mt-10 mb-8">
-              <div className="col-span-1 w-1/2">
-                <img className="left-0 mt-2 h-32 w-auto" src={multi} />
-                <p className="text-center sm:text-left left-0 text-2xl my-6">August 17&ndash;23 2020</p>
-              </div>
-              <div className="col-span-1 w-2/3">
-                <p className="mx-8">
-                  Tenetur et est enim sed quas amet voluptatem inventore. Corrupti ut itaque nam delectus ratione nisi. Doloribus quo et aut voluptatum impedit tenetur.
-                  Distinctio possimus nulla vitae. Itaque ea qui in vel aperiam nihil sed sed debitis. Fugit accusantium et eos possimus deleniti voluptate. Sint sit eius.
-                </p>
-                <div className="text-center">
-                  <WhitePillButton 
-                    size="sm"
-                    text="COMING SOON"
-                    padding="px-8 mt-8 "
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
 
           <Footer {...ambassador} />
         </>

@@ -140,7 +140,7 @@ const getUserHostingEvents = `
  * $1: uid <int> required
  */
 const getUserUpcomingEvents = `
-    SELECT DISTINCT
+    SELECT DISTINCT ON (e.time_start, e.eid)
         e.eid, e.host_name, e.host_school,
         e.host_bio, e.title, e.time_start,
         eh.user_id AS host_id,
@@ -159,7 +159,7 @@ const getUserUpcomingEvents = `
         (e.eid = t.event_id AND t.user_id = $1)
      OR (e.eid = eh.event_id AND eh.user_id = $1)
     )
-    ORDER BY e.time_start
+    ORDER BY e.time_start ASC
 `;
 
 /*

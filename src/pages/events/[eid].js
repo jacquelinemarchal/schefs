@@ -159,7 +159,7 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                 </div>
                 <hr></hr>
                 <div className="mb-2 mt-4 sm:hidden sm:text-left text-center">
-                        Hosted by:
+                  Hosted by:
                 </div>
                 <div className="justify-center sm:hidden shadow-md mx-2 border-solid border-black border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
                     <div className="p-4 grid-rows-3">

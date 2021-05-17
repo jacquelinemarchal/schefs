@@ -10,7 +10,7 @@
     color: #aaa;
 }
 
-.MuiSlider-thumb:focus, .MuiSlider-thumbColorPrimary:focus, .MuiSlider-thumbColorPrimary, .MuiSlider-thumb, .MuiSlider-thumb:hover, .MuiSlider-thumb.Mui-focusVisible{
+.MuiPickersDay-day:focus, .MuiButton-root:focus, .MuiButtonBase-root:focus, .MuiSlider-thumb:focus, .MuiSlider-thumbColorPrimary:focus, .MuiSlider-thumbColorPrimary, .MuiSlider-thumb, .MuiSlider-thumb:hover, .MuiSlider-thumb.Mui-focusVisible{
     outline-style: none;
     outline-color: none;
     -webkit-tap-highlight-color: none;
@@ -40,6 +40,11 @@
     #cardSize{
         width: 430px;
         height: 600px;
+    }
+    #calendar {
+        left: 50%;
+        width: 640px;
+        height: 484px;
     }
 }
 

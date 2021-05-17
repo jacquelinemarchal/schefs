@@ -194,7 +194,7 @@ const CardContent = (props) => {
                               : <>My upcoming events:</>
                           }
                           <div id="innerCardContainer" className="overflow-scroll mt-2">
-                              <EventGrid isEditable={false} events={events} style="mr-12" gridNum="1"/>
+                            <EventGrid isEditable={false} events={events} style="mr-4 md:mr-12" gridNum="1"/>
                           </div>
                       </div>
                     : null
@@ -209,21 +209,21 @@ const CardContent = (props) => {
                 <WhitePillButton
                     text="MY EVENTS"
                     link="/myevents"
-                    padding="px-4"
-                    size="bg-white text-sm"
+                    padding="px-4 bg-white"
+                    size="sm"
                     handleClick={() => context.handleCloseCard(true, true)}
                 />
                 <WhitePillButton
                     text="HOST AN EVENT"
                     link="/eventbuilder"
-                    padding="px-4 hidden sm:block"
-                    size="bg-white text-sm"
+                    padding="bg-white px-4 hidden sm:block"
+                    size="sm"
                     handleClick={() => context.handleCloseCard(true, true)}
                 /> 
                 <WhitePillButton
                     text="LOG OUT"
-                    padding="px-4"
-                    size="bg-white text-sm"
+                    padding="px-4 bg-white"
+                    size="sm"
                     handleClick={context.handleLogout}
                 />
             </div> 

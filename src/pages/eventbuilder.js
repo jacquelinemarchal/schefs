@@ -173,6 +173,8 @@ const EventBuilder = () => {
                 major: context.profile.major,
                 bio: context.profile.bio,
             });
+
+            setProfilePictureURL(context.profile.img_profile);
         }
     }, [context.profile]);
 
@@ -192,6 +194,13 @@ const EventBuilder = () => {
 
     // query available times in the next 4 weeks on load
     useEffect(queryAvailableTimes, []);
+
+    useEffect(() => {
+        if (isModalOpen || isCoHostOpen || isSchedulerOpen || isPhotoDisplayOpen)
+            document.body.style.overflow = 'hidden';
+        else
+            document.body.style.overflow = 'unset';
+    }, [isModalOpen, isCoHostOpen, isSchedulerOpen, isPhotoDisplayOpen]);
 
     // check if date in scheduler should be disabled
     const isDateDisabled = (date) => {
@@ -398,360 +407,411 @@ const EventBuilder = () => {
   
     return (
         <>
-        <Head>
-          <title>Schefs - Event Builder</title>
-        </Head>
-        {preLoad.first_name && context.profile && context.profile.isVerified
-          ?<div className="px-2 md:px-0 md:mx-12 xl:mx-24">
-            <Formik
-              initialValues={preLoad}
-              onSubmit={handleSubmit}
-              validationSchema={EventBuilderSchema}
-            >
-              {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
-              <Form>
-                  <Greyout />
-                  {isModalOpen ? 
-                      <>
-                          <div className="fixed border-black border-2 overflow-scroll m-16 top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
-                              <div className="flex justify-end">
-                                  <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
-                                      <HighlightOff/>
-                                  </button>
-                              </div>
-                              <div className="grid grid-cols-2 gap-6">
-                                  <div className="grid col-span-1 px-16 pt-2 pb-12">
-                                      <h2 className="text-5xl">Welcome to the<br></br> Event Builder*</h2>
-                                      <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                                      <p className="text-sm mt-4"><b>*</b> Click “HELP” to return to this screen at any point</p>
-                                  </div>
-                                  <div className="grid col-span-1">
-                                      <div className="grid col-span-1 mx-6 px-10 my-4 pb-10 overflow-y-auto" style={{maxHeight: "30rem"}}>
-                                          <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                                          <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
-                                          <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                                          <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div> 
-                      </>
-                      : null}
-  
-                  {isPhotoDisplayOpen ? 
-                      <>
-                        <div id="imageContainerEB" className="fixed overflow-scroll sm:border-2 top-0 mt-12 left-0 mx-4 shadow rounded-xl bg-white justify-center z-10">
-                            <div className="flex justify-end">
-                                <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
-                                    <HighlightOff/>
-                                </button>
-                            </div>
-                            <div className="mx-4 my-2 pb-6 flex justify-between">
-                                <p>Don't see a photo you like? Pick one of these images as a placeholder for now and<br></br> email schefs.us@gmail with the name of your event &amp; your new image of choice.</p>
-                                <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
-                            </div>
-                            <div className="m-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
-								  {thumbnails.length
-								    ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
-								    : null
-								  }
-                              </div>
-                          </div> 
-                      </>
-                      : null}
-  
-                  {isCoHostOpen ? 
-                      <>
-                      <div className="fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center left-0 z-20" style={{maxWidth: "435px", minHeight: "600px"}}>
-                          <div className="flex justify-end">
-                              <button type="button" onClick={() => setIsCoHostOpen(false)} className="focus:outline-none p-2">
-                                  <HighlightOff/>
-                              </button>
-                          </div>
-                          <div className="flex flex-col px-6">
-                              <p className="mb-4 leading-snug text-2xl w-56 ">How does co-hosting an event work?</p>
-                              <p className="text-sm">You’re welcome to co-host an event with any other undergraduate student. Add your co-host’s email, fill out your card to contain both your information (as pictured below), and upload a joint profile picture.</p>
-                              <img draggable="false" className="w-5/6 mx-auto pr-2 my-2" src={cohost}></img>
-                              <p className="text-sm">Once added, your co-host will receive all communications about this event following a confirmation email</p>
-                              <Field 
-                                  placeholder="Co-host's school email" 
-                                  className={"border sm:border-2 border-black my-4 px-2 py-1 focus:outline-none rounded-3xl"} 
-                                  name="coHostEmail" 
-                              />
-                          </div>
+          <Head>
+            <title>Schefs - Event Builder</title>
+          </Head>
+          {preLoad.first_name && context.profile && context.profile.isVerified
+            ? <>
+                <Greyout />
+
+                {isModalOpen 
+                  ? <div className="fixed px-2 mx-6 md:mx-12 xl:mx-24 border-black border-2 overflow-scroll top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
+                      <div className="flex justify-end">
+                        <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
+                          <HighlightOff/>
+                        </button>
                       </div>
-                      </>
-                      : null}
-                  
-                  {isSchedulerOpen
-                    ? <div className="overflow-hidden fixed transform -translate-x-1/2 border sm:border-2 border-black rounded-xl md:mt-12 top-0 bg-white justify-center z-20" style={{left: '50%', width: '40rem', height: '30rem'}}>
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="grid col-span-1 px-16 pt-2 pb-12">
+                          <h2 className="text-5xl">Welcome to the<br></br> Event Builder*</h2>
+                          <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
+                          <p className="text-sm mt-4"><b>*</b> Click “HELP” to return to this screen at any point</p>
+                        </div>
+                        <div className="grid col-span-1">
+                          <div className="grid col-span-1 mx-6 px-10 my-4 pb-10 overflow-y-auto" style={{maxHeight: "30rem"}}>
+                            <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
+                            <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
+                            <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
+                            <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div> 
+                  : null
+                } 
+                
+                {isCoHostOpen
+                  ? <>
+                      <div className="fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center left-0 z-20" style={{maxWidth: "435px", minHeight: "600px"}}>
                         <div className="flex justify-end">
-                          <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
+                          <button type="button" onClick={() => setIsCoHostOpen(false)} className="focus:outline-none p-2">
                             <HighlightOff/>
                           </button>
                         </div>
-                        <div className="flex flex-row h-full">
-                          <div className="w-2/3 px-8">
-                              <p className="text-base mb-8">Choose a time to host your event:</p>
-                              <div className="overflow-hidden pl-8"> 
-                                {unavailableDatetimes !== null
-                                  ? <MuiPickersUtilsProvider utils={MomentUtils}>
-                                      <Calendar 
-                                        date={selectedDate}
-                                        onChange={(date, isFinish) => {
-                                            setDatetimeConfirmed(false);
-                                            setSelectedTime(null);
-                                            setSelectedDate(date);
-                                            setShowTimes(true);
-                                        }}
-                                        shouldDisableDate={isDateDisabled} 
-                                        maxDate={moment().add(60, 'days')}
-                                        minDate={moment().add(3, 'days')}
-                                      />
-                                    </MuiPickersUtilsProvider>
-                                  : null
-                                }
-                              </div>
-                          </div>
-
-                          {dailyTimes
-                            ? <div className="w-1/3 px-8 pb-16 overflow-y-scroll">
-                                  {dailyTimes.map(time => {
-                                    const date = moment(selectedDate).format('YYYY-MM-DD');
-                                    if (date in unavailableDatetimes && unavailableDatetimes[date].includes(time))
-                                        return null;
-                                    return (
-                                        <WhitePillButton
-                                          handleClick={selectedTime === time ? confirmDatetime : () => selectDatetime(time)}
-                                          type="button"
-                                          text={
-                                            selectedTime === time
-                                              ? datetimeConfirmed
-                                                ? 'CONFIRMED'
-                                                : 'CONFIRM?'
-                                              : time
-                                          }
-                                          padding={
-                                            'my-1 w-full text-center ' + (
-                                                selectedTime === time
-                                                  ? datetimeConfirmed
-                                                    ? 'bg-yellow-200'
-                                                    : 'bg-gray-400'
-                                                  : ''
-                                            )
-                                          }
-                                          key={time}
-                                        />
-                                    );
-                                  })}
-                              </div>
+                        <div className="flex flex-col px-6">
+                          <p className="mb-4 leading-snug text-2xl w-56 ">How does co-hosting an event work?</p>
+                          <p className="text-sm">You’re welcome to co-host an event with any other undergraduate student. Add your co-host’s email, fill out your card to contain both your information (as pictured below), and upload a joint profile picture.</p>
+                          <img draggable="false" className="w-5/6 mx-auto pr-2 my-2" src={cohost}></img>
+                          <p className="text-sm">Once added, your co-host will receive all communications about this event following a confirmation email</p>
+                          <Field 
+                            placeholder="Co-host's school email" 
+                            className={"border sm:border-2 border-black my-4 px-2 py-1 focus:outline-none rounded-3xl"} 
+                            name="coHostEmail" 
+                          />
+                        </div>
+                      </div>
+                    </>
+                  : null
+                }
+              
+                {isPhotoDisplayOpen
+                  ? <>
+                      <div id="imageContainerEB" className="fixed overflow-scroll sm:border-2 top-0 mt-12 left-0 mx-4 shadow rounded-xl bg-white justify-center z-10">
+                        <div className="flex justify-end">
+                          <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
+                            <HighlightOff/>
+                          </button>
+                        </div>
+                        <div className="mx-4 my-2 pb-6 flex justify-between">
+                          <p>Don't see a photo you like? Pick one of these images as a placeholder for now and<br></br> email schefs.us@gmail with the name of your event &amp; your new image of choice.</p>
+                          <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
+                        </div>
+                        <div className="m-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
+                          {thumbnails.length
+                            ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
                             : null
                           }
                         </div>
-                      </div>
-                    : null
-                  }
-  
-                  <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 ml-6 md:ml-2 ">
-                      <div className="grid col-span-3">
-                          <Field 
-                              name="title" 
-                              validate={charCounter}
-                              className="text-left text-5xl leading-snug focus:outline-none"
-                              placeholder="My event title..."
-                              onChange={e => {
-                                  setFieldTouched('title');
-                                  handleChange(e);
-                              }}
-                          />
-                  
-                          <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
+                      </div> 
+                    </>
+                  : null
+                }
 
+                {isSchedulerOpen
+                  ? <div id="calendar" className="overflow-hidden p-2 m-6 md:m-0 fixed md:transform md:-translate-x-1/2 border-2 border-black rounded-xl md:mt-12 top-0 bottom-0 bg-white justify-center z-20">
+                      <div className="flex justify-end">
+                        <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
+                          <HighlightOff/>
+                        </button>
+                      </div>
+                      <div className="flex flex-col lg:flex-row lg:h-full max-h-full">
+                        <div className="lg:w-2/3 px-8">
+                          <p className="text-base mb-2 lg:mb-8">Choose a time to host your event:</p>
+                          <div className="overflow-hidden lg:pl-8 mb-4 lg:mb-0"> 
+                            {unavailableDatetimes !== null
+                              ? <MuiPickersUtilsProvider utils={MomentUtils}>
+                                  <Calendar 
+                                    date={selectedDate}
+                                    onChange={(date, isFinish) => {
+                                      setDatetimeConfirmed(false);
+                                      setSelectedTime(null);
+                                      setSelectedDate(date);
+                                      setShowTimes(true);
+                                    }}
+                                    shouldDisableDate={isDateDisabled} 
+                                    maxDate={moment().add(60, 'days')}
+                                    minDate={moment().add(3, 'days')}
+                                    allowKeyboardControl={true}
+                                    renderDay={(day, selectedDate, dayInCurrentMonth, dayComponent) => {
+                                      if (day.isSame(selectedDate, 'day')) {
+                                          return (
+                                              <button
+                                                className="MuiButtonBase-root MuiIconButton-root MuiPickersDay-day MuiPickersDay-daySelected dayButton"
+                                                tabIndex="0"
+                                                type="button"
+                                                style={{
+                                                  color: 'black',
+                                                  backgroundColor: 'white',
+                                                  borderRadius: '40px',
+                                                  border: '2px solid black'
+                                                }}
+                                              >
+                                                <span className="MuiIconButton-label">
+                                                  <p className="MuiTypography-root MuiTypography-body2 MuiTypography-colorInherit">
+                                                    {day.format('D')} 
+                                                  </p>
+                                                </span>
+                                                <span className="MuiTouchRipple-root"></span>
+                                              </button>
+                                          );
+                                      }
+                                      else
+                                          return dayComponent;
+                                    }}
+                                  />
+                                </MuiPickersUtilsProvider>
+                              : null
+                            }
+                          </div>
+                        </div>
+  
+                        {dailyTimes
+                          ? <div className="lg:w-1/3 px-8 pb-20 overflow-y-scroll">
+                              {dailyTimes.map(time => {
+                                const date = moment(selectedDate).format('YYYY-MM-DD');
+                                if (date in unavailableDatetimes && unavailableDatetimes[date].includes(time))
+                                    return null;
+                                return (
+                                    <WhitePillButton
+                                      handleClick={selectedTime === time ? confirmDatetime : () => selectDatetime(time)}
+                                      type="button"
+                                      text={
+                                        selectedTime === time
+                                          ? datetimeConfirmed
+                                            ? 'CONFIRMED'
+                                            : 'CONFIRM?'
+                                          : time
+                                      }
+                                      padding={
+                                        'my-1 w-full text-center ' + (
+                                            selectedTime === time
+                                              ? datetimeConfirmed
+                                                ? 'bg-yellow-200'
+                                                : 'bg-gray-400'
+                                              : ''
+                                        )
+                                      }
+                                      key={time}
+                                    />
+                                );
+                              })}
+                            </div>
+                          : null
+                        }
+                      </div>
+  
+                      <div className="absolute bottom-0 h-8 w-full bg-white"></div>
+                    </div>
+                  : null
+                }
+
+                <div className="px-2 mx-6 md:mx-12 xl:mx-24">
+                  <Formik
+                    initialValues={preLoad}
+                    onSubmit={handleSubmit}
+                    validationSchema={EventBuilderSchema}
+                  >
+                    {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
+                      <Form>
+
+    
+                      <div className="mb-4 mt-4 lg:mt-0 lg:gap-4 lg:grid lg:grid-cols-5">
+                        <div className="lg:grid lg:col-span-3">
+                          <Field 
+                            name="title" 
+                            validate={charCounter}
+                            className="text-left text-5xl leading-snug focus:outline-none w-full lg:w-2/3"
+                            placeholder="My event title..."
+                            onChange={e => {
+                                setFieldTouched('title');
+                                handleChange(e);
+                            }}
+                          />
+                    
+                          <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
+  
                           <div className="flex flex-row">
                             <WhitePillButton
                               handleClick={() => setIsSchedulerOpen(true)}
                               type="button"
-                              text={datetimeConfirmed ? selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z') : 'SELECT DATE & TIME'}
-                              padding="px-6 flex w-auto"
+                              text={datetimeConfirmed
+                                ? selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')
+                                : 'SELECT DATE & TIME'
+                              }
+                              padding="hidden lg:block flex px-6 mb-4 w-full mt-2 lg:mt-0 lg:w-auto"
+                            />
+
+                            <WhitePillButton
+                              handleClick={() => setIsSchedulerOpen(true)}
+                              type="button"
+                              text={datetimeConfirmed
+                                ? selectedDate.format('MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')
+                                : 'SELECT DATE & TIME'
+                              }
+                              padding="lg:hidden flex px-6 mb-4 w-full mt-2 lg:mt-0 lg:w-auto"
                             />
                           </div>
-  
-                          <div className="mr-6 mt-2 mb-10 w-9/12">
-                              <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={selectedThumbnail.location} className="cursor-pointer rounded-3xl"></img>
+    
+                          <div className="mt-2 mb-10 lg:w-2/3">
+                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={selectedThumbnail.location} className="cursor-pointer rounded-3xl" />
                           </div>
                           <div className="items-center flex space-x-2">
-                              <p>Your event description:</p>
-                              <p className="text-sm pr-2 text-gray-600">70 word minimum</p>
-                              <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="description"></ErrorMessage>
+                            <p>Your event description:</p>
+                            <p className="text-sm pr-2 text-gray-600">70 word minimum</p>
+                            <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="description"></ErrorMessage>
                           </div>
+  
                           <Field 
-                              as="textarea"
-                              placeholder="My event description..." 
-                              className={"text-left mt-4 h-32 leading-snug mb-8 w-5/6 focus:outline-none"} 
-                              name="description" 
-                              validate={wordCounter}
-                              onChange={e => {
-                                  setFieldTouched('description');
-                                  handleChange(e)
-                              }}
+                            as="textarea"
+                            placeholder="My event description..." 
+                            className={"text-left mt-4 h-32 leading-snug mb-8 w-full lg:w-5/6 focus:outline-none"} 
+                            name="description" 
+                            validate={wordCounter}
+                            onChange={e => {
+                                setFieldTouched('description');
+                                handleChange(e)
+                            }}
                           />
                           <div className="items-center flex space-x-2">
-                              <p>Your event requirements (what guests should prepare):</p>
-                              <p className=" pr-2 text-sm text-gray-600">Optional</p>
+                            <p>Your event requirements<span className="hidden lg:inline"> (what guests should prepare)</span>:</p>
+                            <p className=" pr-2 text-sm text-gray-600">Optional</p>
                           </div>
                           <Field 
-                              as="textarea"   
-                              placeholder="My event requirements..." 
-                              className={"text-left mt-4 h-32 leading-snug mb-8 w-5/6 focus:outline-none"} 
-                              name="requirements" 
+                            as="textarea"   
+                            placeholder="My event requirements..." 
+                            className="text-left mt-4 h-32 leading-snug mb-8 w-full lg:w-5/6 focus:outline-none" 
+                            name="requirements" 
                           />
-                      </div>
+                        </div>
   
-                      <div className="grid col-span-2 ">
-                          <div className="sm:fixed">
-                              <div className="hidden sm:flex space-x-2 h-8 items-center">
-                                  <button
-                                    disabled={
-                                      selectedThumbnail.tid === -1 ||
-                                      profilePictureURL === defaultProfilePicture ||
-                                      !datetimeConfirmed ||
-                                      !isValid ||
-                                      !dirty ||
-                                      isSubmitting
-                                    }
-                                    type="submit"
-                                    className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !datetimeConfirmed || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
-                                  >
-                                      SUBMIT
-                                  </button>
-                                  <div onClick={() => {setIsModalOpen(true)}}> 
-                                      <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
-                                  </div>
+                        <div className="lg:grid lg:col-span-2 ">
+                          <div className="lg:fixed">
+                            <div className="hidden lg:flex space-x-2 h-8 items-center">
+                              <button
+                                disabled={
+                                   selectedThumbnail.tid === -1 ||
+                                   profilePictureURL === defaultProfilePicture ||
+                                   !datetimeConfirmed ||
+                                   !isValid ||
+                                   !dirty ||
+                                   isSubmitting
+                                }
+                                type="submit"
+                                className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border lg:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !datetimeConfirmed || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                              >
+                                SUBMIT
+                              </button>
+                              <div onClick={() => {setIsModalOpen(true)}}> 
+                                <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
                               </div>
-                              <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-12" style={{ maxWidth: "300px"}}>
-                                  <p>Hosted by:</p>
-                                  <p className="hidden cursor-pointer hover:underline hover:text-blue-900" onClick={() => setIsCoHostOpen(!isCoHostOpen)}>Add a co-host</p>
-                              </div>
-                              <div className="mx-auto ml-20 mb-16 sm:ml-0 sm:mb-0 sm:mr-8 shadow-md sm:shadow-none border-solid border-black border sm:border-2 rounded-2xl" style={{ maxWidth: "300px"}}>
-                                  <div className="p-4 grid-rows-3">
-                                      {inCrop  // add to second outer div for consistent w/h style={{minWidth: "500px", minHeight: "320px"}}
-                                      ? 
-                                      <div className="row-span-1 grid rounded-3xl">
-                                          <div className="relative h-48 w-auto rounded-3xl overflow-hidden cursor-pointer">
-                                              <Cropper
-                                                  image={profilePictureURL}
-                                                  crop={crop}
-                                                  zoom={zoom}
-                                                  aspect={1}
-                                                  cropShape="round"
-                                                  showGrid={false}
-                                                  onCropChange={(crop) => {setCrop(crop)}}
-                                                  onCropComplete={(croppedArea, croppedAreaPixels) => {setCroppedAreaPixels(croppedAreaPixels)}}
-                                                  onZoomChange={(zoom) => {setCrop(zoom)}}
-                                              />
-                                          </div>
-                                          <div className="row-span-1 grid">
-                                              <Typography id="continuous-slider" gutterBottom />
-                                              <Slider 
-                                                  onChange={(e, zoom) => setZoom(zoom)} 
-                                                  min={1} 
-                                                  max={3}
-                                                  style={{color: "black", height: "2rem"}}
-                                                  step={0.1}
-                                                  value={zoom} 
-                                                  aria-labelledby="continuous-slider"
-                                                  />
-                                          </div> 
-                                          <div className="text-center">
-                                              <button onClick={() => {setInCrop(false); setProfilePictureURL(defaultProfilePicture)}} className="justify-center items-center bg-transparent focus:outline-none px-6 text-black hover:bg-black hover:text-white border sm:border-2 border-black mr-2 rounded-full">&lt; BACK</button>
-                                              <button onClick={makeCroppedImage} className="justify-center items-center bg-transparent focus:outline-none px-6 text-black hover:bg-black hover:text-white border sm:border-2 border-black rounded-full">CONFIRM &gt;</button>
-                                          </div> 
-                                      </div>
-                                      :
-                                      <>
-                                          <div className="row-span-1">
-                                              <div className="grid grid-cols-3">
-                                                  <div className="col-span-1 h-24 w-24 ">
-                                                      <input className="hidden" ref={fileInput} type="file" onChange={fileEventHandler} accept={"image/*"} multiple={false} />
-                                                      <div onClick={() => {fileInput.current.click()}}>
-                                                          <img src={profilePictureURL} className="rounded-full p-2 items-center cursor-pointer justify-center"></img>
-                                                      </div>
-                                                  </div>
-                                                  <div className="col-span-2 my-auto">
-                                                      <Field 
-                                                          placeholder="First Name" 
-                                                          className={"ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-visible"}
-                                                          as="textarea"
-                                                          name="first_name" 
-                                                      />
-                                                      <Field 
-                                                          placeholder="Last Name" 
-                                                          className={"ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-hidden"} 
-                                                          name="last_name" 
-                                                          as="textarea"
-                                                      />
-                                                  </div>
-                                              </div>
-                                          </div>
-                                          <div className="mb-8 row-span-1 text-center">
-                                              <div className="flex ">
-                                                  <Field 
-                                                      placeholder="My university..." 
-                                                      className={"leading-snug focus:outline-none overflow-hidden text-center"} 
-                                                      name="school" 
-                                                  />
-                                                  <p className="mx-3">•</p>
-                                                  <Field 
-                                                      placeholder="My grad year..." 
-                                                      className={"leading-snug focus:outline-none overflow-hidden text-center"} 
-                                                      name="grad_year" 
-                                                  />
-                                              </div>
-                                              <Field 
-                                                  placeholder="My major..." 
-                                                  className={"leading-snug focus:outline-none overflow-hidden text-center"} 
-                                                  name="major" 
-                                              />
-                                          </div>
-                                          <div className="flex">
-                                                  <Field 
-                                                      placeholder="My bio..."
-                                                      className="leading-snug h-32 focus:outline-none w-full"
-                                                      name="bio" 
-                                                      as="textarea"
-                                                  />
-                                          </div> 
-                                      </>}
-                                  </div>
-                              </div> 
+                            </div>
   
-                              <div className="h-8">
-                                  <footer className="bg-white sm:hidden inset-x-0 fixed bottom-0 flex justify-around items-center">
-                                      <button
-                                        disabled={
-                                            selectedThumbnail.tid === -1 ||
-                                            profilePictureURL === defaultProfilePicture ||
-                                            !datetimeConfirmed ||
-                                            !isValid ||
-                                            !dirty ||
-                                            isSubmitting
-                                        }
-                                        type="submit"
-                                        className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !datetimeConfirmed || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
-                                      >
-                                          SET DATE &amp; SUBMIT
-                                      </button>
-                                      <div onClick={() => {setIsModalOpen(true)}}> 
-                                          <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>
+                            <div className="flex items-center justify-center lg:justify-start text-sm my-2 lg:mt-12">
+                              <p className="mb-1">Hosted by:</p>
+                            </div>
+                            <div className="mx-auto mb-16 lg:mb-0 lg:mr-8 shadow-md lg:shadow-none border-solid border-black border-2 rounded-2xl" style={{ maxWidth: "350px"}}>
+                              <div className="p-4 grid-rows-3">
+                                {inCrop  // add to second outer div for consistent w/h style={{minWidth: "500px", minHeight: "320px"}}
+                                  ? <div className="row-span-1 grid rounded-3xl">
+                                      <div className="relative h-48 w-auto rounded-3xl overflow-hidden cursor-pointer">
+                                        <Cropper
+                                          image={profilePictureURL}
+                                          crop={crop}
+                                          zoom={zoom}
+                                          aspect={1}
+                                          cropShape="round"
+                                          showGrid={false}
+                                          onCropChange={(crop) => {setCrop(crop)}}
+                                          onCropComplete={
+                                              (croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)
+                                          }
+                                          onZoomChange={(zoom) => {setCrop(zoom)}}
+                                        />
                                       </div>
-                                  </footer>
+                                      <div className="row-span-1 grid">
+                                        <Typography id="continuous-slider" gutterBottom />
+                                        <Slider 
+                                          onChange={(e, zoom) => setZoom(zoom)} 
+                                          min={1} 
+                                          max={3}
+                                          style={{color: "black", height: "2rem"}}
+                                          step={0.1}
+                                          value={zoom} 
+                                          aria-labelledby="continuous-slider"
+                                        />
+                                      </div> 
+                                      <div className="text-center">
+                                        <button onClick={() => {setInCrop(false); setProfilePictureURL(defaultProfilePicture)}} className="justify-center items-center bg-transparent focus:outline-none px-6 text-black hover:bg-black hover:text-white border-2 border-black mr-2 rounded-full">&lt; BACK</button>
+                                        <button onClick={makeCroppedImage} className="justify-center items-center bg-transparent focus:outline-none px-6 text-black hover:bg-black hover:text-white border-2 border-black rounded-full">CONFIRM &gt;</button>
+                                      </div> 
+                                    </div>
+                                  : <>
+                                      <div className="row-span-1">
+                                        <div className="grid grid-cols-3">
+                                          <div className="col-span-1 h-24 w-24 ">
+                                            <input className="hidden" ref={fileInput} type="file" onChange={fileEventHandler} accept={"image/*"} multiple={false} />
+                                            <div onClick={() => {fileInput.current.click()}} className="bg-white">
+                                              <img src={profilePictureURL} className="rounded-full p-2 items-center cursor-pointer justify-center" />
+                                            </div>
+                                          </div>
+                                          <div className="col-span-2 my-auto">
+                                            <Field 
+                                              placeholder="First Name" 
+                                              className="ml-4 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-visible"
+                                              as="textarea"
+                                              name="first_name" 
+                                            />
+                                            <Field 
+                                              placeholder="Last Name" 
+                                              className={"ml-4 -mt-2 h-10 text-left text-3xl resize-none focus:outline-none w-5/6 overflow-hidden"} 
+                                              name="last_name" 
+                                              as="textarea"
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="mb-2 lg:mb-8 row-span-1 text-center">
+                                        <div className="flex flex-row justify-around">
+                                          <Field 
+                                            placeholder="My university..." 
+                                            className={"leading-snug focus:outline-none overflow-hidden text-right"} 
+                                            name="school" 
+                                          />
+                                          <p className="mx-3">•</p>
+                                          <Field 
+                                            placeholder="My grad year..." 
+                                            className={"leading-snug focus:outline-none overflow-hidden text-left"} 
+                                            name="grad_year" 
+                                          />
+                                        </div>
+                                        <Field 
+                                          placeholder="My major..." 
+                                          className={"leading-snug focus:outline-none overflow-hidden text-center"} 
+                                          name="major" 
+                                        />
+                                      </div>
+                                      <div className="flex">
+                                        <Field 
+                                          placeholder="My bio..."
+                                          className="leading-snug h-40 focus:outline-none w-full"
+                                          name="bio" 
+                                          as="textarea"
+                                        />
+                                      </div> 
+                                    </>
+                                }
                               </div>
+                            </div> 
+    
+                            <div className="h-8">
+                              <footer className="bg-white px-2 mx-6 md:mx-12 xl:mx-24 lg:hidden inset-x-0 fixed bottom-0 flex justify-between items-center">
+                                <button
+                                  disabled={
+                                    selectedThumbnail.tid === -1 ||
+                                    profilePictureURL === defaultProfilePicture ||
+                                    !datetimeConfirmed ||
+                                    !isValid ||
+                                    !dirty ||
+                                    isSubmitting
+                                  }
+                                  type="submit"
+                                  className={"w-5/12 px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !datetimeConfirmed || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                >
+                                  SUBMIT
+                                </button>
+                                <div className="w-5/12" onClick={() => setIsModalOpen(true)}> 
+                                  <WhitePillButton type="button" text="HELP" padding="px-6 w-full text-center" />
+                                </div>
+                              </footer>
+                            </div>
                           </div>
+                        </div>
                       </div>
-                  </div>
-              </Form>)}
-            </Formik>
-            </div>
+                    </Form>
+                  )}
+                </Formik>
+              </div>
+            </>
           : context.profile && context.profile.isVerified
             ? null
             : context.profile && !context.profile.isVerified
@@ -763,7 +823,7 @@ const EventBuilder = () => {
                   You must have a Schefs account to make events
                   <WhitePillButton handleClick={() => context.handleToggleCard(false, true)} text="SIGN UP" padding="flex px-16 mt-4" />
                 </div>
-        }
+          }
         </>
     );
 };
