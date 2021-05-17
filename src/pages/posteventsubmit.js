@@ -51,9 +51,9 @@ const PostEventSubmit = (props) => {
           </Head>
 
           <div className="px-2 mx-6 md:mx-12 xl:mx-24 mt-8 sm:grid sm:grid-cols-2 gap-6">
-            <div className="">
-              <h1 className="text-5xl leading-tight w-1/2 mb-6">Thank you for submitting your event!</h1>
-              <p className="text-xl leading-tight w-3/4">
+            <div className="mb-8 md:mb-0">
+              <h1 className="text-4xl md:text-5xl leading-tight md:w-1/2 mb-6">Thank you for submitting your event!</h1>
+              <p className="text-xl leading-tight md:w-3/4">
                 Check your email for a confirmation.<br/><br/>
                 Our team will review your event within 24 hours before publishing it to the site if approved.<br/><br/>
                 Your event will display as &lsquo;pending&rsquo; in your upcoming events section on your card
@@ -62,7 +62,7 @@ const PostEventSubmit = (props) => {
               </p>
             </div>
             <div className="sm:grid sm:col-span-1">
-              <div className="w-3/5" style={{opacity: '35%'}}>
+              <div className="md:w-7/12" style={{opacity: '35%'}}>
                 <p className="text-base">Pending approval</p>
                 <EventThumbnail
                   {...props.eventInfo}
@@ -72,12 +72,12 @@ const PostEventSubmit = (props) => {
                   disabled={true}
                 />
               </div>
-              <div className="w-full flex flex-row">
-                <a>
-                    <WhitePillButton link="/eventbuilder" text="SUBMIT ANOTHER EVENT" padding="px-6 mr-2"/>
+              <div className="w-full flex flex-col items-center md:flex-row md:items-start">
+                <a className="w-full md:w-auto mb-2 md:mb-0">
+                    <WhitePillButton link="/eventbuilder" text="SUBMIT ANOTHER EVENT" padding="px-6 md:mr-2 w-full md:w-auto text-center"/>
                 </a>
-                <a target="_blank" href="https://www.instagram.com/schefs.us/" rel="noopener noreferrer">
-                  <WhitePillButton text="FOLLOW SCHEFS" padding="px-6"/>
+                <a className="w-full md:w-auto" target="_blank" href="https://www.instagram.com/schefs.us/" rel="noopener noreferrer">
+                  <WhitePillButton text="FOLLOW SCHEFS" padding="px-6 w-full md:w-auto text-center"/>
                 </a>
               </div>
             </div>

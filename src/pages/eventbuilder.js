@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import axios from 'axios';
-import Head from 'next/head';
-import moment from 'moment';
-import 'moment-timezone';
-
+import moment from 'moment-timezone';
 import { htmlToText } from 'html-to-text';
-import ContentEditable from 'react-contenteditable';
-import getCroppedImg from 'react-image-crop';
-import Cropper from 'react-easy-crop';
-import {CSSTransition} from 'react-transition-group'
 
+import Head from 'next/head';
+import ContentEditable from 'react-contenteditable';
 import Collapse from '@material-ui/core/Collapse';
+import Cropper from 'react-easy-crop';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
-import HighlightOff from '@material-ui/icons/HighlightOff';
+import { CSSTransition } from 'react-transition-group'
+
 import { MuiPickersUtilsProvider, Calendar } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
+
+import HighlightOff from '@material-ui/icons/HighlightOff';
 
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';

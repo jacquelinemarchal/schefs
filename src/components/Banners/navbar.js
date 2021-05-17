@@ -23,12 +23,12 @@ const NavBar = (props) => {
             <nav className={"bg-white fixed z-10 top-0 md:top-auto w-full " + (isScroll !== 0 ? 'shadow-lg' : '')}>
               <div className="relative sm:flex sm:justify-start pl-2 ml-6 md:ml-12 xl:ml-24 mt-6 mb-4 py-1">
                 <div className="flex items-center">
-                  <Link href="/index">
+                  <Link href="/">
                     <a className="hover:opacity-50 duration-300">
-                      <img src={logo} style={{height: '1.75rem'}}></img>
+                      <img src={logo} style={{height: '1.75rem'}} />
                     </a>
                   </Link>
-                    <Link href="/eventbuilder">
+                  <Link href="/eventbuilder">
                     <a className="text-base hover:text-gray-600 duration-300 ml-4 md:ml-8">
                       Host
                     </a>
@@ -66,9 +66,9 @@ const NavBar = (props) => {
         <nav className="bg-white z-10 fixed w-full top-0 md:top-auto">
           <div className="relative z-50 sm:flex sm:justify-start pl-2 ml-6 md:ml-12 xl:ml-24 mt-6 mb-4 py-1">
             <div className="flex items-center">
-              <Link href="/index">
+              <Link href="/">
                 <a className="hover:opacity-50 duration-300">
-                  <img src={logo} style={{height: '1.75rem'}}></img>
+                  <img src={logo} style={{height: '1.75rem'}} />
                 </a>
               </Link>
               <div className="sm:flex text-black">

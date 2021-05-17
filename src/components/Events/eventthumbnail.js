@@ -13,16 +13,18 @@ const EventThumbnail = (props) => {
 
     return (
         <div className={"col-span-1 mb-8 " + props.style} style={{opacity: props.opacity}}>
+          <Link 
+            href={
+              props.disabled
+                ? '#'
+                : props.isEditable
+                  ? `/eventbuilder/${props.eid}`
+                  : `/events/${props.eid}`
+            }
+          >
             <a
-              className={props.disabled ? '' : 'cursor-pointer'}
+              className={props.disabled ? 'cursor-default' : 'cursor-pointer'}
               onClick={props.disabled ? null : context.handleCloseCard}
-              href={
-                props.disabled
-                  ? null
-                  : props.isEditable
-                    ? `/eventbuilder/${props.eid}`
-                    : `/events/${props.eid}`
-              }
             >
               <div className="relative">
                   <img
@@ -44,38 +46,39 @@ const EventThumbnail = (props) => {
                   {moment(props.time_start).tz(timezone).format('dddd, MMMM D @ h:mm A z')}
               </p>
             </a>
+          </Link>
 
-            {props.showAttendees && props.hosts && props.attendees
-              ? <>
-                  <p className="mt-2">Hosted by:</p>
-                  {props.hosts.map(host => 
-                    <WhitePillButton
-                      text={host.first_name + ' ' + host.last_name}
-                      padding="w-full text-left pl-3 py-0.5 mb-1"
-                      size="lg"
-                      key={props.eid + ' ' + host.uid}
-                      handleClick={() => {
-                          context.handleSetLeftProfile(host);
-                          context.handleOpenCard(true, false);
-                      }}
-                    />
-                  )}
-                  <p>Attended by:</p>
-                  {props.attendees.map(attendee =>
-                    <WhitePillButton
-                      text={attendee.first_name + ' ' + attendee.last_name}
-                      padding="w-full text-left pl-3 py-0.5 mb-1"
-                      size="lg"
-                      key={props.eid + ' ' + attendee.uid}
-                      handleClick={() => {
-                          context.handleSetLeftProfile(attendee);
-                          context.handleOpenCard(true, false);
-                      }}
-                    />
-                  )}
-                </>
-              : null
-            }
+          {props.showAttendees && props.hosts && props.attendees
+            ? <>
+                <p className="mt-2">Hosted by:</p>
+                {props.hosts.map(host => 
+                  <WhitePillButton
+                    text={host.first_name + ' ' + host.last_name}
+                    padding="w-full text-left pl-3 py-0.5 mb-1"
+                    size="lg"
+                    key={props.eid + ' ' + host.uid}
+                    handleClick={() => {
+                        context.handleSetLeftProfile(host);
+                        context.handleOpenCard(true, false);
+                    }}
+                  />
+                )}
+                <p>Attended by:</p>
+                {props.attendees.map(attendee =>
+                  <WhitePillButton
+                    text={attendee.first_name + ' ' + attendee.last_name}
+                    padding="w-full text-left pl-3 py-0.5 mb-1"
+                    size="lg"
+                    key={props.eid + ' ' + attendee.uid}
+                    handleClick={() => {
+                        context.handleSetLeftProfile(attendee);
+                        context.handleOpenCard(true, false);
+                    }}
+                  />
+                )}
+              </>
+            : null
+          }
         </div>
     )
 };

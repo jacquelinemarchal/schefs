@@ -222,7 +222,6 @@ const CardContent = (props) => {
                 /> 
                 <WhitePillButton
                     text="LOG OUT"
-                    link=""
                     padding="px-4"
                     size="bg-white text-sm"
                     handleClick={context.handleLogout}
