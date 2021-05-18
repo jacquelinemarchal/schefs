@@ -7,13 +7,13 @@ import * as Yup from "yup"
 const firebase = require('../../utils/firebase_client');
 
 const VerifyEmail = (props) => {
-    // const [error, setError] = useState(["emailError", "It seems like this email isn’t signed up for a Schefs account. Would you like to sign up?", "border-red-500", "border-black"]);
-    const [error, setError] = useState([null, null, "border-black", "border-black"]);
     const context = useContext(Context);
+
+    const [error, setError] = useState([null, null, "border-black", "border-black"]);
     const [resendStatus, setResendStatus] = useState("RESEND EMAIL")
     
     const resendEmail = () => { 
-        var user = firebase.auth().currentUser;
+        const user = firebase.auth().currentUser;
         user.sendEmailVerification().then(() => {
             setResendStatus("EMAIL SENT!")
         }).catch((error) => {
