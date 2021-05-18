@@ -25,7 +25,7 @@ const NavBar = (props) => {
                 <div className="flex items-center">
                   <Link href="/">
                     <a className="hover:opacity-50 duration-300">
-                      <img src={logo} style={{height: '1.75rem'}} />
+                      <img className="mx-1 sm:mx-0" src={logo} style={{height: '1.75rem'}} />
                     </a>
                   </Link>
                   <Link href="/eventbuilder">
@@ -68,7 +68,7 @@ const NavBar = (props) => {
             <div className="flex items-center">
               <Link href="/">
                 <a className="hover:opacity-50 duration-300">
-                  <img src={logo} style={{height: '1.75rem'}} />
+                  <img className="mx-1 sm:mx-0" src={logo} style={{height: '1.75rem'}} />
                 </a>
               </Link>
               <div className="sm:flex text-black">
