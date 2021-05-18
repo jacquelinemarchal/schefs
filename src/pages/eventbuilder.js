@@ -254,7 +254,8 @@ const EventBuilder = () => {
 
     // word counter for event description
     const wordCounter = value => {
-        var strLength = value.split(" ").length-1;
+        const string = value.trim()
+        const strLength = string ? string.split(/\s+/).length : 0;
 
         if (strLength <= 70){
             return(`${strLength} words`)

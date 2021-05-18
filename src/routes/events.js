@@ -587,11 +587,6 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
  *  500: other postgres error
  */
 router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
-    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
-        res.status(403).send();
-        return;
-    }
-
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
@@ -725,20 +720,25 @@ router.get('/:eid/countTickets', (req, res) => {
 
 
 /*
- * GET /api/events/{eid}/{user}/ticketstatus
+ * GET /api/events/{eid}/{uid}/ticketstatus
  * Get boolean whether or not user has reserved ticket.
  *
  * Request Parameters:
  *  path:
  *    eid <int> required
- *    user_id <int>
+ *    uid <int>
  *
  * Response:
  *  200: successfully retrieved
  *    <boolean> 
  *  500: other postgres error
  */
-router.get('/:eid/:uid/ticketstatus', verifyIsAdmin, (req, res) => {
+router.get('/:eid/:uid/ticketstatus', verifyFirebaseIdToken, (req, res) => {
+    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
+        res.status(403).send();
+        return;
+    }
+
     pool.query(queries.checkTicketStatus, [ req.params.eid, req.params.uid ], (q_err, q_res) => {
         if (q_err){
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -823,7 +823,6 @@ router.get('/:eid/comments', (req, res) => {
  *
  * Request Body:
  *  <object>
- *      user_id     <int> required
  *      name        <string> required
  *      body        <string> required
  *      school      <string> required
@@ -834,14 +833,19 @@ router.get('/:eid/comments', (req, res) => {
  */
 
 router.post('/:eid/comment', verifyFirebaseIdToken, (req, res) => {
-    const values = [req.body.user_id, req.body.name, req.body.body, req.body.school, req.params.eid]
+    const values = [
+        req.profile.uid,
+        req.body.name,
+        req.body.body,
+        req.body.school,
+        req.params.eid
+    ];
+
     pool.query(queries.postComment, values, (q_err, q_res) => {
-        if (q_err){
+        if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
-        }
-        else{
+        else
             res.status(201).send()
-        }
     })
 });
 

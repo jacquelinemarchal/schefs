@@ -335,14 +335,12 @@ const EventEditor = ({ eventInfo }) => {
 
     //TODO: ask chris if these catches are necessary - not sure how calendar/reserving dates works
     const handleApproval = async () => {
-        console.log("in approving button")
         const eventData = {
             status: 'approved'
         }
         console.log(eventData)
         try {
             await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
-            console.log("successfully approved");
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
@@ -362,11 +360,10 @@ const EventEditor = ({ eventInfo }) => {
     }
 
     const handleDeny = async () => {
-        console.log("in denying button")
         const eventData = {
             status: 'denied'
         }
-        console.log(eventData)
+
         try {
             await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
             console.log("successfully denied");
