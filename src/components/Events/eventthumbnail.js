@@ -7,7 +7,7 @@ import WhitePillButton from '../Buttons/wpillbutton';
 
 const EventThumbnail = (props) => {
     const context = useContext(Context);
-
+    
     // get timezone
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
 
@@ -31,7 +31,12 @@ const EventThumbnail = (props) => {
                     src={process.env.BASE_URL + props.img_thumbnail}
                     className="mb-2 rounded-2xl"
                     style={{opacity: props.photoOpacity}}
-                  ></img>
+                  />
+                {props.status === "pending" ? 
+                    <div id="pending-text">
+                     <p>Pending</p>
+                    </div>
+                    : null}
                   {props.border
                     ? <div
                         style={{boxShadow: 'inset 0 0 0 4px #FDFE86'}}

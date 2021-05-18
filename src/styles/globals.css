@@ -26,6 +26,17 @@
     background-color: #737373;
 }
 
+
+#pending-text{
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: white;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 1rem;
+}
+
 #cardBtn{
     background-color: #e7e7e7;
 }
@@ -91,6 +102,12 @@
         background-color: #e7e7e7;
         justify-content: space-between;
     }
+    #emergenceBannerMobile{
+        display:none;
+    }
+    #emergenceBannerWeb{
+        display:block;
+    }
 }
 
 @media screen and (max-width: 866px) {
@@ -104,6 +121,12 @@
         background-color: white;
         justify-content: center;
     }   
+    #emergenceBannerMobile{
+        display:block;
+    }
+    #emergenceBannerWeb{
+        display:none;
+    }
 }
 
 @media screen and (min-width: 990px) {
