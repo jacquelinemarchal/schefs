@@ -38,7 +38,6 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
 
     useEffect(async () => {
         await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-
         return firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
                 const fb_uid = user.uid;
@@ -64,8 +63,8 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
                 if (stateAuthReducer.profile && user.uid !== stateAuthReducer.profile.uid) {
                     const fb_uid = user.uid;
                     try {
-                        let profile = (await axios.get('/api/users/login/' + fb_uid)).data;
-                        profile = {...profile, isVerified: user.emailVerified};
+                        const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
+                        profile.isVerified = user.emailVerified;
                         dispatchAuthReducer(ACTIONS.loginSuccess(profile));
                     } catch (err) {
                         console.log(err);
@@ -117,7 +116,10 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
 
         try {
             await axios.post('/api/users/signup', data);
-            await handleLoginWithEmailAndPassword(email, password);
+            const user = await handleLoginWithEmailAndPassword(email, password);
+            await user.sendEmailVerification({ url: 'https://www.schefs.us', });
+
+            return user;
         } catch (err) {
             console.log(err);
         }
@@ -126,10 +128,10 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
     const handleLoginWithEmailAndPassword = async (email, password) => {
         try {
             await handleLogout();
-        }
-        catch (err){
+        } catch (err){
             console.log(err);
         }
+
         const user_creds = await firebase.auth().signInWithEmailAndPassword(email, password);
         const user = user_creds.user;
 
@@ -137,13 +139,11 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         const id_token = await user.getIdToken();
         setAuthHeader(id_token);
 
-        try {
-            let profile = (await axios.get('/api/users/login/' + fb_uid)).data;
-            profile = {...profile, isVerified: firebase.auth().currentUser.emailVerified}
-            dispatchAuthReducer(ACTIONS.loginSuccess(profile));
-        } catch (err) {
-            console.log(err);
-        }
+        const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
+        profile.isVerified = user.emailVerified;
+        dispatchAuthReducer(ACTIONS.loginSuccess(profile));
+
+        return user;
     }
 
     const handleLoginWithGoogle = async () => {
