@@ -31,7 +31,10 @@ const EventThumbnail = (props) => {
                     src={process.env.BASE_URL + props.img_thumbnail}
                     className="mb-2 rounded-2xl"
                     style={{opacity: props.photoOpacity}}
-                  ></img>
+                  />
+                <div id="text-block">
+                    <p>Pending</p>
+                </div>
                   {props.border
                     ? <div
                         style={{boxShadow: 'inset 0 0 0 4px #FDFE86'}}
