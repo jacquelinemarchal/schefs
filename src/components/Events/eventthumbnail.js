@@ -16,7 +16,7 @@ const EventThumbnail = (props) => {
           <Link 
             href={
               props.disabled
-                ? '#'
+                ? '/#'
                 : props.isEditable
                   ? `/eventbuilder/${props.eid}`
                   : `/events/${props.eid}`
@@ -24,7 +24,7 @@ const EventThumbnail = (props) => {
           >
             <a
               className={props.disabled ? 'cursor-default' : 'cursor-pointer'}
-              onClick={props.disabled ? null : context.handleCloseCard}
+              onClick={props.disabled ? null : () => context.handleCloseCard(true, true)}
             >
               <div className="relative">
                   <img

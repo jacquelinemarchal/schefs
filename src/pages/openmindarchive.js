@@ -85,7 +85,7 @@ const OMA = () => {
                 <form onSubmit={handleSubmit}>
                   <div className="flex items-end justify-center">
                     <input
-                      className="w-full md:w-2/3 lg:w-1/3 pt-4 border-b border-black focus:outline-none mr-1"
+                      className="w-full md:w-1/3 lg:w-1/3 pt-4 border-b border-black focus:outline-none mr-4"
                       type="text"
                       value={topic}
                       onChange={(e) => setTopic(e.target.value)}
