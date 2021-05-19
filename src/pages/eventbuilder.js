@@ -5,6 +5,7 @@ import moment from 'moment-timezone';
 import { htmlToText } from 'html-to-text';
 
 import Head from 'next/head';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import ContentEditable from 'react-contenteditable';
 import Collapse from '@material-ui/core/Collapse';
 import Cropper from 'react-easy-crop';
@@ -121,14 +122,18 @@ const EventBuilder = () => {
                 const events = res.data.filter((event) => !(event.status === 'denied'));
 
                 // save in object {date string: time string} format
-                const times = {}
+                const times = {};
                 for (const event of events) {
+                    // event time unavailable at this hour + hour after
                     const datetime = moment(event.time_start).tz(timezone);
+                    const datetime1 = moment(event.time_start).add(1, 'hours').tz(timezone);
+                    
                     const date = datetime.format('YYYY-MM-DD');
-                    if (date in times)
-                        times[date].push(datetime.format('h:mm A'));
-                    else
-                        times[date] = [datetime.format('h:mm A')];
+                    if (date in times) {
+                        times[date].add(datetime.format('h:mm A'));
+                        times[date].add(datetime1.format('h:mm A'));
+                    } else
+                        times[date] = new Set([datetime.format('h:mm A'), datetime1.format('h:mm A')]);
                 }
 
                 setUnavailableDatetimes({...times});
@@ -176,7 +181,8 @@ const EventBuilder = () => {
                 bio: context.profile.bio,
             });
 
-            setProfilePictureURL(context.profile.img_profile);
+            if (context.profile.img_profile)
+                setProfilePictureURL(context.profile.img_profile);
         }
     }, [context.profile]);
 
@@ -257,7 +263,7 @@ const EventBuilder = () => {
         const string = value.trim()
         const strLength = string ? string.split(/\s+/).length : 0;
 
-        if (strLength <= 70){
+        if (strLength < 70){
             return(`${strLength} words`)
         } else
 			return '';
@@ -287,10 +293,6 @@ const EventBuilder = () => {
 
     // on Formik submit
     const handleSubmit = async (values, { setSubmitting }) => {
-        //values not yet in the endpoint= [coHostEmail, lastName, gradYear, major]
-        
-        setSubmitting(false);
-
         const time_start = moment.tz(
             selectedDate.format('YYYY-MM-DD') + ' ' + selectedTime,
             'YYYY-MM-DD h:mm A',
@@ -313,12 +315,15 @@ const EventBuilder = () => {
         try {
             eid = (await axios.post('/api/events', eventData)).data.eid;
         } catch (err) {
+            setSubmitting(false);
+
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
                     alert('Thumbnail already in use, choose a different one');
                     queryThumbnails();
                     setSelectedThumbnail(defaultThumbnail);
                 } else if (err.response.data.err === 'Time unavailable') {
+                    alert('Time is unavailable, choose a different one');
                     queryAvailableTimes();
                     setSelectedTime(null);
                     setDatetimeConfirmed(false);
@@ -353,12 +358,14 @@ const EventBuilder = () => {
             // redirect to PostEventSubmit confirmation
             router.push('/posteventsubmit?eid=' + eid);
         } catch (err) {
+            setSubmitting(false);
+
             if (err.response && err.response.data)
                 alert(err.response.data.err);
             else
                 alert(err);
         }
-	  }
+	}
 
     const Thumbnail = (props) => {
         const handleSelectThumbnail = (e) => {
@@ -552,7 +559,7 @@ const EventBuilder = () => {
                           ? <div className="lg:w-1/3 px-8 pb-20 overflow-y-scroll">
                               {dailyTimes.map(time => {
                                 const date = moment(selectedDate).format('YYYY-MM-DD');
-                                if (date in unavailableDatetimes && unavailableDatetimes[date].includes(time))
+                                if (date in unavailableDatetimes && unavailableDatetimes[date].has(time))
                                     return null;
                                 return (
                                     <WhitePillButton
@@ -570,7 +577,7 @@ const EventBuilder = () => {
                                             selectedTime === time
                                               ? datetimeConfirmed
                                                 ? 'bg-yellow-200'
-                                                : 'bg-gray-400'
+                                                : 'bg-gray-300'
                                               : ''
                                         )
                                       }
@@ -596,8 +603,6 @@ const EventBuilder = () => {
                   >
                     {({isValid, dirty, isSubmitting, setFieldTouched, handleChange}) => (
                       <Form>
-
-    
                       <div className="mb-4 mt-4 lg:mt-0 lg:gap-4 lg:grid lg:grid-cols-5">
                         <div className="lg:grid lg:col-span-3">
                           <Field 
@@ -680,9 +685,12 @@ const EventBuilder = () => {
                                    isSubmitting
                                 }
                                 type="submit"
-                                className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border lg:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !datetimeConfirmed || !isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                className={"flex w-1/3 px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border lg:border-2 border-black rounded-full " + (selectedThumbnail.tid === -1 || profilePictureURL === defaultProfilePicture || !datetimeConfirmed || !isValid || !dirty || isSubmitting ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
                               >
-                                SUBMIT
+                                {isSubmitting
+                                  ? <><span>&#8203;</span><CircularProgress size="1rem" thickness={5} /></>
+                                  : 'SUBMIT'
+                                }
                               </button>
                               <div onClick={() => {setIsModalOpen(true)}}> 
                                 <WhitePillButton type="button" text="HELP" padding="px-6 flex"/>

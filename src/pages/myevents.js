@@ -75,7 +75,7 @@ const MyEvents = ({ closeCardF }) => {
           <Head>
             <title>Schefs - My Events</title>
           </Head>
-          {futureEvents
+          {futureEvents.length
             ? <>
                 <EventGrid
                   isEditable={false}
@@ -90,7 +90,7 @@ const MyEvents = ({ closeCardF }) => {
             : null
           }
 
-          {pastEvents
+          {pastEvents.length
             ? <>
                 <p className="text-3xl mt-4 mb-6 ml-6 md:ml-12 xl:ml-24 pl-2">Past Events</p>
 

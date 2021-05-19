@@ -1,20 +1,24 @@
-import { ErrorMessage, Field, Form, Formik } from "formik";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext } from 'react';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import * as Yup from 'yup';
+
 import Context from '../Context/context';
-import WhitePillButton from "../Buttons/wpillbutton";
+import WhitePillButton from '../Buttons/wpillbutton';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import sampleCard from "../../assets/sampleCard.png"
-import * as Yup from "yup"
-import google from '../../assets/googleIcon.png'
+// import google from '../../assets/googleIcon.png'
 
 const LoginForm = (props) => {
-    const [error, setError] = useState([null, null, "border-black", "border-black"]);
+    const context = useContext(Context);
 
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [error, setError] = useState([null, null, "border-black", "border-black"]);
     // error[] format: typeError, errorMsg, emailBorderFormat, pwordBorderFormat
     // default = [null, null, "border-black", "border-black"]
         
-    const context = useContext(Context);
-
     const handleSubmit = (values) => {
+        setIsLoggingIn(true);
+
         context.handleLoginWithEmailAndPassword(values.email, values.password)
             .then(() => {
                 if (context.profile && !context.profile.isVerified)
@@ -30,7 +34,7 @@ const LoginForm = (props) => {
                 else if (e.code === "auth/wrong-password")
                     setError(["passwordError", "Sorry, seems like your password is incorrect. Please double-check your password & try again.", "border-black", "border-red-500"]);
             })
-
+            .finally(() => setIsLoggingIn(false));
     }
      
     const SigninSchema = Yup.object().shape({
@@ -68,12 +72,15 @@ const LoginForm = (props) => {
                       <p className="text-red-500 text-sm">{error[1]}</p>
                       <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="email"></ErrorMessage>
                       <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="password"></ErrorMessage>
-                      <div className="flex flex-col">    
-                        <Field placeholder="School Email" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 " + error[2]} name="email"></Field>
-                        <Field type="password" placeholder="Password" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 mb-3 py-1 " + error[3]} name="password"></Field>
-                        <div className="mx-auto">
-                          <button disabled={!isValid || !dirty} type="submit" className={"flex px-16 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border-2 border-black rounded-full " + (!isValid || !dirty ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white") }>LOG IN</button>
-                        </div>
+                      <div className="flex flex-col items-center">
+                        <Field placeholder="School Email" className={"w-full border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 " + error[2]} name="email"></Field>
+                        <Field type="password" placeholder="Password" className={"w-full border-2 border-solid rounded-full focus:outline-none my-2 px-4 mb-3 py-1 " + error[3]} name="password"></Field>
+                        <button disabled={!isValid || !dirty || isLoggingIn} type="submit" className={"flex w-2/5 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border-2 border-black rounded-full " + (!isValid || !dirty || isLoggingIn ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white")}>
+                          {isLoggingIn
+                            ? <><span>&#8203;</span><CircularProgress size="1rem" thickness={5} /></>
+                            : 'LOG IN'
+                          }
+                          </button>
                       </div>
                       <a id="forgotPword" onClick={props.resetFunction} className="underline text-center cursor-pointer justify-self-center">Forgot Your Password?</a>
                     </div>

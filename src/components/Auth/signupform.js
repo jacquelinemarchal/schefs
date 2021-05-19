@@ -1,10 +1,12 @@
-import { ErrorMessage, Field, Form, Formik } from "formik";
-import WhitePillButton from "../Buttons/wpillbutton"
-import {useState, useContext} from "react"
+import React, { useState, useContext } from 'react';
+import axios from 'axios';
+
+import { ErrorMessage, Field, Form, Formik } from 'formik';
+import * as Yup from 'yup';
+
 import Context from '../Context/context';
-import * as Yup from "yup"
-import axios from "axios"
-const firebase = require('../../utils/firebase_client');
+import WhitePillButton from '../Buttons/wpillbutton';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const SignUpForm = (props) => {
     const context = useContext(Context);
@@ -15,24 +17,21 @@ const SignUpForm = (props) => {
         context.handleSignupWithEmailAndPassword(
             values.signUpEmail, 
             values.signUpPassword,
-            null,
+            null, // phone number
             values.firstName,
             values.lastName,
-            null,
-            null,
+            null, // biography
             values.university,
             values.major,
             values.gradYear
-        ).then(() => {
-            setSubmitting(false);
-            props.showVerify(values.signUpEmail)
-        })
+        ).then(() => props.showVerify(values.signUpEmail))
         .catch((err) => {
             if (err.response && err.response.data && err.response.data.err)
                 setError(err.response.data.err.slice(err.response.data.err.lastIndexOf(':') + 1));
             else
                 console.log(err);
-        });
+            setSubmitting(false);
+        })
     }
 
     const SigninSchema = Yup.object().shape({
@@ -54,7 +53,6 @@ const SignUpForm = (props) => {
             .required('This field is required'),
     });
 
-    // TODO: add error message to gradyear select
     return (
         <div className="flex flex-col justify-between md-shadow px-8 rounded-2xl h-full">
           <Formik
@@ -98,15 +96,17 @@ const SignUpForm = (props) => {
                       <option value="Class of 2024" label="Class of 2024" />
                       <option value="Gap Year" label="Gap Year" />
                     </Field>
+                    <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="gradYear"></ErrorMessage>
 
                     <Field placeholder="Major" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="major"></Field>
                     <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="major"></ErrorMessage>
 
-                    <div className="mx-auto">
-                      <button disabled={!isValid || !dirty || isSubmitting} type="submit" className={"flex px-6 mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border-2 border-black rounded-full " + (!isValid || !dirty || isSubmitting ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white")}>CREATE AN ACCOUNT</button>
-                    </div>
-
-                    
+                    <button disabled={!isValid || !dirty || isSubmitting} type="submit" className={"flex w-2/3 mx-auto mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border-2 border-black rounded-full " + (!isValid || !dirty || isSubmitting ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white")}>
+                      {isSubmitting
+                        ? <><span>&#8203;</span><CircularProgress size="1rem" thickness={5} /></>
+                        : 'CREATE AN ACCOUNT'
+                      }
+                    </button>
                   </div>
                 </Form>
             )}

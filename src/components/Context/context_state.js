@@ -89,7 +89,6 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         return () => clearInterval(timer);
     }, []);
 
-    // TODO: missing img_profile right now
     const handleSignupWithEmailAndPassword = async (
         email,
         password,
@@ -102,7 +101,7 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
         grad_year
     ) => {
 
-        data = {
+        const data = {
             email,
             password,
             phone,
@@ -114,15 +113,11 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
             grad_year,
         };
 
-        try {
-            await axios.post('/api/users/signup', data);
-            const user = await handleLoginWithEmailAndPassword(email, password);
-            await user.sendEmailVerification({ url: 'https://www.schefs.us', });
+        await axios.post('/api/users/signup', data);
+        const user = await handleLoginWithEmailAndPassword(email, password);
+        await user.sendEmailVerification({ url: 'https://www.schefs.us', });
 
-            return user;
-        } catch (err) {
-            console.log(err);
-        }
+        return user;
     }
 
     const handleLoginWithEmailAndPassword = async (email, password) => {

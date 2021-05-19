@@ -295,7 +295,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         )).rows[0].available;
 
         // check time still available
-        time_end.setHours(time_start.getHours() + 2);
+        time_end.setHours(time_start.getHours() + 1);
 
         const valid_time = (await client.query(
             queries.checkTimeAvailable,
