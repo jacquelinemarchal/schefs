@@ -4,7 +4,7 @@ import axios from 'axios';
 import Head from 'next/head';
 import Footer from '../components/Banners/footer';
 import EventGrid from '../components/Events/eventgrid';
-import emergenceLogo from '../assets/eLogo.gif';
+//import emergenceLogo from '../assets/eLogo.gif';
 import NavBar from '../components/Banners/navbar';
 import Context from '../components/Context/context';
 import WhitePillButton from '../components/Buttons/wpillbutton.js'
@@ -64,7 +64,7 @@ const Home = ({ closeCardF }) => {
         <title>Schefs - Learn From Each Other</title>
         </Head>
 
-        <div className="px-6 md:px-12 mx-2" id="emergenceBannerMobile">
+        {/*<div className="px-6 md:px-12 mx-2" id="emergenceBannerMobile">
             <p className="text-xl sm:text-2xl mb-4 mx-1 sm:mx-0" style={{color: "#1404f4"}}>UPCOMING IN JUNE 2021</p>
             <img className="h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} altText="Emergence Logo" />
             <p className="text-xl leading-tight mx-1 sm:mx-0">
@@ -137,6 +137,7 @@ const Home = ({ closeCardF }) => {
                 </div>
             </div>
           </div>
+          */}
 
           {futureEvents && pastEvents
             ? <>
@@ -150,18 +151,23 @@ const Home = ({ closeCardF }) => {
                   showAttendees={false}
                 />
 
-                <p className="text-3xl mt-4 mb-6 ml-6 md:ml-12 xl:ml-24 pl-2">Past Events</p>
-
-                <EventGrid
-                  isEditable={false}
-                  events={pastEvents}
-                  style="px-2"
-                  gridNum="3"
-                  margin="px-6 md:px-12 xl:px-24"
-                  closeCardF={closeCardF}
-                  showAttendees={false}
-                  photoOpacity={0.5}
-                />
+                {pastEvents.length
+                  ? <>
+                      <p className="text-3xl mt-4 mb-6 ml-6 md:ml-12 xl:ml-24 pl-2">Past Events</p>
+  
+                      <EventGrid
+                        isEditable={false}
+                        events={pastEvents}
+                        style="px-2"
+                        gridNum="3"
+                        margin="px-6 md:px-12 xl:px-24"
+                        closeCardF={closeCardF}
+                        showAttendees={false}
+                        photoOpacity={0.5}
+                      />
+                    </>
+                  : null
+                }
 
                 <div className="px-8 md:px-12 xl:px-24 mt-24 mb-16 sm:mb-0">
                   <p className="text-2xl mx-2 mb-8 sm:mb-12">Schefs Festivals</p>

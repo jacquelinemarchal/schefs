@@ -57,7 +57,9 @@ const EventEditor = ({ eventInfo }) => {
         tid: -1,
         location: eventInfo.img_thumbnail,
         is_used: true,
-    }
+    };
+
+    const defaultProfilePicture = eventInfo.hosts[0].img_profile;
 
     // default available times to schedule event
     const [dailyTimes, setDailyTimes] = useState(null);
@@ -71,7 +73,7 @@ const EventEditor = ({ eventInfo }) => {
     const [zoom, setZoom] = useState(1)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
-    const [profilePictureURL, setProfilePictureURL] = useState(eventInfo.hosts[0].img_profile);
+    const [profilePictureURL, setProfilePictureURL] = useState(defaultProfilePicture);
 
     // thumbnail selection modal state
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)  
@@ -233,7 +235,8 @@ const EventEditor = ({ eventInfo }) => {
 
 
     const wordCounter = value => {
-        var strLength = value.split(" ").length-1;
+        const string = value.trim();
+        const strLength = string ? string.split(/\s+/).length : 0;
 
         if (strLength <= 70){
             return(`${strLength} words`)
@@ -262,10 +265,7 @@ const EventEditor = ({ eventInfo }) => {
     }
 
     const handleSubmit = async (values, { setSubmitting }) => {
-        console.log("in saving button")
-
         // SAVE button
-        setSubmitting(false);
         setEditMode(false);
 
         const time_start = moment.tz(
@@ -291,27 +291,28 @@ const EventEditor = ({ eventInfo }) => {
             eventData.time_start = time_start;
         }
         
-        //TODO: submit profile picture if changed
-        /*
-        const userData = new FormData();
-        try {
-            const res = await fetch(profilePictureURL);
-            const blob = await res.blob();
-            
-            userData.append('img_profile', blob);
+        // change profile picture if changed
+        if (profilePictureURL !== eventInfo.hosts[0].img_profile) {
+            const userData = new FormData();
+            try {
+                const res = await fetch(profilePictureURL);
+                const blob = await res.blob();
+                
+                userData.append('img_profile', blob);
 
-            await axios.put('/api/users/' + eventInfo.hosts[0].uid, userData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+                await axios.put('/api/users/' + eventInfo.hosts[0].uid, userData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
 
-            alert('profile picture successfully submitted');
-        } catch (err) {
-            if (err.response && err.response.data)
-                alert(err.response.data.err);
-            else
-                alert(err);
+                alert('profile picture successfully submitted');
+            } catch (err) {
+                if (err.response && err.response.data)
+                    alert(err.response.data.err);
+                else
+                    alert(err);
+            }
         }
-        */
+
         try {
             await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
             console.log("successfully saved");
@@ -330,19 +331,20 @@ const EventEditor = ({ eventInfo }) => {
             } else
                 alert(err.response.data.err)
             return;
+        } finally {
+            setSubmitting(false);
         }
 	}
 
     //TODO: ask chris if these catches are necessary - not sure how calendar/reserving dates works
     const handleApproval = async () => {
-        console.log("in approving button")
         const eventData = {
             status: 'approved'
         }
+
         console.log(eventData)
         try {
             await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
-            console.log("successfully approved");
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
@@ -362,11 +364,10 @@ const EventEditor = ({ eventInfo }) => {
     }
 
     const handleDeny = async () => {
-        console.log("in denying button")
         const eventData = {
             status: 'denied'
         }
-        console.log(eventData)
+
         try {
             await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
             console.log("successfully denied");
@@ -391,13 +392,13 @@ const EventEditor = ({ eventInfo }) => {
     const Thumbnail = (props) => {
         const handleSelectThumbnail = (e) => {
             e.preventDefault();
-            setSelectedThumbnail({...thumbnail});
+            setSelectedThumbnail({...props.thumbnail});
             setIsPhotoDisplayOpen(false);
         }
             
         return (
             <button onClick={handleSelectThumbnail}>
-                <img src={process.env.BASE_URL + thumbnail.location} className="hover:bg-yellow-300 focus:outline-none p-2 cursor-pointer rounded-3xl"></img>
+                <img src={process.env.BASE_URL + props.thumbnail.location} className="hover:bg-yellow-300 focus:outline-none p-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
     }
@@ -636,7 +637,15 @@ const EventEditor = ({ eventInfo }) => {
                                         <button
                                             type="button"
                                             className="flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white"
-                                            onClick={() => {resetForm(); setSelectedDate(defaultDatetime); setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A z")); setEditMode(false); setSelectedThumbnail(defaultThumbnail);}}> 
+                                            onClick={() => {
+                                                resetForm();
+                                                setSelectedDate(defaultDatetime);
+                                                setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A z"));
+                                                setEditMode(false);
+                                                setSelectedThumbnail(defaultThumbnail);
+                                                setProfilePictureURL(defaultProfilePicture);
+                                            }}
+                                        > 
                                             CANCEL
                                         </button>
 
@@ -698,8 +707,8 @@ const EventEditor = ({ eventInfo }) => {
                                                 <div className="grid grid-cols-3">
                                                     <div className="col-span-1 h-24 w-24 ">
                                                         <input className="hidden" ref={fileInput} type="file" onChange={fileEventHandler} accept={"image/*"} multiple={false} />
-                                                        <div onClick={() => {fileInput.current.click()}}>
-                                                            <img src={profilePictureURL} className="rounded-full p-2 items-center cursor-pointer justify-center"></img>
+                                                        <div onClick={() => editMode ? fileInput.current.click() : null}>
+                                                            <img src={profilePictureURL} className={'rounded-full p-2 items-center justify-center ' + (editMode ? 'cursor-pointer' : 'cursor-not-allowed')}></img>
                                                         </div>
                                                     </div>
                                                     <div className="col-span-2 my-auto">

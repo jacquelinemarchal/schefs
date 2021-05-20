@@ -15,19 +15,19 @@ const auth = new OAuth2(
 
 auth.setCredentials({refresh_token: credentials.refresh_token});
 
-exports.createGcalEvent = async (event_name, host_name, host_email, description, zoom_link, zoom_id, start_time, end_time) => {
+exports.create = async (event_name, host_name, host_email, description, zoom_link, zoom_id, start_time, end_time) => {
     const gcal_event = {
         summary: event_name,
         location: zoom_link,
         description: `
             <html>
               <p>
-                A Schefs event hosted by ${host_name}.
+                <span>A Schefs event hosted by ${host_name}.</span>
                 <br><br>
-                ${description}
+                <span>${description}</span>
                 <br><br>
-                Meeting Link: <a href=${zoom_link}>${zoom_link}</a><br>
-                Meeting ID: ${zoom_id}
+                <span>Meeting Link: <a href=${zoom_link}>${zoom_link}</a></span><br>
+                <span>Meeting ID: ${zoom_id}</span>
               </p>
             </html>`,
         start: {
@@ -57,7 +57,7 @@ exports.createGcalEvent = async (event_name, host_name, host_email, description,
     }
 };
 
-exports.updateGcalEvent = async (gcal_id, gcal_event_patch) => {
+exports.update = async (gcal_id, gcal_event_patch) => {
     try {
         const res = await calendar.events.patch({
             auth: auth,
@@ -73,7 +73,7 @@ exports.updateGcalEvent = async (gcal_id, gcal_event_patch) => {
     }
 };
 
-exports.addAttendeeToGcalEvent = async (gcal_id, attendee_email) => {
+exports.addAttendees = async (gcal_id, attendee_emails) => {
     const gcal_event = await calendar.events.get({
         auth: auth,
         calendarId: CALENDAR_ID,
@@ -83,9 +83,10 @@ exports.addAttendeeToGcalEvent = async (gcal_id, attendee_email) => {
     let attendees = gcal_event.data.attendees;
     if (!attendees) attendees = [];
 
-    attendees.push({email: attendee_email});
+    for (let attendee_email of attendee_emails)
+        attendees.push({ email: attendee_email });
 
-    const gcal_event_patch = {attendees: attendees};
+    const gcal_event_patch = { attendees };
 
     try {
         const res = await calendar.events.patch({
@@ -102,7 +103,7 @@ exports.addAttendeeToGcalEvent = async (gcal_id, attendee_email) => {
     }
 };
 
-exports.deleteGcalEvent = async (gcal_id) => {
+exports.delete = async (gcal_id) => {
     let success = false;
     try {
         const res = await calendar.events.delete({

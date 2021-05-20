@@ -134,6 +134,14 @@ const getEvent = `
     WHERE e.eid = $1 AND t.tid = e.thumbnail_id
 `;
 
+/* 
+ * $1: eid <int> required
+ */
+const getGcalId = `
+    SELECT gcal_id FROM events
+    WHERE eid = $1
+`;
+
 /*
  * $1:  host_name     <string> required
  * $2:  host_school   <string> required
@@ -345,6 +353,7 @@ module.exports = {
     getEventsSummary,
     getEventsDetailed,
     getEvent,
+    getGcalId,
     getReservedTickets,
     getReservedTicketsCount,
     checkTimeAvailable,

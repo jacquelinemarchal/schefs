@@ -24,99 +24,84 @@ const EventPage = ({eventInfo, tickets, comments}) => {
     const [copyStatus, setCopyStatus] = useState("")
     const [commentFocus, setCommentFocus] = useState(false)
     const [commentBody, setCommentBody] = useState("")
-    const [reservedTicket, setReservedTicket] = useState(false)
+    const [reservedTicket, setReservedTicket] = useState(null)
 
     /* Get comments and new tickets for event every 10 seconds*/ 
     useEffect(() => {
         const interval = setInterval(() => {
             axios.get(`/api/events/${eventInfo.eid}/countTickets`)
-            .then(res => {
-                (res.data.count === "0" ? setClientTickets(0) : setClientTickets(parseInt(res.data.count, 10)))
-            })
-            .catch(err => {
-                console.log(err)
-            })
+                .then(res => {
+                    (res.data.count === "0" ? setClientTickets(0) : setClientTickets(parseInt(res.data.count, 10)))
+                })
+                .catch(err => console.log(err));
+
             axios.get(`/api/events/${eventInfo.eid}/comments`)
-            .then(res => {
-                setClientComments(res.data)
-            })
-            .catch(err => {
-                console.log(err)
-            })
+                .then(res => setClientComments(res.data))
+                .catch(err => console.log(err))
         }, 10000);
+
         return () => clearInterval(interval);
       }, []); 
       
     useEffect(() => {
         if (context.profile){
             axios.get(`/api/events/${eventInfo.eid}/${context.profile.uid}/ticketstatus`)
-            .then(res => {
-                setReservedTicket(res.data)
-            })
-            .catch(err => {
-                console.log(err)
-            })
-        }
-        else{
-            setReservedTicket(false)
-        }
+                .then(res => setReservedTicket(res.data))
+                .catch(err => console.log(err));
+        } else
+            setReservedTicket(false);
     }, [context.profile]);
 
     const copyLink = (e) => {{
-        navigator.clipboard.writeText(`schefs.us/events/${eventInfo.eid}`)}
-        setCopyStatus("Copied!")
+        navigator.clipboard.writeText(`${process.env.BASE_URL}events/${eventInfo.eid}`)}
+        setCopyStatus("Copied!");
         setTimeout(() => {
             setCopyStatus("");
-        },2000); 
+        }, 2000); 
       };
     
     const handleCommentSubmit = (e) => {
         e.preventDefault();
-        if (context.profile){
+        
+        if (context.profile) {
             if (commentBody.replace(/\s/g, '').length) {
+                setCommentBody('');
                 setClientComments([...clientComments, {
                     time_created: Date.now(),
                     name: context.profile.first_name.concat(" ", context.profile.last_name),
                     school: context.profile.school, 
                     body: commentBody
-                }])
-                let sendComment = {
-                    user_id: context.profile.uid, // ADD AUTH
+                }]);
+                
+                const sendComment = {
                     name: context.profile.first_name.concat(" ", context.profile.last_name),
                     body:commentBody,
                     school: context.profile.school,
-                }
-                setCommentBody("")
+                };
+
                 axios.post(`/api/events/${eventInfo.eid}/comment`, sendComment)
-                .then((res)=>{
-                    console.log(res)
-                })
-                .catch((err)=>{alert(err)})
+                    .catch((err) => console.log(err));
             }
-        }
-        else{
-            context.handleToggleCard(false, true)
-        }
-        return false;
+        } else
+            context.handleToggleCard(false, true);
     }
 
     const reserveTicket = () => {
         if (context.profile && context.profile.isVerified){
-            let userContent = {
+            const userContent = {
                 user_id: context.profile.uid,
-            }
-            setClientTickets(clientTickets + 1)
+            };
+
             axios.post(`/api/events/${eventInfo.eid}/tickets`, userContent)
-            .then(() => {
-                setReservedTicket(true)
-            })
-            .catch((err) => {
-                console.log(err.response.data.err);
-            })
-        }
-        else{
-            context.handleToggleCard(false, true)
-        }
+                .then(() => {
+                    setClientTickets(clientTickets + 1);
+                    setReservedTicket(true);
+                })
+                .catch((err) => {
+                    console.log(err.response.data.err);
+                })
+        } else
+            context.handleToggleCard(false, true);
     }
        
      return (
@@ -159,7 +144,7 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                             <p>{eventInfo.hosts[0].major}</p>
                         </div>
                         <div className="row-span-1 justify-center">
-                            {eventInfo.host_bio}
+                            {htmlToText(eventInfo.host_bio)}
                         </div>                        
                     </div>
                 </div>
@@ -243,6 +228,7 @@ export const getServerSideProps = async (context) => {
         const comments = (await pool.query(queries.getComments, [ context.params.eid ])).rows.map(
             (comment) => ({...comment, time_created: comment.time_created.toISOString()})
         );
+
         if (eventInfo.status !== 'approved') {
             return {
                 notFound: true,

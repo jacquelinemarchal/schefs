@@ -27,23 +27,26 @@ const EventThumbnail = (props) => {
               onClick={props.disabled ? null : () => context.handleCloseCard(true, true)}
             >
               <div className="relative">
-                  <img
-                    src={process.env.BASE_URL + props.img_thumbnail}
-                    className="mb-2 rounded-2xl"
-                    style={{opacity: props.photoOpacity}}
-                  />
-                {props.status === "pending" ? 
-                    <div id="pending-text">
+                <img
+                  src={process.env.BASE_URL + props.img_thumbnail}
+                  className="mb-2 rounded-2xl"
+                  style={{opacity: props.photoOpacity}}
+                />
+
+                {props.status === "pending"
+                  ? <div id="pending-text">
                      <p>Pending</p>
                     </div>
-                    : null}
-                  {props.border
-                    ? <div
-                        style={{boxShadow: 'inset 0 0 0 4px #FDFE86'}}
-                        className="absolute inset-0 w-full h-full mb-2 rounded-2xl"
-                      ></div>
-                    : null
-                  }
+                  : null
+                }
+
+                {props.border
+                  ? <div
+                      style={{boxShadow: 'inset 0 0 0 4px #FDFE86'}}
+                      className="absolute inset-0 w-full h-full mb-2 rounded-2xl"
+                    ></div>
+                  : null
+                }
               </div>
               <p className="mb-1 text-xl sm:text-base">{props.title}</p> 
               <p className="text-base sm:text-sm">
