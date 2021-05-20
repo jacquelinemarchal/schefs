@@ -5,7 +5,7 @@ const Footer = (props) => {
     let hostButton = {
         size: "text-base",
         text: "HOST YOUR OWN EVENT",
-        link: "/about",
+        link: "/festivallanding",
         padding: "px-4"
     }
     return (

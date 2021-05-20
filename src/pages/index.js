@@ -167,8 +167,8 @@ const Home = ({ closeCardF }) => {
                   <p className="text-2xl mx-2 mb-8 sm:mb-12">Schefs Festivals</p>
                   <div className="sm:grid sm:grid-cols-2 mb-16 sm:mb-0">
                     <div className="col-span-1 flex flex-col justify-center sm:block">
-                      <img className="left-0 mt-2 h-16 sm:h-20 w-auto" src={social} />
-                      <p className="text-center sm:text-left left-0 text-2xl my-6">January 04&ndash;10, 2021</p>
+                      <img className="left-0 mt-2 ml-1 h-16 sm:h-20 w-auto" src={social} />
+                      <p className="text-center ml-1 sm:text-left left-0 text-2xl my-6">January 04&ndash;10, 2021</p>
                     </div>
                     <div className="col-span-1 mb-10">
                       <p className="mx-8">
@@ -188,8 +188,8 @@ const Home = ({ closeCardF }) => {
   
                   <div className="sm:grid sm:grid-cols-2 mt-10 mb-8">
                     <div className="col-span-1 flex flex-col justify-center sm:block">
-                      <img className="left-0 mt-2 h-32 w-auto" src={multi} />
-                      <p className="text-center sm:text-left left-0 text-2xl my-6">August 17&ndash;23, 2020</p>
+                      <img className="left-0 mt-2 ml-1 h-32 w-auto" src={multi} />
+                      <p className="text-center ml-1 sm:text-left left-0 text-2xl my-6">August 17&ndash;23, 2020</p>
                     </div>
                     <div className="col-span-1">
                       <p className="mx-8">
