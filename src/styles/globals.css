@@ -23,6 +23,14 @@
     color: black !important;
 }
 
+.react-datepicker__input-container {
+  width: inherit;
+}
+
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
 #forgotPword:hover{
     color: #8c8c8c;
 }
@@ -57,7 +65,6 @@
         height: 600px;
     }
     #calendar {
-        left: 50%;
         width: 640px;
         height: 484px;
     }

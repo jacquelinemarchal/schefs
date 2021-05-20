@@ -52,3 +52,20 @@
     transition: opacity 0.2s ease;
 }
 
+.eventbuilder-modal-enter {
+    transform: translateY(-100%);
+}
+
+.eventbuilder-modal-enter-active {
+    transform: translateY(0%);
+    transition: transform 0.4s ease;
+}
+
+.eventbuilder-modal-exit {
+    transform: translateY(0%);
+}
+
+.eventbuilder-modal-exit-active {
+    transform: translateY(-100%);
+    transition: transform 0.4s ease;
+}

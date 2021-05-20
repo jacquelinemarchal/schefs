@@ -428,55 +428,63 @@ const EventBuilder = () => {
             ? <>
                 <Greyout />
 
-                {isModalOpen 
-                  ? <div className="fixed px-2 mx-6 md:mx-12 xl:mx-24 border-black border-2 overflow-scroll top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
-                      <div className="flex justify-end">
-                        <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
-                          <HighlightOff/>
-                        </button>
+                <CSSTransition
+                  in={isModalOpen}
+                  timeout={500}
+                  key="eventbuilder-modal"
+                  classNames="eventbuilder-modal"
+                  unmountOnExit
+                >
+                  <div className="fixed px-2 mx-6 md:mx-12 xl:mx-24 border-black border-2 overflow-scroll top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
+                    <div className="flex justify-end">
+                      <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
+                        <HighlightOff/>
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="grid col-span-1 px-16 pt-2 pb-12">
+                        <h2 className="text-5xl">Welcome to the<br></br> Event Builder*</h2>
+                        <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
+                        <p className="text-sm mt-4"><b>*</b> Click “HELP” to return to this screen at any point</p>
                       </div>
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="grid col-span-1 px-16 pt-2 pb-12">
-                          <h2 className="text-5xl">Welcome to the<br></br> Event Builder*</h2>
+                      <div className="grid col-span-1">
+                        <div className="grid col-span-1 mx-6 px-10 my-4 pb-10 overflow-y-auto" style={{maxHeight: "30rem"}}>
                           <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                          <p className="text-sm mt-4"><b>*</b> Click “HELP” to return to this screen at any point</p>
-                        </div>
-                        <div className="grid col-span-1">
-                          <div className="grid col-span-1 mx-6 px-10 my-4 pb-10 overflow-y-auto" style={{maxHeight: "30rem"}}>
-                            <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                            <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
-                            <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                            <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
-                          </div>
+                          <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
+                          <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
+                          <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
                         </div>
                       </div>
-                    </div> 
-                  : null
-                } 
+                    </div>
+                  </div> 
+                </CSSTransition>
                 
-                {isCoHostOpen
-                  ? <>
-                      <div className="fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center left-0 z-20" style={{maxWidth: "435px", minHeight: "600px"}}>
-                        <div className="flex justify-end">
-                          <button type="button" onClick={() => setIsCoHostOpen(false)} className="focus:outline-none p-2">
-                            <HighlightOff/>
-                          </button>
-                        </div>
-                        <div className="flex flex-col px-6">
-                          <p className="mb-4 leading-snug text-2xl w-56 ">How does co-hosting an event work?</p>
-                          <p className="text-sm">You’re welcome to co-host an event with any other undergraduate student. Add your co-host’s email, fill out your card to contain both your information (as pictured below), and upload a joint profile picture.</p>
-                          <img draggable="false" className="w-5/6 mx-auto pr-2 my-2" src={cohost}></img>
-                          <p className="text-sm">Once added, your co-host will receive all communications about this event following a confirmation email</p>
-                          <Field 
-                            placeholder="Co-host's school email" 
-                            className={"border sm:border-2 border-black my-4 px-2 py-1 focus:outline-none rounded-3xl"} 
-                            name="coHostEmail" 
-                          />
-                        </div>
-                      </div>
-                    </>
-                  : null
-                }
+                <CSSTransition
+                  in={isCoHostOpen}
+                  timeout={500}
+                  key="eventbuilder-cohost"
+                  classNames="eventbuilder-modal"
+                  unmountOnExit
+                >
+                  <div className="fixed m-2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center left-0 z-20" style={{maxWidth: "435px", minHeight: "600px"}}>
+                    <div className="flex justify-end">
+                      <button type="button" onClick={() => setIsCoHostOpen(false)} className="focus:outline-none p-2">
+                        <HighlightOff/>
+                      </button>
+                    </div>
+                    <div className="flex flex-col px-6">
+                      <p className="mb-4 leading-snug text-2xl w-56 ">How does co-hosting an event work?</p>
+                      <p className="text-sm">You’re welcome to co-host an event with any other undergraduate student. Add your co-host’s email, fill out your card to contain both your information (as pictured below), and upload a joint profile picture.</p>
+                      <img draggable="false" className="w-5/6 mx-auto pr-2 my-2" src={cohost}></img>
+                      <p className="text-sm">Once added, your co-host will receive all communications about this event following a confirmation email</p>
+                      <Field 
+                        placeholder="Co-host's school email" 
+                        className={"border sm:border-2 border-black my-4 px-2 py-1 focus:outline-none rounded-3xl"} 
+                        name="coHostEmail" 
+                      />
+                    </div>
+                  </div>
+                </CSSTransition>
               
                 {isPhotoDisplayOpen
                   ? <>
@@ -501,103 +509,108 @@ const EventBuilder = () => {
                   : null
                 }
 
-                {isSchedulerOpen
-                  ? <div id="calendar" className="overflow-hidden p-2 m-6 md:m-0 fixed md:transform md:-translate-x-1/2 border-2 border-black rounded-xl md:mt-12 top-0 bottom-0 bg-white justify-center z-20">
-                      <div className="flex justify-end">
-                        <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
-                          <HighlightOff/>
-                        </button>
-                      </div>
-                      <div className="flex flex-col lg:flex-row lg:h-full max-h-full">
-                        <div className="lg:w-2/3 px-8">
-                          <p className="text-base mb-2 lg:mb-8">Choose a time to host your event:</p>
-                          <div className="overflow-hidden lg:pl-8 mb-4 lg:mb-0"> 
-                            {unavailableDatetimes !== null
-                              ? <MuiPickersUtilsProvider utils={MomentUtils}>
-                                  <Calendar 
-                                    date={selectedDate}
-                                    onChange={(date, isFinish) => {
-                                      setDatetimeConfirmed(false);
-                                      setSelectedTime(null);
-                                      setSelectedDate(date);
-                                      setShowTimes(true);
-                                    }}
-                                    shouldDisableDate={isDateDisabled} 
-                                    maxDate={moment().add(60, 'days')}
-                                    minDate={moment().add(3, 'days')}
-                                    allowKeyboardControl={true}
-                                    renderDay={(day, selectedDate, dayInCurrentMonth, dayComponent) => {
-                                      if (day.isSame(selectedDate, 'day')) {
-                                          return (
-                                              <button
-                                                className="MuiButtonBase-root MuiIconButton-root MuiPickersDay-day MuiPickersDay-daySelected dayButton"
-                                                tabIndex="0"
-                                                type="button"
-                                                style={{
-                                                  color: 'black',
-                                                  backgroundColor: 'white',
-                                                  borderRadius: '40px',
-                                                  border: '2px solid black'
-                                                }}
-                                              >
-                                                <span className="MuiIconButton-label">
-                                                  <p className="MuiTypography-root MuiTypography-body2 MuiTypography-colorInherit">
-                                                    {day.format('D')} 
-                                                  </p>
-                                                </span>
-                                                <span className="MuiTouchRipple-root"></span>
-                                              </button>
-                                          );
-                                      }
-                                      else
-                                          return dayComponent;
-                                    }}
-                                  />
-                                </MuiPickersUtilsProvider>
-                              : null
-                            }
-                          </div>
-                        </div>
-  
-                        {dailyTimes
-                          ? <div className="lg:w-1/3 px-8 pb-20 overflow-y-scroll">
-                              {dailyTimes.map(time => {
-                                const date = moment(selectedDate).format('YYYY-MM-DD');
-                                if (date in unavailableDatetimes && unavailableDatetimes[date].has(time))
-                                    return null;
-                                return (
-                                    <WhitePillButton
-                                      handleClick={selectedTime === time ? confirmDatetime : () => selectDatetime(time)}
-                                      type="button"
-                                      text={
-                                        selectedTime === time
-                                          ? datetimeConfirmed
-                                            ? 'CONFIRMED'
-                                            : 'CONFIRM?'
-                                          : time
-                                      }
-                                      padding={
-                                        'my-1 w-full text-center ' + (
-                                            selectedTime === time
-                                              ? datetimeConfirmed
-                                                ? 'bg-yellow-200'
-                                                : 'bg-gray-300'
-                                              : ''
-                                        )
-                                      }
-                                      key={time}
-                                    />
-                                );
-                              })}
-                            </div>
-                          : null
-                        }
-                      </div>
-  
-                      <div className="absolute bottom-0 h-8 w-full bg-white"></div>
+                <CSSTransition
+                  in={isSchedulerOpen}
+                  timeout={500}
+                  key="eventbuilder-scheduler"
+                  classNames="eventbuilder-modal"
+                  unmountOnExit
+                >
+                <div id="calendar" className="overflow-hidden p-2 m-6 md:m-0 fixed md:transform md:-translate-x-1/2 border-2 border-black rounded-xl md:mt-12 top-0 bottom-0 bg-white justify-center z-20">
+                    <div className="flex justify-end">
+                      <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
+                        <HighlightOff/>
+                      </button>
                     </div>
-                  : null
-                }
+                    <div className="flex flex-col lg:flex-row lg:h-full max-h-full">
+                      <div className="lg:w-2/3 px-8">
+                        <p className="text-base mb-2 lg:mb-8">Choose a time to host your event:</p>
+                        <div className="overflow-hidden lg:pl-8 mb-4 lg:mb-0"> 
+                          {unavailableDatetimes !== null
+                            ? <MuiPickersUtilsProvider utils={MomentUtils}>
+                                <Calendar 
+                                  date={selectedDate}
+                                  onChange={(date, isFinish) => {
+                                    setDatetimeConfirmed(false);
+                                    setSelectedTime(null);
+                                    setSelectedDate(date);
+                                    setShowTimes(true);
+                                  }}
+                                  shouldDisableDate={isDateDisabled} 
+                                  maxDate={moment().add(60, 'days')}
+                                  minDate={moment().add(3, 'days')}
+                                  allowKeyboardControl={true}
+                                  renderDay={(day, selectedDate, dayInCurrentMonth, dayComponent) => {
+                                    if (day.isSame(selectedDate, 'day')) {
+                                        return (
+                                            <button
+                                              className="MuiButtonBase-root MuiIconButton-root MuiPickersDay-day MuiPickersDay-daySelected dayButton"
+                                              tabIndex="0"
+                                              type="button"
+                                              style={{
+                                                color: 'black',
+                                                backgroundColor: 'white',
+                                                borderRadius: '40px',
+                                                border: '2px solid black'
+                                              }}
+                                            >
+                                              <span className="MuiIconButton-label">
+                                                <p className="MuiTypography-root MuiTypography-body2 MuiTypography-colorInherit">
+                                                  {day.format('D')} 
+                                                </p>
+                                              </span>
+                                              <span className="MuiTouchRipple-root"></span>
+                                            </button>
+                                        );
+                                    }
+                                    else
+                                        return dayComponent;
+                                  }}
+                                />
+                              </MuiPickersUtilsProvider>
+                            : null
+                          }
+                        </div>
+                      </div>
+
+                      {dailyTimes
+                        ? <div className="lg:w-1/3 px-8 pb-20 overflow-y-scroll">
+                            {dailyTimes.map(time => {
+                              const date = moment(selectedDate).format('YYYY-MM-DD');
+                              if (date in unavailableDatetimes && unavailableDatetimes[date].has(time))
+                                  return null;
+                              return (
+                                  <WhitePillButton
+                                    handleClick={selectedTime === time ? confirmDatetime : () => selectDatetime(time)}
+                                    type="button"
+                                    text={
+                                      selectedTime === time
+                                        ? datetimeConfirmed
+                                          ? 'CONFIRMED'
+                                          : 'CONFIRM?'
+                                        : time
+                                    }
+                                    padding={
+                                      'my-1 w-full text-center ' + (
+                                          selectedTime === time
+                                            ? datetimeConfirmed
+                                              ? 'bg-yellow-200'
+                                              : 'bg-gray-300'
+                                            : ''
+                                      )
+                                    }
+                                    key={time}
+                                  />
+                              );
+                            })}
+                          </div>
+                        : null
+                      }
+                    </div>
+
+                    <div className="absolute bottom-0 h-8 w-full bg-white"></div>
+                  </div>
+                </CSSTransition>
 
                 <div className="px-2 mx-6 md:mx-12 xl:mx-24">
                   <Formik
