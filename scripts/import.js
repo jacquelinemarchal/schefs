@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const GET_ALL_EVENTS = false;
+const GET_ALL_EVENTS = true;
 
 const fs = require('fs');
 const path = require('path');
@@ -47,7 +47,7 @@ const downloadImage = async (file) => {
 }
 
 // insert aug20 festival events
-firestore.collection('aug20events').get().then((snap) => {
+/*firestore.collection('aug20events').get().then((snap) => {
     snap.forEach(async (doc) => {
         try {
             const data = doc.data();
@@ -126,7 +126,7 @@ firestore.collection('aug20events').get().then((snap) => {
         }
     });
 });
-
+*/
 if (GET_ALL_EVENTS) {
     // insert users
     firestore.collection('users').get().then((snap) => {

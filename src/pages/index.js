@@ -177,8 +177,7 @@ const Home = ({ closeCardF }) => {
                     </div>
                     <div className="col-span-1 mb-10">
                       <p className="mx-8">
-                        Tenetur et est enim sed quas amet voluptatem inventore. Corrupti ut itaque nam delectus ratione nisi. Doloribus quo et aut voluptatum impedit tenetur.
-                        Distinctio possimus nulla vitae. Itaque ea qui in vel aperiam nihil sed sed debitis. Fugit accusantium et eos possimus deleniti voluptate. Sint sit eius.
+                      For our second festival, we asked students to think within the framework of the very thing we no longer were: Social. What did it mean to be a social creature in a newly distanced world? What were we missing, what were we gaining?
                       </p>
                       <div className="text-center">
                         <WhitePillButton 
@@ -198,8 +197,7 @@ const Home = ({ closeCardF }) => {
                     </div>
                     <div className="col-span-1">
                       <p className="mx-8">
-                        Tenetur et est enim sed quas amet voluptatem inventore. Corrupti ut itaque nam delectus ratione nisi. Doloribus quo et aut voluptatum impedit tenetur.
-                        Distinctio possimus nulla vitae. Itaque ea qui in vel aperiam nihil sed sed debitis. Fugit accusantium et eos possimus deleniti voluptate. Sint sit eius.
+                      As our inaugural festival, Multiplicities was ambitiously about… everything. It was our very first attempt to construct a conceptual framework from which students could propose conversation topics that would fit thematically into various buckets.
                       </p>
                       <div className="text-center">
                         <WhitePillButton 
