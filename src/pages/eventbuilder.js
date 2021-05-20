@@ -11,7 +11,8 @@ import Collapse from '@material-ui/core/Collapse';
 import Cropper from 'react-easy-crop';
 import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
-import { CSSTransition } from 'react-transition-group'
+import { CSSTransition } from 'react-transition-group';
+import TextareaAutosize from 'react-textarea-autosize';
 
 import { MuiPickersUtilsProvider, Calendar } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
@@ -413,6 +414,9 @@ const EventBuilder = () => {
             .required('This field is required'),
         bio: Yup.string()
             .required('This field is required'),
+        title: Yup.string()
+            .required('This field is required')
+            .max(65, 'Maximum character limit: 65')
     });
   
     return (
@@ -607,8 +611,9 @@ const EventBuilder = () => {
                         <div className="lg:grid lg:col-span-3">
                           <Field 
                             name="title" 
+                            as={TextareaAutosize} 
                             validate={charCounter}
-                            className="text-left text-5xl leading-snug focus:outline-none w-full lg:w-2/3"
+                            className="text-left text-5xl resize-none leading-tight focus:outline-none w-full lg:w-2/3 "
                             placeholder="My event title..."
                             onChange={e => {
                                 setFieldTouched('title');

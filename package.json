@@ -49,6 +49,7 @@
     "react-image-crop": "^8.6.6",
     "react-images-upload": "^1.2.8",
     "react-scroll": "^1.8.1",
+    "react-textarea-autosize": "^8.3.2",
     "react-transition-group": "^4.4.1",
     "rodal": "^1.8.1",
     "swr": "^0.3.9",

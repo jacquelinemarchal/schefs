@@ -4,7 +4,8 @@ import Head from 'next/head';
 import moment from 'moment';
 import 'moment-timezone';
 import pool from '../../utils/db';
-import queries from "../../utils/queries/events"
+import queries from "../../utils/queries/events";
+import { useRouter } from 'next/router';
 
 import { htmlToText } from 'html-to-text';
 import ContentEditable from 'react-contenteditable';
@@ -27,6 +28,7 @@ import * as Yup from 'yup';
 import Context from '../../components/Context/context';
 import WhitePillButton from '../../components/Buttons/wpillbutton';
 import cohost from '../../assets/cohost.png';
+import { Router } from 'express';
 
 // grad year z-index in card
 // runtime error in pages > events > [eid]
@@ -34,7 +36,7 @@ import cohost from '../../assets/cohost.png';
 const EventEditor = ({ eventInfo }) => {
     // import Context
     const context = useContext(Context);
-
+    const router = useRouter();
     // get timezone
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York";
 
@@ -345,6 +347,7 @@ const EventEditor = ({ eventInfo }) => {
         console.log(eventData)
         try {
             await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
+            router.push('/index')
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
