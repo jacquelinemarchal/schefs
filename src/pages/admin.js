@@ -136,7 +136,6 @@ const ApprovalPortal = () => {
                       style="px-2"
                       margin="px-6 md:px-12 xl:px-24"
                       gridNum="3"
-                      closeCardF={() => {/*TODO: add close card function*/}}
                     />
                   : <div className="text-center">No Events</div>
                 }
