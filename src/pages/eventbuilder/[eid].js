@@ -283,8 +283,8 @@ const EventEditor = ({ eventInfo }) => {
             host_bio: values.bio,
             host_name: values.first_name + ' ' + values.last_name,
             host_school: values.school,
-            //TODO: add host_major and host_grad_year to end point
         }
+
         
         if (selectedThumbnail.tid !== -1){
             eventData.thumbnail_id = selectedThumbnail.tid;
@@ -338,30 +338,18 @@ const EventEditor = ({ eventInfo }) => {
         }
 	}
 
-    //TODO: ask chris if these catches are necessary - not sure how calendar/reserving dates works
     const handleApproval = async () => {
         const eventData = {
             status: 'approved'
         }
-
-        console.log(eventData)
         try {
             await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
             router.push('/index')
         } catch (err) {
-            if (err.response && err.response.status === 409) {
-                if (err.response.data.err === 'Thumbnail already in use') {
-                    alert('Thumbnail already in use, choose a different one');
-                    queryThumbnails();
-                    setSelectedThumbnail(defaultThumbnail);
-                } else if (err.response.data.err === 'Time unavailable') {
-                    alert("Time unavailable");
-                    queryAvailableTimes();
-                    setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
-                    setDatetimeConfirmed(false);
-                }
-            } else
-                alert(err.response.data.err)
+            if (err.response && err.response.status === 500) {
+                alert("Server error. Contact tech!.")
+            }
+            else{alert("Alternate error (non 500). Contact tech.")}
             return;
         }
     }
@@ -375,19 +363,10 @@ const EventEditor = ({ eventInfo }) => {
             await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
             console.log("successfully denied");
         } catch (err) {
-            if (err.response && err.response.status === 409) {
-                if (err.response.data.err === 'Thumbnail already in use') {
-                    alert('Thumbnail already in use, choose a different one');
-                    queryThumbnails();
-                    setSelectedThumbnail(defaultThumbnail);
-                } else if (err.response.data.err === 'Time unavailable') {
-                    alert("Time unavailable");
-                    queryAvailableTimes();
-                    setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
-                    setDatetimeConfirmed(false);
-                }
-            } else
-                alert(err.response.data.err)
+            if (err.response && err.response.status === 500) {
+                alert("Server error. Contact tech!.")
+            }
+            else{alert("Alternate error (non 500). Contact tech.")}
             return;
         }
     }
