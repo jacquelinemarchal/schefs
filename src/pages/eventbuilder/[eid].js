@@ -786,7 +786,6 @@ const EventEditor = ({ eventInfo }) => {
 export default EventEditor;
 
 export const getServerSideProps = async (context) => {
-
     try {
         const eventInfo = (await pool.query(queries.getEvent, [ context.params.eid ])).rows[0].event;
         return {

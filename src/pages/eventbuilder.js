@@ -33,7 +33,7 @@ const defaultThumbnail = {
     is_used: true,
 }
 
-const EventBuilder = () => {
+const EventBuilder = (props) => {
     // import Context and Router
     const context = useContext(Context);
     const router = useRouter();
@@ -83,7 +83,7 @@ const EventBuilder = () => {
 
     // selected date & time for scheduler
     const [datetimeConfirmed, setDatetimeConfirmed] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(moment());
+    const [selectedDate, setSelectedDate] = useState(router.query && router.query.date ? moment(router.query.date) : moment());
     const [selectedTime, setSelectedTime] = useState(null);
     const [schedulerTouched, setSchedulerTouched] = useState(false);
 
@@ -215,10 +215,16 @@ const EventBuilder = () => {
     // check if date in scheduler should be disabled
     const isDateDisabled = (date) => {
         const datestring = date.format('YYYY-MM-DD');
-        if (date.day() != 0 && date.day() != 5 && date.day() != 6)
-            return true;
-        if (datestring in unavailableDatetimes && unavailableDatetimes[datestring].length === dailyTimes.length)
-            return true;
+
+        if (router.query && router.query.date) {
+            if (router.query.date !== datestring)
+                return true;
+        } else {
+            if (date.day() != 0 && date.day() != 5 && date.day() != 6)
+                return true;
+            if (datestring in unavailableDatetimes && unavailableDatetimes[datestring].length === dailyTimes.length)
+                return true;
+        }
         return false;
     }
 
