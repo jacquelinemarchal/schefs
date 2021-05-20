@@ -23,13 +23,7 @@
     color: black !important;
 }
 
-.react-datepicker__input-container {
-  width: inherit;
-}
-
-.react-datepicker-wrapper {
-  width: 100%;
-}
+.MuiPickersCalendar-transitionContainer
 
 #forgotPword:hover{
     color: #8c8c8c;
@@ -58,7 +52,8 @@
         height: 240px
     }
     #imageContainerEB {
-        max-height: 35rem;
+        height: 36rem;
+        width: 80rem;
     }
     #cardSize{
         width: 430px;
@@ -67,6 +62,10 @@
     #calendar {
         width: 640px;
         height: 484px;
+    }
+    #help-modal {
+        width: 770px;
+        width: 520px;
     }
 }
 
