@@ -85,6 +85,7 @@ const EventBuilder = () => {
     const [datetimeConfirmed, setDatetimeConfirmed] = useState(false);
     const [selectedDate, setSelectedDate] = useState(moment());
     const [selectedTime, setSelectedTime] = useState(null);
+    const [schedulerTouched, setSchedulerTouched] = useState(false);
 
     // available dates & times for scheduler
     const [unavailableDatetimes, setUnavailableDatetimes] = useState(null);
@@ -147,6 +148,10 @@ const EventBuilder = () => {
         setIsPhotoDisplayOpen(false);
         setIsModalOpen(false);
         setIsCoHostOpen(false);
+
+        if (isSchedulerOpen)
+            setSchedulerTouched(true);
+
         setIsSchedulerOpen(false);
     }
 
@@ -524,7 +529,7 @@ const EventBuilder = () => {
                 >
                   <div id="calendar" className="overflow-hidden p-2 mb-24 mx-4 mt-4 md:mb-0 md:mx-auto max-w-full fixed border-2 border-black rounded-xl md:mt-12 inset-0 bg-white justify-center z-20">
                     <div className="flex justify-end">
-                      <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
+                      <button type="button" onClick={() => {setIsSchedulerOpen(false); setSchedulerTouched(true);}} className="focus:outline-none p-2">
                         <HighlightOff/>
                       </button>
                     </div>
@@ -642,7 +647,7 @@ const EventBuilder = () => {
                     
                           <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
   
-                          <div className="flex flex-row">
+                          <div className="md:flex md:flex-row mb-4 items-center">
                             <WhitePillButton
                               handleClick={() => setIsSchedulerOpen(true)}
                               type="button"
@@ -650,7 +655,7 @@ const EventBuilder = () => {
                                 ? selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')
                                 : 'SELECT DATE & TIME'
                               }
-                              padding="hidden lg:block flex px-6 mb-4 w-full mt-2 lg:mt-0 lg:w-auto"
+                              padding="hidden md:block flex px-6 w-full mt-2 md:mt-0 md:w-auto"
                             />
 
                             <WhitePillButton
@@ -660,8 +665,13 @@ const EventBuilder = () => {
                                 ? selectedDate.format('MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')
                                 : 'SELECT DATE & TIME'
                               }
-                              padding="lg:hidden flex px-6 mb-4 w-full mt-2 lg:mt-0 lg:w-auto"
+                              padding="md:hidden flex px-6 w-full mt-2 md:mt-0 md:w-auto"
                             />
+
+                            {schedulerTouched && !datetimeConfirmed
+                               ? <p className="text-red-500 text-sm mt-1 md:mt-0 md:ml-8">This field is required.</p>
+                               : null
+                            }
                           </div>
     
                           <div className="mt-2 mb-10 lg:w-2/3">
