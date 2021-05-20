@@ -28,10 +28,7 @@ import * as Yup from 'yup';
 import Context from '../../components/Context/context';
 import WhitePillButton from '../../components/Buttons/wpillbutton';
 import cohost from '../../assets/cohost.png';
-import { Router } from 'express';
 
-// grad year z-index in card
-// runtime error in pages > events > [eid]
 
 const EventEditor = ({ eventInfo }) => {
     // import Context
@@ -104,7 +101,7 @@ const EventEditor = ({ eventInfo }) => {
     const queryThumbnails = () => {
         axios
             .get('/api/thumbnails')
-            .then(res => setThumbnails([...res.data]))
+            .then(res => setThumbnails())//[...res.data]))
             .catch(err => console.log(err.response.data.err));
     }
 
