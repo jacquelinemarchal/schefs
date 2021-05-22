@@ -97,7 +97,7 @@ const updateUser = `
  * $1: uid <int> required
  */
 const getUserLiveEvents = `
-    SELECT DISTINCT
+    SELECT DISTINCT ON (e.time_start, e.eid)
         e.eid, e.host_name, e.host_school,
         e.host_bio, e.title, e.time_start,
         eh.user_id AS host_id,
@@ -120,7 +120,7 @@ const getUserLiveEvents = `
  * $1: uid <int> required
  */
 const getUserHostingEvents = `
-    SELECT 
+    SELECT DISTINCT ON (e.time_start, e.eid)
         e.eid, e.host_name, e.host_school,
         e.host_bio, e.title, e.time_start,
         th.location AS img_thumbnail,

@@ -1,6 +1,7 @@
 const schedule = require('node-schedule');
 const pool = require('./db');
 const queries = require('./queries/reminders');
+const emails = require('./emails');
 
 exports.schedule = async (time_send, type, email, first_name, event_title, zoom_link=null, rid=null) => {
     const values = [
