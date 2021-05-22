@@ -64,6 +64,7 @@ const eventImport = async () => {
                 // insert thumbnail into postgres
                 thumb_id = (await pool.query(uploadThumbnail, [ thumb_path ])).rows[0].tid;
             } catch (err) {
+                console.log(data.title, doc.id)
                 console.log(err);
             }
             if (data.status === "approved"){
@@ -84,13 +85,11 @@ const eventImport = async () => {
                 ];
 
                 const event_id = (await pool.query(createEvent, values)).rows[0].eid;
-                console.log("********************************* NEW EVENT ********************************* ")
-                console.log("eid = ", event_id);
-                console.log("208: ", data.user);
+                //console.log("********************************* NEW EVENT ********************************* ")
+                //console.log("eid = ", event_id);
+                //console.log("208: ", data.user);
                 // insert host relationship into postgres
                 var user_id = (await pool.query(getUserFirebase, [ data.user ])).rows[0]
-                console.log("211: user_id = ", user_id);
-                console.log("user_id.uid = ", user_id.uid);
                 user_id = user_id.uid;
 
                 await pool.query(createHost, [ user_id, event_id ]);
@@ -102,7 +101,7 @@ const eventImport = async () => {
                         const ticket_user_id = (await pool.query(getUserFirebase, [ ticket_doc.id ])).rows[0].uid;
                         await pool.query(reserveTicket, [ event_id, ticket_user_id ]);
                     } catch (err) {
-                        console.log(err);
+                        console.log(err, data.title);
                     }
                 });
 
@@ -171,7 +170,7 @@ const usersImport = async () => {
             await pool.query(postSignup, values);
         } catch (err) {
             console.log(err);
-            console.log(doc.id);
+            //console.log(doc.id);
         }
     });
 };
@@ -199,7 +198,7 @@ const omaImport = async () => {
 const main = async () => {
     await usersImport();
     await eventImport();
-   // await omaImport();
+    await omaImport();
 }
 
 main();
