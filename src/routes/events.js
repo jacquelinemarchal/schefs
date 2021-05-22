@@ -464,7 +464,7 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
                         event_title,
                         moment.tz(event_time, 'America/New_York').format('dddd, MMMM D, YYYY'),
                         moment.tz(event_time, 'America/New_York').format('h:mm A z'),
-                        process.env.BASE_URL + '/' + orig_event.eid,
+                        process.env.BASE_URL + 'event/' + orig_event.eid,
                         req.body.zoom_link || orig_event.zoom_link
                     );
                 }
@@ -615,23 +615,26 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
                 event.title,
                 moment.tz(event.time_start, 'America/New_York').format('dddd, MMMM D, YYYY'),
                 moment.tz(event.time_start, 'America/New_York').format('h:mm A, z'),
-                process.env.BASE_URL + '/events/' + req.params.eid
+                process.env.BASE_URL + 'events/' + req.params.eid
             );
 
             // schedule 24 hour reminder email 
             time_24hr = new Date(event.time_start);
             time_24hr.setDate(time_24hr.getDate() - 1);
-            reminders.schedule(time_24hr, '24h', req.profile.email, req.profile.first_name, event.title);
+            if (time_24hr > new Date())
+                reminders.schedule(time_24hr, '24h', req.profile.email, req.profile.first_name, event.title);
 
             // schedule 30 minute reminder email
             time_30min = new Date(event.time_start);
             time_30min.setMinutes(time_30min.getMinutes() - 30);
-            reminders.schedule(time_30min, '30m', req.profile.email, req.profile.first_name, event.title, event.zoom_link);
+            if (time_30min > new Date())
+                reminders.schedule(time_30min, '30m', req.profile.email, req.profile.first_name, event.title, event.zoom_link);
 
             // schedule post-event email
             time_post = new Date(event.time_start);
             time_post.setHours(time_post.getHours() + 2);
-            reminders.schedule(time_post, 'post', req.profile.email, req.profile.first_name, event.title);
+            if (time_post > new Date())
+                reminders.schedule(time_post, 'post', req.profile.email, req.profile.first_name, event.title);
 
             // get Gcal event id
             const gcal_id = (await pool.query(queries.getGcalId, [ req.params.eid ])).rows[0].gcal_id;
