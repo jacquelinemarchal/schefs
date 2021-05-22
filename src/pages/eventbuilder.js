@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback, useContext } from 'rea
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import moment from 'moment-timezone';
-import { htmlToText } from 'html-to-text';
 
 import Head from 'next/head';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -31,7 +30,7 @@ const defaultThumbnail = {
     tid: -1,
     location: 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fplaceholder.png?alt=media&token=2702460e-7c14-4afe-8703-63432f82909b',
     is_used: true,
-}
+};
 
 const EventBuilder = (props) => {
     // import Context and Router
@@ -84,6 +83,7 @@ const EventBuilder = (props) => {
     // selected date & time for scheduler
     const [datetimeConfirmed, setDatetimeConfirmed] = useState(false);
     const [selectedDate, setSelectedDate] = useState(router.query && router.query.date ? moment(router.query.date) : moment());
+    const [festivalDayName, setFestivalDayName] = useState("");
     const [selectedTime, setSelectedTime] = useState(null);
     const [schedulerTouched, setSchedulerTouched] = useState(false);
 
@@ -92,6 +92,7 @@ const EventBuilder = (props) => {
 
     // show available times when scheduling
     const [showTimes, setShowTimes] = useState(false);
+    const [availableTimeError, setAvailableTimeError] = useState("There was an error displaying the correct available times. Please contact schefs.us@gmail.com");
 
     // thumbnail options and selected value
 	const [thumbnails, setThumbnails] = useState([]);
@@ -140,7 +141,9 @@ const EventBuilder = (props) => {
 
                 setUnavailableDatetimes({...times});
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                setAvailableTimeError("There was an error displaying the correct available times. Please contact schefs.us@gmail.com")
+            });
     }
  
     // function to close modals
@@ -200,6 +203,36 @@ const EventBuilder = (props) => {
 
         times = times.map(time => (moment.tz(time, 'h:mm A', 'America/New_York').tz(timezone).format('h:mm A')));
         setDailyTimes([...times]);
+    }, []);
+
+
+    useEffect(() => {
+        if (router.query && router.query.date) {
+            var festDay = (router.query.date).substring(8,10);
+            var emergenceNames = ["Remote", "Planet", "Passport", "Structure", 
+                "Socialize", "Intimacy", "Paradigm"];
+            if (festDay === "14"){
+                setFestivalDayName(emergenceNames[0])
+            }
+            if (festDay === "15"){
+                setFestivalDayName(emergenceNames[1])
+            }
+            if (festDay === "16"){
+                setFestivalDayName(emergenceNames[2])
+            }
+            if (festDay === "17"){
+                setFestivalDayName(emergenceNames[3])
+            }
+            if (festDay === "18"){
+                setFestivalDayName(emergenceNames[4])
+            }
+            if (festDay === "19"){
+                setFestivalDayName(emergenceNames[5])
+            }
+            if (festDay === "20"){
+                setFestivalDayName(emergenceNames[7])
+            }
+        }
     }, []);
 
     // query available times in the next 4 weeks on load
@@ -387,7 +420,7 @@ const EventBuilder = (props) => {
               <img src={props.thumbnail.location} className="hover:bg-yellow-300 p-2 cursor-pointer rounded-3xl"></img>
             </button>
         );
-    }
+    };
     
     const Greyout = () => {
         return (
@@ -403,7 +436,7 @@ const EventBuilder = (props) => {
               </div>
             </CSSTransition>
         )
-    }
+    };
 
     const EventBuilderSchema = Yup.object().shape({
         coHostEmail: Yup.string()
@@ -434,7 +467,6 @@ const EventBuilder = (props) => {
           {preLoad.first_name && context.profile && context.profile.isVerified
             ? <>
                 <Greyout />
-
                 <CSSTransition
                   in={isModalOpen}
                   timeout={500}
@@ -442,7 +474,7 @@ const EventBuilder = (props) => {
                   classNames="eventbuilder-modal"
                   unmountOnExit
                 >
-                  <div id="help-modal" className="fixed p-2 mb-32 md:mb-0 mt-4 mx-4 md:mx-auto max-w-full border-black border-2 overflow-scroll inset-0 md:mt-20 rounded-xl bg-white justify-center z-10 shadow">
+                  <div id="help-modal" className="fixed p-2 mb-40 sm:mb-32 md:mb-0 mt-4 mx-4 md:mx-auto border-black border-2 overflow-scroll inset-0 md:mt-20 rounded-xl bg-white justify-center z-10 shadow">
                     <div className="flex justify-end">
                       <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
                         <HighlightOff/>
@@ -451,13 +483,13 @@ const EventBuilder = (props) => {
                     <div className="flex flex-col justify-center px-8 pb-8">
                       <h2 className="text-4xl md:text-5xl leading-tight">How does hosting a Schefs conversation work?</h2>
                       <p className="text-base mt-8">
-                        1. You come up with an idea for a conversation framework.  Pick anything that interests you: climate change, 
-                        conciousness, anime, anarchy... you get it! Make up a title  and write a little description about what
-                        you’ll lead the group  in talking about.
+                        1. You come up with an idea for a conversation framework. Pick anything that interests you: climate change, 
+                        conciousness, anime, anarchy... you get it! Make up a title and write a little description about what
+                        you’ll lead the group in talking about.
                         <br /><br />
                         2. Pick a date. All Schefs events happen on Fridays, Saturdays or Sundays.
                         <br /><br />
-                        3. The Schefs team will review & (hopefully) approve your event within 24 hours.
+                        3. The Schefs team will review &amp; (hopefully) approve your event within 24 hours.
                         <br /><br />
                         4. Once approved, your event will show up on our home page, you’ll get a calendar invite with a zoom link,
                         and anyone with a Schefs account can sign up to atend! We can also make you a custom flyer you can use to
@@ -520,7 +552,7 @@ const EventBuilder = (props) => {
                     <div className="mb-6 mt-4 mx-6 gap-2 grid-cols-1 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
                       {thumbnails.length
                         ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
-                        : null
+                        : <div style={{width: "80rem"}} className="ml-1">Whoops, looks like there's no thumbnails available. Contact schefs.us@gmail.com if you think this is a mistake.</div>
                       }
                     </div>
                   </div> 
@@ -541,6 +573,7 @@ const EventBuilder = (props) => {
                     </div>
                     <div className="flex flex-col md:flex-row md:h-full max-h-full">
                       <div className="lg:w-2/3 px-8">
+                        {availableTimeError !== "" ? <div className="text-red-600 sm:text-sm text-base mb-2">{availableTimeError}</div> : null}
                         <p className="text-base mb-2 md:mb-8 hidden md:block">Choose a time to host your event:</p>
                         <div className="md:overflow-hidden md:pl-8 mb-4 md:mb-0 -mt-3 md:mt-0"> 
                           {unavailableDatetimes !== null
@@ -673,7 +706,10 @@ const EventBuilder = (props) => {
                               }
                               padding="md:hidden flex px-6 w-full mt-2 md:mt-0 md:w-auto"
                             />
-
+                            {(festivalDayName !== "")
+                               ? <div className="text-lg ml-2">Emergence: {festivalDayName}</div>
+                               : null
+                            }
                             {schedulerTouched && !datetimeConfirmed
                                ? <p className="text-red-500 text-sm mt-1 md:mt-0 md:ml-8">This field is required.</p>
                                : null

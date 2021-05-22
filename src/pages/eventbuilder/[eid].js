@@ -97,6 +97,7 @@ const EventEditor = ({ eventInfo }) => {
 
     // show available times when scheduling
     const [showTimes, setShowTimes] = useState(false);
+    const [availableTimeError, setAvailableTimeError] = useState("");
 
     const queryThumbnails = () => {
         axios
@@ -136,7 +137,9 @@ const EventEditor = ({ eventInfo }) => {
 
                 setUnavailableDatetimes({...times});
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                setAvailableTimeError("There was an error displaying the correct available times. Please contact schefs.us@gmail.com")
+            });
     }
  
     // function to close modals
@@ -447,7 +450,7 @@ const EventEditor = ({ eventInfo }) => {
                             <div className="m-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
 								  {thumbnails.length
 								    ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
-								    : null
+								    : <div style={{width: "80rem"}} className="ml-1">Whoops, looks like there's no thumbnails available. Contact schefs.us@gmail.com if you think this is a mistake.</div>
 								  }
                               </div>
                           </div> 
