@@ -33,7 +33,7 @@ const defaultThumbnail = {
     is_used: true,
 }
 
-const EventBuilder = () => {
+const EventBuilder = (props) => {
     // import Context and Router
     const context = useContext(Context);
     const router = useRouter();
@@ -83,8 +83,9 @@ const EventBuilder = () => {
 
     // selected date & time for scheduler
     const [datetimeConfirmed, setDatetimeConfirmed] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(moment());
+    const [selectedDate, setSelectedDate] = useState(router.query && router.query.date ? moment(router.query.date) : moment());
     const [selectedTime, setSelectedTime] = useState(null);
+    const [schedulerTouched, setSchedulerTouched] = useState(false);
 
     // available dates & times for scheduler
     const [unavailableDatetimes, setUnavailableDatetimes] = useState(null);
@@ -144,14 +145,14 @@ const EventBuilder = () => {
  
     // function to close modals
     const closeModals = () => {
-        if (isPhotoDisplayOpen)
-            setIsPhotoDisplayOpen(false);
-        if (isModalOpen)
-            setIsModalOpen(false);
-        if (isCoHostOpen)
-            setIsCoHostOpen(false);
+        setIsPhotoDisplayOpen(false);
+        setIsModalOpen(false);
+        setIsCoHostOpen(false);
+
         if (isSchedulerOpen)
-            setIsSchedulerOpen(false);
+            setSchedulerTouched(true);
+
+        setIsSchedulerOpen(false);
     }
 
     // listen for escape key to close modals
@@ -214,16 +215,22 @@ const EventBuilder = () => {
     // check if date in scheduler should be disabled
     const isDateDisabled = (date) => {
         const datestring = date.format('YYYY-MM-DD');
-        if (date.day() != 0 && date.day() != 5 && date.day() != 6)
-            return true;
-        if (datestring in unavailableDatetimes && unavailableDatetimes[datestring].length === dailyTimes.length)
-            return true;
+
+        if (router.query && router.query.date) {
+            if (router.query.date !== datestring)
+                return true;
+        } else {
+            if (date.day() != 0 && date.day() != 5 && date.day() != 6)
+                return true;
+            if (datestring in unavailableDatetimes && unavailableDatetimes[datestring].length === dailyTimes.length)
+                return true;
+        }
         return false;
     }
 
     const confirmDatetime = () => {
         setDatetimeConfirmed(true);
-        setTimeout(() => setIsSchedulerOpen(false), 1000);
+        setTimeout(() => setIsSchedulerOpen(false), 500);
     }
 
     const selectDatetime = (time) => {
@@ -435,26 +442,29 @@ const EventBuilder = () => {
                   classNames="eventbuilder-modal"
                   unmountOnExit
                 >
-                  <div className="fixed px-2 mx-6 md:mx-12 xl:mx-24 border-black border-2 overflow-scroll top-0 mt-20 rounded-xl bg-white justify-center z-10 shadow">
+                  <div id="help-modal" className="fixed p-2 mb-32 md:mb-0 mt-4 mx-4 md:mx-auto max-w-full border-black border-2 overflow-scroll inset-0 md:mt-20 rounded-xl bg-white justify-center z-10 shadow">
                     <div className="flex justify-end">
                       <button type="button" onClick={() => setIsModalOpen(!isModalOpen)} className="focus:outline-none p-2">
                         <HighlightOff/>
                       </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="grid col-span-1 px-16 pt-2 pb-12">
-                        <h2 className="text-5xl">Welcome to the<br></br> Event Builder*</h2>
-                        <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                        <p className="text-sm mt-4"><b>*</b> Click “HELP” to return to this screen at any point</p>
-                      </div>
-                      <div className="grid col-span-1">
-                        <div className="grid col-span-1 mx-6 px-10 my-4 pb-10 overflow-y-auto" style={{maxHeight: "30rem"}}>
-                          <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                          <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
-                          <p className="text-sm mt-4">Your information is pre-loaded from your profile card.<br></br><br></br>You only have to create a bio once; next time you host a Schefs event, your bio will be pre-loaded as well. <br></br><br></br>When you are done, click submit, choose a date, and we will get back to you with a confirmation within 24 hours! <br></br><br></br>All events happen on Fridays, Saturdays, or Sundays.<br></br><br></br>You can schedule your event on any of these days within the next three weeks. </p>
-                          <p className="text-sm mt-4">*Click “HELP” to return to this screen at any point</p>
-                        </div>
-                      </div>
+                    <div className="flex flex-col justify-center px-8 pb-8">
+                      <h2 className="text-4xl md:text-5xl leading-tight">How does hosting a Schefs conversation work?</h2>
+                      <p className="text-base mt-8">
+                        1. You come up with an idea for a conversation framework.  Pick anything that interests you: climate change, 
+                        conciousness, anime, anarchy... you get it! Make up a title  and write a little description about what
+                        you’ll lead the group  in talking about.
+                        <br /><br />
+                        2. Pick a date. All Schefs events happen on Fridays, Saturdays or Sundays.
+                        <br /><br />
+                        3. The Schefs team will review & (hopefully) approve your event within 24 hours.
+                        <br /><br />
+                        4. Once approved, your event will show up on our home page, you’ll get a calendar invite with a zoom link,
+                        and anyone with a Schefs account can sign up to atend! We can also make you a custom flyer you can use to
+                        spread the word :) Tell your friends!
+                        <br /><br />
+                        <b>*</b> Click HELP to return to this screen at any point.
+                      </p>
                     </div>
                   </div> 
                 </CSSTransition>
@@ -486,28 +496,35 @@ const EventBuilder = () => {
                   </div>
                 </CSSTransition>
               
-                {isPhotoDisplayOpen
-                  ? <>
-                      <div id="imageContainerEB" className="fixed overflow-scroll sm:border-2 top-0 mt-12 left-0 mx-4 shadow rounded-xl bg-white justify-center z-10">
-                        <div className="flex justify-end">
-                          <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
-                            <HighlightOff/>
-                          </button>
-                        </div>
-                        <div className="mx-4 my-2 pb-6 flex justify-between">
-                          <p>Don't see a photo you like? Pick one of these images as a placeholder for now and<br></br> email schefs.us@gmail with the name of your event &amp; your new image of choice.</p>
-                          <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
-                        </div>
-                        <div className="m-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
-                          {thumbnails.length
-                            ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
-                            : null
-                          }
-                        </div>
-                      </div> 
-                    </>
-                  : null
-                }
+                <CSSTransition
+                  in={isPhotoDisplayOpen}
+                  timeout={500}
+                  key="eventbuilder-photodisplay"
+                  classNames="eventbuilder-modal"
+                  unmountOnExit
+                >
+                  <div id="imageContainerEB" className="overflow-scroll p-2 mb-24 mx-4 mt-4 md:mb-0 md:mt-12 md:mx-auto max-w-full fixed border-2 border-black rounded-xl inset-0 bg-white justify-center z-20">
+                    <div className="flex justify-end">
+                      <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
+                        <HighlightOff/>
+                      </button>
+                    </div>
+                    <div className="mx-8 md:my-2 md:flex md:justify-between">
+                      <p className="md:w-1/2">
+                        Don't see a photo you like? Pick one of these images as a placeholder for now and email schefs.us@gmail with the name of your event &amp; your new image of choice.
+                      </p>
+                      <p className="md:w-1/2">
+                        No two events use the same image. Once you choose an image, it’s yours!
+                      </p>
+                    </div>
+                    <div className="mb-6 mt-4 mx-6 gap-2 grid-cols-1 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
+                      {thumbnails.length
+                        ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
+                        : null
+                      }
+                    </div>
+                  </div> 
+                </CSSTransition>
 
                 <CSSTransition
                   in={isSchedulerOpen}
@@ -516,16 +533,16 @@ const EventBuilder = () => {
                   classNames="eventbuilder-modal"
                   unmountOnExit
                 >
-                <div id="calendar" className="overflow-hidden p-2 m-6 md:m-0 fixed md:transform md:-translate-x-1/2 border-2 border-black rounded-xl md:mt-12 top-0 bottom-0 bg-white justify-center z-20">
+                  <div id="calendar" className="overflow-hidden p-2 mb-24 mx-4 mt-4 md:mb-0 md:mx-auto max-w-full fixed border-2 border-black rounded-xl md:mt-12 inset-0 bg-white justify-center z-20">
                     <div className="flex justify-end">
-                      <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
+                      <button type="button" onClick={() => {setIsSchedulerOpen(false); setSchedulerTouched(true);}} className="focus:outline-none p-2">
                         <HighlightOff/>
                       </button>
                     </div>
-                    <div className="flex flex-col lg:flex-row lg:h-full max-h-full">
+                    <div className="flex flex-col md:flex-row md:h-full max-h-full">
                       <div className="lg:w-2/3 px-8">
-                        <p className="text-base mb-2 lg:mb-8">Choose a time to host your event:</p>
-                        <div className="overflow-hidden lg:pl-8 mb-4 lg:mb-0"> 
+                        <p className="text-base mb-2 md:mb-8 hidden md:block">Choose a time to host your event:</p>
+                        <div className="md:overflow-hidden md:pl-8 mb-4 md:mb-0 -mt-3 md:mt-0"> 
                           {unavailableDatetimes !== null
                             ? <MuiPickersUtilsProvider utils={MomentUtils}>
                                 <Calendar 
@@ -574,10 +591,10 @@ const EventBuilder = () => {
                       </div>
 
                       {dailyTimes
-                        ? <div className="lg:w-1/3 px-8 pb-20 overflow-y-scroll">
+                        ? <div className="md:w-1/3 px-8 pb-20 overflow-y-scroll">
                             {dailyTimes.map(time => {
                               const date = moment(selectedDate).format('YYYY-MM-DD');
-                              if (unavailableDatetimes && (date in unavailableDatetimes && unavailableDatetimes[date].has(time)))
+                              if (unavailableDatetimes && date in unavailableDatetimes && unavailableDatetimes[date].has(time))
                                   return null;
                               return (
                                   <WhitePillButton
@@ -636,7 +653,7 @@ const EventBuilder = () => {
                     
                           <ErrorMessage render={msg => <p className="text-red-500 text-sm pb-2">{msg}</p>} name="title"></ErrorMessage>
   
-                          <div className="flex flex-row">
+                          <div className="md:flex md:flex-row mb-4 items-center">
                             <WhitePillButton
                               handleClick={() => setIsSchedulerOpen(true)}
                               type="button"
@@ -644,7 +661,7 @@ const EventBuilder = () => {
                                 ? selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')
                                 : 'SELECT DATE & TIME'
                               }
-                              padding="hidden lg:block flex px-6 mb-4 w-full mt-2 lg:mt-0 lg:w-auto"
+                              padding="hidden md:block flex px-6 w-full mt-2 md:mt-0 md:w-auto"
                             />
 
                             <WhitePillButton
@@ -654,8 +671,13 @@ const EventBuilder = () => {
                                 ? selectedDate.format('MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')
                                 : 'SELECT DATE & TIME'
                               }
-                              padding="lg:hidden flex px-6 mb-4 w-full mt-2 lg:mt-0 lg:w-auto"
+                              padding="md:hidden flex px-6 w-full mt-2 md:mt-0 md:w-auto"
                             />
+
+                            {schedulerTouched && !datetimeConfirmed
+                               ? <p className="text-red-500 text-sm mt-1 md:mt-0 md:ml-8">This field is required.</p>
+                               : null
+                            }
                           </div>
     
                           <div className="mt-2 mb-10 lg:w-2/3">

@@ -9,12 +9,12 @@ import NavBar from '../components/Banners/navbar';
 import Context from '../components/Context/context';
 import WhitePillButton from '../components/Buttons/wpillbutton.js'
 
-const festivalLanding = ({ closeCardF, socialEvents }) => {
+const FestivalLanding = ({ closeCardF, socialEvents }) => {
 
     return (
         <>
         <div className="px-6 md:px-12 mx-2" id="emergenceBannerMobile">
-            <img className="rotate-90 h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} altText="Emergence Logo" />
+            <img className="rotate-90 h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} alt="Emergence Logo" />
             <p className="text-xl leading-tight mx-1 sm:mx-0">
                     The third Schefs festival.<br />
                     A week of discussions.<br />
@@ -25,7 +25,7 @@ const festivalLanding = ({ closeCardF, socialEvents }) => {
         <div className="px-6 md:px-12 xl:px-24" id="emergenceBannerWeb">
             <div className="flex flex-row justify-between mb-16">
                 <div className="pl-2">
-                <img className="rotate-90 md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} altText="Emergence Logo" />
+                <img className="rotate-90 md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} alt="Emergence Logo" />
                 <p className="text-xl leading-tight">
                     The third Schefs festival.<br />
                     A week of discussions.<br />
@@ -90,7 +90,12 @@ const festivalLanding = ({ closeCardF, socialEvents }) => {
                     <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
-                    <WhitePillButton text="HOST AN EVENT" padding="px-6 mt-4 md:mt-0" size="lg sm:text-xl" link="eventbuilder?1"></WhitePillButton>
+                    <WhitePillButton
+                      text="HOST AN EVENT"
+                      padding="px-6 mt-4 md:mt-0"
+                      size="lg sm:text-xl"
+                      link={{ pathname: '/eventbuilder', query: { date: '2021-06-14' }}}
+                    />
                 </div>
             </div>
             <hr className="my-6"></hr>
@@ -104,7 +109,12 @@ const festivalLanding = ({ closeCardF, socialEvents }) => {
                     <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
-                    <WhitePillButton text="HOST AN EVENT" padding="px-6 mt-4 md:mt-0" size="lg sm:text-xl" link="eventbuilder?2"></WhitePillButton>
+                    <WhitePillButton
+                      text="HOST AN EVENT"
+                      padding="px-6 mt-4 md:mt-0"
+                      size="lg sm:text-xl"
+                      link={{ pathname: '/eventbuilder', query: { date: '2021-06-15' }}}
+                    />
                 </div>
             </div>
             <hr className="my-6"></hr>
@@ -118,7 +128,12 @@ const festivalLanding = ({ closeCardF, socialEvents }) => {
                     <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
-                    <WhitePillButton text="HOST AN EVENT" padding="px-6 mt-4 md:mt-0" size="lg sm:text-xl" link="eventbuilder?3"></WhitePillButton>
+                    <WhitePillButton
+                      text="HOST AN EVENT"
+                      padding="px-6 mt-4 md:mt-0"
+                      size="lg sm:text-xl"
+                      link={{ pathname: '/eventbuilder', query: { date: '2021-06-16' }}}
+                    />
                 </div>
             </div>
             <hr className="my-6"></hr>
@@ -132,7 +147,12 @@ const festivalLanding = ({ closeCardF, socialEvents }) => {
                     <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
-                    <WhitePillButton text="HOST AN EVENT" padding="px-6 mt-4 md:mt-0" size="lg sm:text-xl" link="eventbuilder?4"></WhitePillButton>
+                    <WhitePillButton
+                      text="HOST AN EVENT"
+                      padding="px-6 mt-4 md:mt-0"
+                      size="lg sm:text-xl"
+                      link={{ pathname: '/eventbuilder', query: { date: '2021-06-17' }}}
+                    />
                 </div>
             </div>
             <hr className="my-6"></hr>
@@ -146,7 +166,12 @@ const festivalLanding = ({ closeCardF, socialEvents }) => {
                     <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
-                    <WhitePillButton text="HOST AN EVENT" padding="px-6 mt-4 md:mt-0" size="lg sm:text-xl" link="eventbuilder?5"></WhitePillButton>
+                    <WhitePillButton
+                      text="HOST AN EVENT"
+                      padding="px-6 mt-4 md:mt-0"
+                      size="lg sm:text-xl"
+                      link={{ pathname: '/eventbuilder', query: { date: '2021-06-18' }}}
+                    />
                 </div>
             </div>
             <hr className="my-6"></hr>
@@ -160,7 +185,12 @@ const festivalLanding = ({ closeCardF, socialEvents }) => {
                     <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
-                    <WhitePillButton text="HOST AN EVENT" padding="px-6 mt-4 md:mt-0" size="lg sm:text-xl" link="eventbuilder?6"></WhitePillButton>
+                    <WhitePillButton
+                      text="HOST AN EVENT"
+                      padding="px-6 mt-4 md:mt-0"
+                      size="lg sm:text-xl"
+                      link={{ pathname: '/eventbuilder', query: { date: '2021-06-19' }}}
+                    />
                 </div>
             </div>
             <hr className="my-6"></hr>
@@ -174,7 +204,12 @@ const festivalLanding = ({ closeCardF, socialEvents }) => {
                     <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
-                    <WhitePillButton text="HOST AN EVENT" padding="px-6 mt-4 md:mt-0" size="lg sm:text-xl" link="eventbuilder?7"></WhitePillButton>
+                    <WhitePillButton
+                      text="HOST AN EVENT"
+                      padding="px-6 mt-4 md:mt-0"
+                      size="lg sm:text-xl"
+                      link={{ pathname: '/eventbuilder', query: { date: '2021-06-20' }}}
+                    />
                 </div>
             </div>
             <hr className="my-6"></hr>
@@ -183,4 +218,5 @@ const festivalLanding = ({ closeCardF, socialEvents }) => {
     </>
     );
 };
-export default festivalLanding;
+
+export default FestivalLanding;
