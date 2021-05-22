@@ -375,10 +375,11 @@ const EventBuilder = (props) => {
                     setDatetimeConfirmed(false);
                 }
             } else // 500: other postgres error
-                alert(err.response.data.err)
+                alert(err.response.data.err, "Please contact schefs.us@gmail.com for assistance.")
             return;
         }
 
+        // update user info
         const userData = new FormData();
         userData.append('first_name', values.first_name);
         userData.append('last_name', values.last_name);
@@ -393,23 +394,22 @@ const EventBuilder = (props) => {
             
             userData.append('img_profile', blob);
 
-            await axios.put('/api/users/' + context.profile.uid, userData, {
+            await axios.put('/api/users/777' + context.profile.uid, userData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-
-            // trigger MyEvents update
-            context.handleSetMyEvents(null);
-
-            // redirect to PostEventSubmit confirmation
-            router.push('/posteventsubmit?eid=' + eid);
         } catch (err) {
             setSubmitting(false);
-
             if (err.response && err.response.data)
-                alert(err.response.data.err);
+                alert(err.response.data.err + ". Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
             else
-                alert(err);
+                alert(err + ". Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
         }
+
+        // trigger MyEvents update
+        context.handleSetMyEvents(null);
+
+        // redirect to PostEventSubmit confirmation
+        router.push('/posteventsubmit?eid=' + eid);
 	}
 
     const Thumbnail = (props) => {

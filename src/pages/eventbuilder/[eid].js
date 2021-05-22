@@ -72,7 +72,7 @@ const EventEditor = ({ eventInfo }) => {
     const [zoom, setZoom] = useState(1)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
-    const [profilePictureURL, setProfilePictureURL] = useState(defaultProfilePicture);
+    const [profilePictureURL, setProfilePictureURL] = useState(process.env.BASE_URL + defaultProfilePicture);
 
     // thumbnail selection modal state
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)  
@@ -319,9 +319,9 @@ const EventEditor = ({ eventInfo }) => {
                 alert('profile picture successfully submitted');
             } catch (err) {
                 if (err.response && err.response.data)
-                    alert(err.response.data.err);
+                    alert(err.response.data.err, "Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
                 else
-                    alert(err);
+                    alert(err, "Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
             }
         }
 
@@ -840,7 +840,7 @@ const EventEditor = ({ eventInfo }) => {
           : !preLoad.first_name && context.profile && context.profile.is_admin
             ? 
             <div className="text-center mt-56">
-                <CircularProgress color="black" />
+                <CircularProgress />
             </div>
             :
             <>
