@@ -203,7 +203,7 @@ const Home = ({ closeCardF }) => {
                         <WhitePillButton 
                           size="sm"
                           text="COMING SOON"
-                          padding="px-8 mt-8 "
+                          padding="px-8 mt-8 cursor-not-allowed"
                         />
                       </div>
                     </div>

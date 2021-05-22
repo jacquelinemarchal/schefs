@@ -186,7 +186,8 @@ const getUserPastEvents = `
                     u.bio,
                     u.school,
                     u.major,
-                    u.grad_year
+                    u.grad_year,
+                    u.is_email_public
                 FROM users AS u
                 LEFT JOIN event_hosts AS eh
                 ON u.uid = eh.user_id
@@ -204,7 +205,8 @@ const getUserPastEvents = `
                     u.bio,
                     u.school,
                     u.major,
-                    u.grad_year
+                    u.grad_year,
+                    u.is_email_public
                 FROM users AS u
                 LEFT JOIN tickets AS tk
                 ON u.uid = tk.user_id
