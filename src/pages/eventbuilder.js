@@ -483,7 +483,7 @@ const EventBuilder = (props) => {
                       </button>
                     </div>
                     <div className="flex flex-col justify-center px-8 pb-8">
-                      <h2 className="text-4xl md:text-5xl leading-tight">How does hosting a Schefs conversation work?</h2>
+                      <h2 className="text-4xl md:text-5xl leading-none">How does hosting a Schefs conversation work?</h2>
                       <p className="text-base mt-8">
                         1. You come up with an idea for a conversation framework. Pick anything that interests you: climate change, 
                         conciousness, anime, anarchy... you get it! Make up a title and write a little description about what

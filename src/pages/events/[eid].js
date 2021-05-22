@@ -14,7 +14,7 @@ import downloadHoverLogo from "../../assets/hdownload.png"
 
 const EventPage = ({eventInfo, tickets, comments}) => {
     const context = useContext(Context);
-
+console.log(eventInfo)
     // get timezone
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
 

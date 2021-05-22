@@ -28,6 +28,7 @@ import * as Yup from 'yup';
 import Context from '../../components/Context/context';
 import WhitePillButton from '../../components/Buttons/wpillbutton';
 import cohost from '../../assets/cohost.png';
+import { LocalConvenienceStoreOutlined } from '@material-ui/icons';
 
 
 const EventEditor = ({ eventInfo }) => {
@@ -295,34 +296,11 @@ const EventEditor = ({ eventInfo }) => {
             host_school: values.school,
         }
 
-        
         if (selectedThumbnail.tid !== -1){
             eventData.thumbnail_id = selectedThumbnail.tid;
         }
         if (!time_start.isSame(defaultDatetime)){
             eventData.time_start = time_start;
-        }
-        
-        // change profile picture if changed
-        if (profilePictureURL !== eventInfo.hosts[0].img_profile) {
-            const userData = new FormData();
-            try {
-                const res = await fetch(profilePictureURL);
-                const blob = await res.blob();
-                
-                userData.append('img_profile', blob);
-
-                await axios.put('/api/users/' + eventInfo.hosts[0].uid, userData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-
-                alert('profile picture successfully submitted');
-            } catch (err) {
-                if (err.response && err.response.data)
-                    alert(err.response.data.err, "Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
-                else
-                    alert(err, "Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
-            }
         }
 
         try {
@@ -349,7 +327,34 @@ const EventEditor = ({ eventInfo }) => {
             } else
                 alert(err.response.data.err)
             return;
-        } finally {
+        } 
+        
+        // update user info
+        const userData = new FormData();
+        userData.append('first_name', values.first_name);
+        userData.append('last_name', values.last_name);
+        userData.append('bio', values.bio);
+        userData.append('school', values.school);
+
+        // change profile picture if changed
+        if (profilePictureURL !== eventInfo.hosts[0].img_profile) {
+            const res = await fetch(profilePictureURL);
+            const blob = await res.blob(); 
+            userData.append('img_profile', blob);
+        }
+
+        try {
+            await axios.put('/api/users/' + eventInfo.hosts[0].uid, userData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        } catch (err) {
+            if (err.response && err.response.data)
+                alert(err.response.data.err, "Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
+            else
+                alert(err, "Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
+        }
+
+        finally {
             setSubmitting(false);
         }
 	}
@@ -374,15 +379,17 @@ const EventEditor = ({ eventInfo }) => {
         const eventData = {
             status: 'denied'
         }
-
         try {
             await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
             console.log("successfully denied");
+            router.push('/admin')
         } catch (err) {
+            console.log(err.response.data.err)
             if (err.response && err.response.status === 500) {
                 alert("Server error. Contact tech.")
             }
-            else{alert("Alternate error (non 500). Contact tech.")}
+            else
+                {alert("Alternate error (non 500). Contact tech.")}
             return;
         }
     }
@@ -670,7 +677,7 @@ const EventEditor = ({ eventInfo }) => {
                                     <button
                                         type="button"
                                         className="flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white "
-                                        onClick={() => {handleDeny(); submitForm();}}>
+                                        onClick={() => {handleDeny();}}>
                                         DENY
                                     </button>
 
@@ -860,6 +867,11 @@ export default EventEditor;
 export const getServerSideProps = async (context) => {
     try {
         const eventInfo = (await pool.query(queries.getEvent, [ context.params.eid ])).rows[0].event;
+        if (eventInfo.status === 'denied') {
+            return {
+                notFound: true,
+            };
+        }
         return {
             props: {
                 eventInfo,

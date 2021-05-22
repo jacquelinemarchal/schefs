@@ -471,7 +471,7 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
 
                 // add hosts to Gcal event
                 if (!(await gcal.addAttendees(orig_event.gcal_id, orig_event.hosts.map((host) => host.email))))
-                    console.log('Failed to add hosts to Gcal event', gcal_id);
+                    console.log('Failed to add hosts to Gcal event', orig_event.gcal_id);
 
 
             // or send email and delete Zoom/Gcal if a denial took place
@@ -487,10 +487,10 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
                     );
                 }
 
-                if (!(await zoom.deleteMeeting(zoom_res.id)))
-                    console.log('Failed to delete Zoom meeting', zoom_res.id);
-                if (!(await gcal.delete(gcal_id)))
-                    console.log('Failed to delete Gcal event', gcal_id);
+                if (!(await zoom.deleteMeeting(orig_event.zoom_id)))
+                    console.log('Failed to delete Zoom meeting', orig_event.zoom_id);
+                if (!(await gcal.delete(orig_event.gcal_id)))
+                    console.log('Failed to delete Gcal event', orig_event.gcal_id);
             }
 
             // if necessary, update Zoom
@@ -498,7 +498,7 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
                 if (!(await zoom.updateMeeting(orig_event.zoom_id, event_title, event_time))) {
                     await client.query('ROLLBACK');
                     res.status(500).json({
-                        err: 'Zoom API failed to update meeting ' + orig_event.zoom_id 
+                        err: 'Zoom API failed to update meeting ' + orig_event.zoom_id
                     });
                     return;
                 }
