@@ -50,7 +50,14 @@ const eventImport = async () => {
     console.log("################################ ENTER EVENT ENTRY ################################")
     // insert events
     const snap = await firestore.collection('weekendevents').get()
-    snap.forEach(async (doc) => {
+
+    const documents = [];
+    snap.forEach((doc) => {
+        documents.push(doc);
+        return false;
+    });
+
+    for (const doc of documents) {
         try {
             const data = doc.data();
 
@@ -132,14 +139,20 @@ const eventImport = async () => {
             console.log(err);
             console.log(doc.id);
         }
-    });
+    };
 };
 
-const usersImport = async () => {
+const userImport = async () => {
     console.log("################################ ENTER USERS ENTRY ################################")
-
     const snap = await firestore.collection('users').get()
-    snap.forEach(async (doc) => {
+
+    const documents = [];
+    snap.forEach((doc) => {
+        documents.push(doc);
+        return false;
+    });
+
+    for (const doc of documents) {
         try {
             const data = doc.data();
             const fb_uid = doc.id;
@@ -173,13 +186,20 @@ const usersImport = async () => {
             console.log(err);
             console.log(doc.id);
         }
-    });
+    };
 };
 
 const omaImport = async () => {
     console.log("################################ ENTER OMA ENTRY ################################")
     const snap = await firestore.collection('openmind').get()
-    snap.forEach(async (doc) => {
+
+    const documents = []
+    snap.forEach((doc) => {
+        documents.push(doc);
+        return false;
+    });
+
+    for (const doc of documents) {
         try {
             const data = doc.data();
             const user_id = (await pool.query(getUserFirebase, [ data.uid ])).rows[0].uid;
@@ -192,17 +212,23 @@ const omaImport = async () => {
 
             await pool.query(postOpenMind, values);
         } catch (err) {
+            console.log(doc.data());
             console.log(err);
         }
-    });
+    }
 }
 const main = async () => {
-    await usersImport();
+    await userImport();
     await eventImport();
-   // await omaImport();
+    await omaImport();
 }
 
 main();
+
+
+
+
+
 
 // insert aug20 festival events
 /*firestore.collection('aug20events').get().then((snap) => {

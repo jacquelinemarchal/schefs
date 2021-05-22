@@ -14,9 +14,8 @@ fi
 backup_file="$backup_dir/$(generate_filename)"
 echo $backup_file
 pg_dump $PGDATABASE | gzip > "$backup_file"
-gupload $backup_file
+gupload $backup_file -q
 
 if [ $? -eq 0 ]; then
-    echo "$(date +%Y-%m-%d %H:%M:%S) - Schefs PSQL backup successful"
-    rm $backup_file
+    echo "$(date +%Y-%m-%d %T) - Schefs PSQL backup successful"
 fi
