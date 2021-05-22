@@ -142,7 +142,7 @@ if (GET_ALL_EVENTS) {
                     const prof_file = (await storage.getFiles({ prefix }))[0][0];
                     prof_path = await downloadImage(prof_file);
                 } catch (err) {
-                    console.log(err);
+                   // console.log(err);
                 }
 
                 // insert user into postgres
@@ -166,7 +166,9 @@ if (GET_ALL_EVENTS) {
             }
         });
     }).then(() => {
+        setTimeout(function(){}, 3000);
 
+        console.log("################################ FINISHED USERS ENTRY ################################")
         // insert events
         firestore.collection('weekendevents').get().then((snap) => {
             snap.forEach(async (doc) => {
@@ -185,62 +187,68 @@ if (GET_ALL_EVENTS) {
                     } catch (err) {
                         console.log(err);
                     }
-                    
-                    // insert event into postgres
-                    const values = [
-                        data.firstName + ' ' + data.lastName,
-                        data.university,
-                        data.bio,
-                        data.title,
-                        data.desc,
-                        data.req,
-                        thumb_id,
-                        data.zoomLink,
-                        data.zoomId,
-                        '', // no gcal ID
-                        data.start_time.toDate(),
-                        data.status,
-                    ];
+                    if (data.status === "approved"){
+                        // insert event into postgres
+                        const values = [
+                            data.firstName + ' ' + data.lastName,
+                            data.university,
+                            data.bio,
+                            data.title,
+                            data.desc,
+                            data.req,
+                            thumb_id,
+                            data.zoomLink,
+                            data.zoomId,
+                            '', // no gcal ID
+                            data.start_time.toDate(),
+                            data.status,
+                        ];
 
-                    const event_id = (await pool.query(createEvent, values)).rows[0].eid;
+                        const event_id = (await pool.query(createEvent, values)).rows[0].eid;
+                        console.log("********************************* NEW EVENT ********************************* ")
+                        console.log("eid = ", event_id);
+                        console.log("208: ", data.user);
+                        // insert host relationship into postgres
+                        var user_id = (await pool.query(getUserFirebase, [ data.user ])).rows[0]
+                        console.log("211: user_id = ", user_id);
+                        console.log("user_id.uid = ", user_id.uid);
+                        user_id = user_id.uid;
 
-                    // insert host relationship into postgres
-                    const user_id = (await pool.query(getUserFirebase, [ data.user ])).rows[0].uid;
-                    await pool.query(createHost, [ user_id, event_id ]);
+                        await pool.query(createHost, [ user_id, event_id ]);
 
-                    // insert tickets into postgres
-                    const tickets_snap = await doc.ref.collection('tickets').get();
-                    tickets_snap.forEach(async (ticket_doc) => {
-                        try {
-                            const ticket_user_id = (await pool.query(getUserFirebase, [ ticket_doc.id ])).rows[0].uid;
-                            await pool.query(reserveTicket, [ event_id, ticket_user_id ]);
-                        } catch (err) {
-                            console.log(err);
-                        }
-                    });
-
-                    // insert comments into postgres
-                    const comments_snap = await doc.ref.collection('comments').get();
-                    if (!comments_snap.empty) {
-                        comments_snap.forEach(async (comment_doc) => {
+                        // insert tickets into postgres
+                        const tickets_snap = await doc.ref.collection('tickets').get();
+                        tickets_snap.forEach(async (ticket_doc) => {
                             try {
-                                const comment_data = comment_doc.data();
-                                const comment_user = (await pool.query(getUserFirebase, [ comment_data.uid ])).rows[0];
-                                const comment_values = [
-                                    comment_user.uid,
-                                    comment_data.name,
-                                    comment_data.content,
-                                    comment_user.school,
-                                    event_id,
-                                ];
-
-                                await pool.query(postComment, comment_values);
+                                const ticket_user_id = (await pool.query(getUserFirebase, [ ticket_doc.id ])).rows[0].uid;
+                                await pool.query(reserveTicket, [ event_id, ticket_user_id ]);
                             } catch (err) {
                                 console.log(err);
                             }
                         });
-                    }
 
+                        // insert comments into postgres
+                        const comments_snap = await doc.ref.collection('comments').get();
+                        if (!comments_snap.empty) {
+                            comments_snap.forEach(async (comment_doc) => {
+                                try {
+                                    const comment_data = comment_doc.data();
+                                    const comment_user = (await pool.query(getUserFirebase, [ comment_data.uid ])).rows[0];
+                                    const comment_values = [
+                                        comment_user.uid,
+                                        comment_data.name,
+                                        comment_data.content,
+                                        comment_user.school,
+                                        event_id,
+                                    ];
+
+                                    await pool.query(postComment, comment_values);
+                                } catch (err) {
+                                    console.log(err);
+                                }
+                            });
+                        }
+                    }
                 } catch (err) {
                     console.log(err);
                     console.log(doc.id);
