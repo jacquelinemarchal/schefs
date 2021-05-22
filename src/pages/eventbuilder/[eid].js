@@ -102,7 +102,7 @@ const EventEditor = ({ eventInfo }) => {
     const queryThumbnails = () => {
         axios
             .get('/api/thumbnails')
-            .then(res => setThumbnails())//[...res.data]))
+            .then(res => setThumbnails([...res.data]))
             .catch(err => console.log(err.response.data.err));
     }
 
@@ -206,6 +206,16 @@ const EventEditor = ({ eventInfo }) => {
         if (datestring in unavailableDatetimes && unavailableDatetimes[datestring].length === dailyTimes.length)
             return true;
         return false;
+    }
+    
+    const confirmDatetime = () => {
+        setDatetimeConfirmed(true);
+        setTimeout(() => setIsSchedulerOpen(false), 500);
+    }
+
+    const selectDatetime = (time) => {
+        setDatetimeConfirmed(false);
+        setSelectedTime(time);
     }
     
     const makeCroppedImage = () => {
@@ -321,13 +331,19 @@ const EventEditor = ({ eventInfo }) => {
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
-                    alert('Thumbnail already in use, choose a different one');
+                    alert('This thumbnail is already in use, please choose a different one. Contact schefs.us@gmail.com if you think this is a mistake.');
                     queryThumbnails();
                     setSelectedThumbnail(defaultThumbnail);
                 } else if (err.response.data.err === 'Time unavailable') {
-                    alert("Time unavailable");
+                    alert('This time is no longer available, please choose a different one. Contact schefs.us@gmail.com if you think this is a mistake.');
                     queryAvailableTimes();
                     setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
+                    setDatetimeConfirmed(false);
+                }
+                else if (err.response.data.err === 'Required field missing') {
+                    alert('You did not complete every required field in the event builder. Contact schefs.us@gmail.com if you think this is a mistake.');
+                    queryAvailableTimes();
+                    setSelectedTime(null);
                     setDatetimeConfirmed(false);
                 }
             } else
@@ -448,10 +464,10 @@ const EventEditor = ({ eventInfo }) => {
                                 <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
                             </div>
                             <div className="m-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
-								  {thumbnails.length
-								    ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
-								    : <div style={{width: "80rem"}} className="ml-1">Whoops, looks like there's no thumbnails available. Contact schefs.us@gmail.com if you think this is a mistake.</div>
-								  }
+                                {thumbnails.length
+                                    ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
+                                    : <div style={{width: "80rem"}} className="ml-1">Whoops, looks like there's no thumbnails available. Contact schefs.us@gmail.com if you think this is a mistake.</div>
+                                }
                               </div>
                           </div> 
                       </>
@@ -480,56 +496,109 @@ const EventEditor = ({ eventInfo }) => {
                         </>
                         : null}
 
-                    {isSchedulerOpen
-                        ? <div className="w-1/2 fixed transform -translate-x-1/2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20" style={{left: '50%'}}>
-                            <div className="flex justify-end">
-                              <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
-                                <HighlightOff/>
-                              </button>
-                            </div>
-                            <div className="flex flex-row" style={{maxHeight: '304px'}}>
-                              <div className="flex flex-col px-6">
-                              <div className="overflow-hidden">
-                                {unavailableDatetimes !== null
-                                  ? <MuiPickersUtilsProvider utils={MomentUtils}>
-                                      <Calendar 
-                                        date={selectedDate}
-                                        onChange={(date, isFinish) => {
-                                          setSelectedDate(date);
-                                          setShowTimes(true);
-                                        }}
-                                        shouldDisableDate={isDateDisabled} 
-                                        maxDate={moment().add(60, 'days')}
-                                        minDate={moment().add(3, 'days')}
-                                      />
-                                    </MuiPickersUtilsProvider>
-                                  : null
-                                }
-                              </div>
-                            </div>
-                            {dailyTimes
-                              ? <div className="px-6 overflow-scroll" style={{maxWidth: '200px'}}>
-                                  {dailyTimes.map(time => {
-                                      const date = moment(selectedDate).format('YYYY-MM-DD');
-                                      if (date in unavailableDatetimes && unavailableDatetimes[date].includes(time))
-                                          return null;
-                                      return (
-                                          <WhitePillButton
-                                            handleClick={selectedTime === time ? () => {setIsSchedulerOpen(false); setDatetimeConfirmed(true)} : () => setSelectedTime(time)}
-                                            type="button"
-                                            text={selectedTime === time ? 'CONFIRM' : time}
-                                            padding="my-1 w-full text-center"
-                                            key={time}
-                                          />
-                                      );
-                                  })}
-                                </div>
-                              : null
-                            }
-                          </div>
+                <CSSTransition
+                  in={isSchedulerOpen}
+                  timeout={500}
+                  key="eventbuilder-scheduler"
+                  classNames="eventbuilder-modal"
+                  unmountOnExit
+                >
+                  <div id="calendar" className="overflow-hidden p-2 mb-24 mx-4 mt-4 md:mb-0 md:mx-auto max-w-full fixed border-2 border-black rounded-xl md:mt-12 inset-0 bg-white justify-center z-20">
+                    <div className="flex justify-end">
+                      <button type="button" onClick={() => {setIsSchedulerOpen(false); setSchedulerTouched(true);}} className="focus:outline-none p-2">
+                        <HighlightOff/>
+                      </button>
+                    </div>
+                    <div className="flex flex-col md:flex-row md:h-full max-h-full">
+                      <div className="lg:w-2/3 px-8">
+                        {availableTimeError !== "" ? <div className="text-red-600 sm:text-sm text-base mb-2">{availableTimeError}</div> : null}
+                        <p className="text-base mb-2 md:mb-8 hidden md:block">Choose a time to host your event:</p>
+                        <div className="md:overflow-hidden md:pl-8 mb-4 md:mb-0 -mt-3 md:mt-0"> 
+                          {unavailableDatetimes !== null
+                            ? <MuiPickersUtilsProvider utils={MomentUtils}>
+                                <Calendar 
+                                  date={selectedDate}
+                                  onChange={(date, isFinish) => {
+                                    setDatetimeConfirmed(false);
+                                    setSelectedTime(null);
+                                    setSelectedDate(date);
+                                    setShowTimes(true);
+                                  }}
+                                  shouldDisableDate={isDateDisabled} 
+                                  maxDate={moment().add(60, 'days')}
+                                  minDate={moment().add(3, 'days')}
+                                  allowKeyboardControl={true}
+                                  renderDay={(day, selectedDate, dayInCurrentMonth, dayComponent) => {
+                                    if (day.isSame(selectedDate, 'day')) {
+                                        return (
+                                            <button
+                                              className="MuiButtonBase-root MuiIconButton-root MuiPickersDay-day MuiPickersDay-daySelected dayButton"
+                                              tabIndex="0"
+                                              type="button"
+                                              style={{
+                                                color: 'black',
+                                                backgroundColor: 'white',
+                                                borderRadius: '40px',
+                                                border: '2px solid black'
+                                              }}
+                                            >
+                                              <span className="MuiIconButton-label">
+                                                <p className="MuiTypography-root MuiTypography-body2 MuiTypography-colorInherit">
+                                                  {day.format('D')} 
+                                                </p>
+                                              </span>
+                                              <span className="MuiTouchRipple-root"></span>
+                                            </button>
+                                        );
+                                    }
+                                    else
+                                        return dayComponent;
+                                  }}
+                                />
+                              </MuiPickersUtilsProvider>
+                            : null
+                          }
                         </div>
-                      : null
-                    }
+                      </div>
+
+                      {dailyTimes
+                        ? <div className="md:w-1/3 px-8 pb-20 overflow-y-scroll">
+                            {dailyTimes.map(time => {
+                              const date = moment(selectedDate).format('YYYY-MM-DD');
+                              if (unavailableDatetimes && date in unavailableDatetimes) //&& unavailableDatetimes[date].has(time)) TODO This fails
+                                  return null;
+                              return (
+                                  <WhitePillButton
+                                    handleClick={selectedTime === time ? confirmDatetime : () => selectDatetime(time)}
+                                    type="button"
+                                    text={
+                                      selectedTime === time
+                                        ? datetimeConfirmed
+                                          ? 'CONFIRMED'
+                                          : 'CONFIRM?'
+                                        : time
+                                    }
+                                    padding={
+                                      'my-1 w-full text-center ' + (
+                                          selectedTime === time
+                                            ? datetimeConfirmed
+                                              ? 'bg-yellow-200'
+                                              : 'bg-gray-300'
+                                            : ''
+                                      )
+                                    }
+                                    key={time}
+                                  />
+                              );
+                            })}
+                          </div>
+                        : null
+                      }
+                    </div>
+
+                    <div className="absolute bottom-0 h-8 w-full bg-white"></div>
+                  </div>
+                </CSSTransition>
 
                     <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-2 ml-6 md:ml-12 xl:ml-24">
                         <div className="grid col-span-3">

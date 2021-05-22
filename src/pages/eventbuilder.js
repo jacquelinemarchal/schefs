@@ -92,7 +92,7 @@ const EventBuilder = (props) => {
 
     // show available times when scheduling
     const [showTimes, setShowTimes] = useState(false);
-    const [availableTimeError, setAvailableTimeError] = useState("There was an error displaying the correct available times. Please contact schefs.us@gmail.com");
+    const [availableTimeError, setAvailableTimeError] = useState("");
 
     // thumbnail options and selected value
 	const [thumbnails, setThumbnails] = useState([]);
@@ -357,21 +357,25 @@ const EventBuilder = (props) => {
             eid = (await axios.post('/api/events', eventData)).data.eid;
         } catch (err) {
             setSubmitting(false);
-
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
-                    alert('Thumbnail already in use, choose a different one');
+                    alert('This thumbnail is already in use, please choose a different one. Contact schefs.us@gmail.com if you think this is a mistake.');
                     queryThumbnails();
                     setSelectedThumbnail(defaultThumbnail);
                 } else if (err.response.data.err === 'Time unavailable') {
-                    alert('Time is unavailable, choose a different one');
+                    alert('This time is no longer available, please choose a different one. Contact schefs.us@gmail.com if you think this is a mistake.');
                     queryAvailableTimes();
                     setSelectedTime(null);
                     setDatetimeConfirmed(false);
                 }
-            } else
+                else if (err.response.data.err === 'Required field missing') {
+                    alert('You did not complete every required field in the event builder. Contact schefs.us@gmail.com if you think this is a mistake.');
+                    queryAvailableTimes();
+                    setSelectedTime(null);
+                    setDatetimeConfirmed(false);
+                }
+            } else // 500: other postgres error
                 alert(err.response.data.err)
-
             return;
         }
 
