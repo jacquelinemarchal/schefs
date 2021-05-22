@@ -88,7 +88,7 @@ const LoginForm = (props) => {
               )}
             </Formik>
           </div>
-          <footer className="flex items-center justify-between mb-4">
+          <footer className="flex items-center justify-between">
             <p className="w-1/2">Don't have an account?</p>
             <WhitePillButton handleClick={props.function} text="SIGN UP" padding="flex px-4 sm:px-6"/>
           </footer>

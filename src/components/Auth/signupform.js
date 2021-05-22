@@ -26,9 +26,12 @@ const SignUpForm = (props) => {
             values.gradYear
         ).then(() => props.showVerify(values.signUpEmail))
         .catch((err) => {
-            if (err.response && err.response.data && err.response.data.err)
-                setError(err.response.data.err.slice(err.response.data.err.lastIndexOf(':') + 1));
-            else
+            if (err.response && err.response.data && err.response.data.err) {
+                let err_msg = err.response.data.err.slice(err.response.data.err.lastIndexOf(':') + 1);
+                if (err_msg.startsWith('The email address is already in use'));
+                    err_msg = 'This email address is already in use. If you believe this is an error, email us at schefs.us@gmail.com.';
+                setError(err_msg);
+            } else
                 console.log(err);
             setSubmitting(false);
         })
@@ -70,8 +73,8 @@ const SignUpForm = (props) => {
           >
             {({isValid, dirty, isSubmitting}) => (
                 <Form>
-                  <div className="flex flex-col">
-                    <p className="text-center text-red-500 text-sm">{error}</p>
+                  <div className="flex flex-col -mt-1">
+                    <p className="text-red-500 text-sm">{error}</p>
                     <Field placeholder="First Name" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="firstName"></Field>
                     <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="firstName"></ErrorMessage>
 
@@ -101,7 +104,7 @@ const SignUpForm = (props) => {
                     <Field placeholder="Major" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 border-black"} name="major"></Field>
                     <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="major"></ErrorMessage>
 
-                    <button disabled={!isValid || !dirty || isSubmitting} type="submit" className={"flex w-2/3 mx-auto mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border-2 border-black rounded-full " + (!isValid || !dirty || isSubmitting ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white")}>
+                    <button disabled={!isValid || !dirty || isSubmitting} type="submit" className={"flex w-3/4 mx-auto mt-4 mb-6 py-0 justify-center items-center bg-transparent focus:outline-none text-black border-2 border-black rounded-full " + (!isValid || !dirty || isSubmitting ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white")}>
                       {isSubmitting
                         ? <><span>&#8203;</span><CircularProgress size="1rem" thickness={5} /></>
                         : 'CREATE AN ACCOUNT'
@@ -111,7 +114,7 @@ const SignUpForm = (props) => {
                 </Form>
             )}
           </Formik>
-          <footer className="flex items-center justify-between mb-4">
+          <footer className="flex items-center justify-between">
             <p className="w-3/5">Already have an account?</p>
             <WhitePillButton handleClick={props.function} text="LOG IN" padding="flex px-4 sm:px-6" />
           </footer>

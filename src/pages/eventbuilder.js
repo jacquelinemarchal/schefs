@@ -340,8 +340,6 @@ const EventBuilder = (props) => {
             timezone
         ).toDate();
 
-        console.log(time_start);
-
         const eventData = {
             title: values.title,
             description: values.description,
