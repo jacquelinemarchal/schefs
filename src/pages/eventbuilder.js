@@ -23,12 +23,14 @@ import * as Yup from 'yup';
 
 import Context from '../components/Context/context';
 import WhitePillButton from '../components/Buttons/wpillbutton';
-import cohost from '../assets/cohost.png';
 
-const defaultProfilePicture = 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2FScreen%20Shot%202021-01-24%20at%2010.57.18%20AM.jpeg?alt=media&token=a88fcb5e-4919-4bc6-b792-23d725324040';
+import cohost from '../assets/cohost.png';
+import defaultProfilePicture from '../assets/defaultProfilePicture.jpeg';
+import defaultThumbnailPicture from '../assets/defaultThumbnailPicture.png';
+
 const defaultThumbnail = {
     tid: -1,
-    location: 'https://firebasestorage.googleapis.com/v0/b/schefs.appspot.com/o/chosenImages%2Fplaceholder.png?alt=media&token=2702460e-7c14-4afe-8703-63432f82909b',
+    location: defaultThumbnailPicture,
     is_used: true,
 };
 
@@ -719,7 +721,7 @@ const EventBuilder = (props) => {
                           </div>
     
                           <div className="mt-2 mb-10 lg:w-2/3">
-                            <img onClick={() => {setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}} src={selectedThumbnail.location} className="cursor-pointer rounded-3xl" />
+                            <img onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} src={selectedThumbnail.location} className="cursor-pointer rounded-3xl" />
                           </div>
                           <div className="items-center flex space-x-2">
                             <p>Your event description:</p>
