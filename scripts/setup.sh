@@ -5,6 +5,8 @@ if [ "$#" -ne 4 ]; then
     exit 1
 fi
 
+### SETUP PSQL AND EVENTS ###
+
 # get PSQL variables as args
 pguser=$1
 pghost=$2
@@ -21,9 +23,6 @@ fi
 
 # create schema
 psql -U $pguser -h $pghost -d $pgdata -f ../schema.sql
-
-# download images 
-curl -s -o ../public/images/placeholder.png https://raw.githubusercontent.com/jacquelinemarchal/schefs/backend/dev/images/placeholder.png?token=ADEH73WEORMCVOQPPTFTTZDAA4DMW
 
 # run import script
 node ./import.js
