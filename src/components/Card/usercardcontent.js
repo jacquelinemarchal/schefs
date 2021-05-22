@@ -33,7 +33,7 @@ const CardContent = (props) => {
 
     useEffect(() => {
         const now = (new Date()).toISOString();
-
+        console.log(props)
         if (context.profile && context.profile.uid === props.profile.uid && !context.rEvents) {
             axios
                 .get(`/api/users/${context.profile.uid}/events/upcoming`)
@@ -190,7 +190,7 @@ const CardContent = (props) => {
                   {events.length
                     ? <div className="mt-4 text-sm">
                           {disabled
-                              ? <>{props.profile.first_name}'s events:</>
+                              ? <>{props.profile.first_name}'s events: {String(props.profile.is_email_public)}</>
                               : <>My upcoming events:</>
                           }
                           <div id="innerCardContainer" className="overflow-scroll mt-2">
