@@ -63,7 +63,6 @@ const PostEventSubmit = (props) => {
             </div>
             <div className="sm:grid sm:col-span-1">
               <div className="md:w-7/12" style={{opacity: '35%'}}>
-                <p className="text-base">Pending approval</p>
                 <EventThumbnail
                   {...props.eventInfo}
                   border={true}
