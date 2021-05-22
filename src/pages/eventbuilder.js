@@ -392,7 +392,7 @@ const EventBuilder = (props) => {
             
             userData.append('img_profile', blob);
 
-            await axios.put('/api/users/777' + context.profile.uid, userData, {
+            await axios.put('/api/users/' + context.profile.uid, userData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
         } catch (err) {
