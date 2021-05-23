@@ -236,6 +236,7 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), (req, r
         req.body.school || null,
         req.body.major || null,
         req.body.grad_year || null,
+        req.body.is_email_public,
         req.params.uid,
     ];
     

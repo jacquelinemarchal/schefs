@@ -68,7 +68,7 @@ const Home = ({ closeCardF }) => {
         <div className="px-6 md:px-12 mx-2" id="emergenceBannerMobile">
             <p className="text-xl sm:text-2xl mb-4 mx-1 sm:mx-0" style={{color: "#1404f4"}}>UPCOMING IN JUNE 2021</p>
             <Link href="/festival">
-                <img className="h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} />
+                <img className="cursor-pointer h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} />
             </Link>
             <p className="text-xl leading-tight mx-1 sm:mx-0">
                     The third Schefs festival.<br />
@@ -86,7 +86,7 @@ const Home = ({ closeCardF }) => {
             <div className="flex flex-row justify-between mb-16">
                 <div className="pl-2">
                 <Link href="/festival">
-                    <img className="md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} alttext="Emergence Logo" />
+                    <img className="cursor-pointer md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} alttext="Emergence Logo" />
                 </Link>
                 <p className="text-xl leading-tight">
                     The third Schefs festival.<br />
@@ -202,7 +202,7 @@ const Home = ({ closeCardF }) => {
                     </div>
                     <div className="col-span-1">
                       <p className="mx-8">
-                      As our inaugural festival, Multiplicities was ambitiously about… everything. It was our very first attempt to construct a conceptual framework from which students could propose conversation topics that would fit thematically into various buckets.
+                      As our inaugural festival, Multiplicities was ambitiously about... everything. It was our very first attempt to construct a conceptual framework from which students could propose conversation topics that would fit thematically into various buckets.
                       </p>
                       <div className="text-center">
                         <WhitePillButton 

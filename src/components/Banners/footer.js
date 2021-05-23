@@ -16,7 +16,7 @@ const Footer = (props) => {
                 </div>
                 <div className="ml-2" id="footerBreakpointText"> {props.left}</div>
                 <div className="ml-2" id="footerBreakpointText">{props.right}
-                    <a className="underline" href="/about">{props.linkText}</a>
+                    <a className="underline" href="/ambassador">{props.linkText}</a>
                 </div>
             </footer>
         </div>

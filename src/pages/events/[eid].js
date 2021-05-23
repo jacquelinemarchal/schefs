@@ -181,20 +181,25 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                                   : reservedTicket 
                                     ? <button className={"flex justify-center items-center bg-yellow-300 focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-not-allowed rounded-full"}>RESERVED</button> 
                                     : <WhitePillButton type="button" size="xl" padding="px-4 flex" text="RESERVE FOR ZOOM" handleClick={reserveTicket}/>
-                              :<button
-                                type="button"
-                                disabled={true}
-                                className={"justify-center cursor-not-allowed items-center text-left bg-transparent focus:outline-none text-xl text-black border-2 border-black px-4 flex rounded-full"}
-                                >EVENT HAS PASSED</button>  
+                              : <button
+                                  type="button"
+                                  disabled={true}
+                                  className={"justify-center cursor-not-allowed items-center text-left bg-transparent focus:outline-none text-xl text-black border-2 border-black px-4 flex rounded-full"}
+                                >
+                                  EVENT HAS PASSED
+                                </button>  
                             }
                             <button onMouseEnter={() => setHover(downloadHoverLogo)} onMouseLeave={() => setHover(downloadLogo)} onClick={copyLink} className="ml-2 flex space-x-2 text-gray-700 items-center h-8 w-8 bg-gray-400 rounded-full focus:outline-none">
                                 <img src={inHover} className="p-2"></img><p>{copyStatus}</p>
                             </button>
                         </div>
                         <div className="text-gray-500 mt-2">
-                            {clientTickets > 5 
-                            ? <> 6 / 7 spots available</>
-                            : <>{7-clientTickets} / 7 spots available</>}
+                          {new Date(eventInfo.time_start) > new Date()
+                            ? clientTickets > 5 
+                                ? <>6 / 7 spots available</>
+                                : <>{7-clientTickets} / 7 spots available</>
+                            : null
+                          }
                         </div>
                     </div>
                     <div className="sm:hidden inline-block">
