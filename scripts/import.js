@@ -92,9 +92,7 @@ const eventImport = async () => {
                 ];
 
                 const event_id = (await pool.query(createEvent, values)).rows[0].eid;
-                //console.log("********************************* NEW EVENT ********************************* ")
-                //console.log("eid = ", event_id);
-                //console.log("208: ", data.user);
+
                 // insert host relationship into postgres
                 var user_id = (await pool.query(getUserFirebase, [ data.user ])).rows[0]
                 user_id = user_id.uid;
@@ -163,8 +161,12 @@ const userImport = async () => {
                 const prof_file = (await storage.getFiles({ prefix }))[0][0];
                 prof_path = await downloadImage(prof_file);
             } catch (err) {
-            // console.log(err);
+                console.log(err);
             }
+
+            // rename gradYear
+            if (data.gradYear === '2020' || data.gradYear === '2021' || data.gradYear === '2022' || data.gradYear === '2023')
+                data.gradYear === 'Class of ' + data.gradYear;
 
             // insert user into postgres
             const values = [

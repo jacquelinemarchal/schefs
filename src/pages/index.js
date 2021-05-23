@@ -66,7 +66,7 @@ const Home = ({ closeCardF }) => {
 
         <div className="px-6 md:px-12 mx-2" id="emergenceBannerMobile">
             <p className="text-xl sm:text-2xl mb-4 mx-1 sm:mx-0" style={{color: "#1404f4"}}>UPCOMING IN JUNE 2021</p>
-            <img className="h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} altText="Emergence Logo" />
+            <img className="h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} />
             <p className="text-xl leading-tight mx-1 sm:mx-0">
                     The third Schefs festival.<br />
                     A week of discussions.<br />

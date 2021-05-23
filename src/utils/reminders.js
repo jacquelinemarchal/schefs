@@ -34,7 +34,7 @@ exports.schedule = async (time_send, type, email, first_name, event_title, zoom_
                         zoom_link
                     );
                 } else if (type === 'post') {
-                    email.sendPostEventEmail(
+                    emails.sendPostEventEmail(
                         email,
                         first_name,
                         event_title

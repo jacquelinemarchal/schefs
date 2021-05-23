@@ -17,11 +17,11 @@ const CardContent = (props) => {
     const context = useContext(Context)
     const [isEmailPublic, setIsEmailPublic] = useState(context.profile.is_email_public);
 
-    const handleChange = () => {
+    const handlePublicEmailSwitchChange = () => {
         setIsEmailPublic(!isEmailPublic);
         context.handleUpdateProfile(context.profile.uid, {...context.profile, is_email_public: isEmailPublic});
     };
-    console.log(props)
+
     const disabled = !(context.profile && (props.profile.uid === context.profile.uid));
     const gradYearOptions = [
         'Class of 2021',
@@ -80,9 +80,9 @@ const CardContent = (props) => {
         }
 
         if (context.profile && context.profile.uid === props.profile.uid && context.rEvents)
-            setEvents(context.rEvents.filter((e) => e.time_start > now).reverse());
+            setEvents(context.rEvents.filter((e) => e.time_start > now).sort((e1, e2) => e1.time_start - e2.time_start));
         else if (context.lEvents)
-            setEvents(context.lEvents.reverse());
+            setEvents(context.lEvents.sort((e1, e2) => e1.time_start - e2.time_start));
 
     }, [props.profile, context.profile, context.lEvents, context.rEvents]);
 
@@ -117,20 +117,6 @@ const CardContent = (props) => {
         context.handleUpdateProfile(uid, updated_fields);
         setEdited(false);
     }
-
-    const CustomSwitch = withStyles({
-        switchBase: {
-          color: grey[300],
-          '&$checked': {
-            color: grey[800],
-          },
-          '&$checked + $track': {
-            backgroundColor: grey[700],
-          },
-        },
-        checked: {},
-        track: {},
-      })(Switch);
 
     return (       
         <>
@@ -197,10 +183,11 @@ const CardContent = (props) => {
                 <div className="flex flex-row text-sm items-center">
                         <div>{props.profile.email}</div>
                         <div className="mx-2">
-                            <CustomSwitch
+                            <Switch
                                 checked={!isEmailPublic}
-                                onChange={handleChange}
+                                onChange={handlePublicEmailSwitchChange}
                                 disableRipple
+                                color="default"
                                 size="small"
                                 name="isEmailPublic"
                             />
@@ -221,20 +208,24 @@ const CardContent = (props) => {
 
             {events
               ? <>
-                  {events.length === 0
-                    ? <div className="text-gray-500 mt-6 mb-4 text-sm">
-                          Your upcoming events will be displayed here... so go start reserving tickets already!
+                  {!disabled && events.length === 0
+                    ? <div className="text-gray-500 mt-6 text-sm">
+                        Your upcoming events will be displayed here... so go start reserving tickets already!
                       </div>
                     : null
                   }
-                  <div className="flex flex-row">
-                    <a onClick={closeCard} className="underline text-sm cursor-pointer"> 
-                        Browse upcoming events
-                    </a>
-                    <a href="mailto:schefs.us@gmail.com" className="ml-4 underline text-sm cursor-pointer"> 
-                        Contact Schefs
-                    </a>
-                  </div>
+
+                  {!disabled
+                    ? <>
+                        <a onClick={closeCard} className="underline text-sm cursor-pointer"> 
+                          Browse upcoming events
+                        </a>
+                        <a href="mailto:schefs.us@gmail.com" className="ml-4 underline text-sm cursor-pointer"> 
+                          Contact Schefs
+                        </a>
+                      </>
+                    : null
+                  }
 
                   {events.length
                     ? <div className="mt-4 text-sm">

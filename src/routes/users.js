@@ -426,8 +426,23 @@ router.get('/:uid/events/past', verifyFirebaseIdToken, (req, res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else
-            res.status(200).json(q_res.rows.map(o => o.json_build_object));
-    })
+            res.status(200).json(q_res.rows.map(o => {
+                const event = o.json_build_object;
+                event.attendees = event.attendees.map((attendee) => {
+                    if (!attendee.is_email_public)
+                        delete attendee.email;
+                    return attendee;
+                });
+
+                event.hosts = event.hosts.map((host) => {
+                    if (!host.is_email_public)
+                        delete host.email;
+                    return host;
+                });
+
+                return event;
+            }));
+    });
 });
 
 module.exports = router;

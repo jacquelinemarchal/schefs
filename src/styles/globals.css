@@ -23,15 +23,12 @@
     color: black !important;
 }
 
-.MuiPickersCalendar-transitionContainer
-
 #forgotPword:hover{
     color: #8c8c8c;
 }
 #cardBtn:hover{
     background-color: #737373;
 }
-
 
 #pending-text{
     position: absolute;

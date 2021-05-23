@@ -69,6 +69,7 @@ const EventThumbnail = (props) => {
                         if (context.profile && host.uid === context.profile.uid)
                             context.handleOpenCard(false, true);
                         else {
+                            context.handleSetLEvents(null);
                             context.handleSetLeftProfile(host);
                             context.handleOpenCard(true, false);
                         }
@@ -86,6 +87,7 @@ const EventThumbnail = (props) => {
                         if (context.profile && attendee.uid === context.profile.uid)
                             context.handleOpenCard(false, true);
                         else {
+                            context.handleSetLEvents(null);
                             context.handleSetLeftProfile(attendee);
                             context.handleOpenCard(true, false);
                         }
