@@ -136,6 +136,9 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
 
         const profile = (await axios.get('/api/users/login/' + fb_uid)).data;
         profile.isVerified = user.emailVerified;
+        if (!user.emailVerified){
+            await user.sendEmailVerification({ url: 'https://www.schefs.us', });
+        }
         dispatchAuthReducer(ACTIONS.loginSuccess(profile));
 
         return user;
