@@ -87,7 +87,8 @@ const FestivalLanding = ({ closeCardF, socialEvents }) => {
                 </div>
                 <div className="col-start-2 col-span-3">
                     <p className="text-xl">Emergence: Remote</p>
-                    <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
+                    <p className="text-sm mt-4 mr-16">We’ve spent over a year living in a “remote” world. Remote school, remote work. How much of this will stick? What has this changed, forever? What has this enabled, what has this hindered? What has it done to us as individuals, as teams, as communities, as societies? How has it shaped us, (how) will it continue to shape us? What are the implications?</p>
+                    <p className="italic text-sm my-2">...or anything else that “Remote” makes you think of, question, interrogate, or wonder...</p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
                     <WhitePillButton
@@ -106,7 +107,8 @@ const FestivalLanding = ({ closeCardF, socialEvents }) => {
                 </div>
                 <div className="col-start-2 col-span-3">
                     <p className="text-xl">Emergence: Planet</p>
-                    <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
+                    <p className="text-sm mt-4 mr-16">The earth, the earth, our beloved earth. What’s the tie between covid and climate change? How are we thinking about the planet in new ways, and our relationship to it? How are new administrations thinking about and taking action toward stronger climate policy? Are we making any progress? Are we doomed? Is there truly a new, emerging global consciousness and sense of responsibility to care for this planet? If not, how can there be? Who are the key players? How can we be stronger stewards than ever before? What has covid changed about our understanding of planetary and personal health, wellness, longevity, possibility?</p>
+                    <p className="italic text-sm my-2">...or anything else that “Planet” makes you think of, question, interrogate, or wonder... </p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
                     <WhitePillButton
@@ -125,7 +127,8 @@ const FestivalLanding = ({ closeCardF, socialEvents }) => {
                 </div>
                 <div className="col-start-2 col-span-3">
                     <p className="text-xl">Emergence: Passport</p>
-                    <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
+                    <p className="text-sm mt-4 mr-16">How has covid affected our national, political identities? What has it demonstrated about leadership, decision-making, responsibility, resources, collective action, socio-economic disparity? What does the “vaccine passport” mean, prohibit, enable? How will it unify and divide us? How has society fractured, and how will it repair itself?</p>
+                    <p className="italic text-sm my-2">...or anything else that “Passport” makes you think of, question, interrogate, or wonder… </p>                
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
                     <WhitePillButton
@@ -144,7 +147,8 @@ const FestivalLanding = ({ closeCardF, socialEvents }) => {
                 </div>
                 <div className="col-start-2 col-span-3">
                     <p className="text-xl">Emergence: Structure</p>
-                    <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
+                    <p className="text-sm mt-4 mr-16">Structure, structure, structure - so very abstract - just take it and run with it. How have we structured (and restructured) ourselves, our lives, our friends, our communities, our cities, our governments? What new habits and rituals, individually and collectively, have formed as a result of covid? How have we “organized” in new ways? What’s not working, what structures do we seek to dismantle, what structures has covid revealed to be broken, malfunctioning, despicable -- and equally, structures that show themselves to be truly humane, resilient, empowering?</p>
+                    <p className="italic text-sm my-2">...or anything else that “Structure” makes you think of, question, interrogate, or wonder… </p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
                     <WhitePillButton
@@ -163,7 +167,8 @@ const FestivalLanding = ({ closeCardF, socialEvents }) => {
                 </div>
                 <div className="col-start-2 col-span-3">
                     <p className="text-xl">Emergence: Socialize</p>
-                    <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
+                    <p className="text-sm mt-4 mr-16">The thing we’ve been simultaneously longing for… and also dreading. Admit it. The nerves, the nuance, the complexity of returning to a hyper-social world is heavy, overwhelming, all-consuming, ecstatic, erratic, delicious, terrifying, exciting. What do we really want from it? What do we no longer want? What are we craving, what don’t we want back? Who do we want to see, who don’t we want to see? Is it happening, has it happened, when will it happen, what is it… what is the social world we are about to enter, once again? Will it be the same? Do we even want it to be?</p>
+                    <p className="italic text-sm my-2">...or anything else that “Socialize” makes you think of, question, interrogate, or wonder… </p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
                     <WhitePillButton
@@ -182,7 +187,8 @@ const FestivalLanding = ({ closeCardF, socialEvents }) => {
                 </div>
                 <div className="col-start-2 col-span-3">
                     <p className="text-xl">Emergence: Intimacy</p>
-                    <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
+                    <p className="text-sm mt-4 mr-16">Physically, emotionally, philosophically, symbolically… how has our relationship to intimacy changed? What are we comfortable with, what are we yearning for, what’s changed? How will we exist as sexual beings in this newly social world, what will that look like, what do we want, do we want the same things, what will this collective energy feel like? What kind of love are we looking for right now, how are we thinking about love, about friendship, about relationships with others, with ourselves, what is our capacity for intimacy at this very very moment in time?</p>
+                    <p className="italic text-sm my-2">...or anything else that “Intimacy” makes you think of, question, interrogate, or wonder… </p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
                     <WhitePillButton
@@ -201,7 +207,8 @@ const FestivalLanding = ({ closeCardF, socialEvents }) => {
                 </div>
                 <div className="col-start-2 col-span-3">
                     <p className="text-xl">Emergence: Paradigm</p>
-                    <p className="text-sm mt-4 mr-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tincidunt ante quis metus convallis, fermentum bibendum diam sodales. Nulla suscipit tellus non varius porttitor. Nunc arcu mi, rhoncus nec lobortis a, aliquam et ipsum. Aenean ullamcorper imperdiet diam, et hendrerit tellus tempus eget. Aenean hendrerit fermentum quam, sed eleifend eros. In vitae molestie diam. Integer viverra libero semper pharetra aliquet.</p>
+                    <p className="text-sm mt-4 mr-16">Perhaps the most important day of the festival… are we living in a new age? What defines that new age? How do we manifest our greatest visions for it, unlock its greatest potential? What is in our control, what is out? How do we seize the moment and shape it for good? What direction are we moving in? What will the world look like in 5, 10, 50 years? Where do we need to be going, and how do we get there? What do we think about when we see covid from a macro perspective, as part of the course of evolution… where has it, is it taking us?</p>
+                    <p className="italic text-sm my-2">...or anything else that “Paradigm” makes you think of, question, interrogate, or wonder… </p>
                 </div>
                 <div className="col-start-5 col-span-2 md:ml-6 xl:ml-32 lg:ml-20 ">
                     <WhitePillButton

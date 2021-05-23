@@ -134,9 +134,27 @@ router.get('', (req, res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else {
-            if (req.query.type === 'detailed')
-                res.status(200).json(q_res.rows.map(o => o.json_build_object));
-            else
+            if (req.query.type === 'detailed') {
+                console.log(q_res);
+                q_res.rows = q_res.rows.map(o => {
+                    const e = o.json_build_object;
+                    e.attendees = e.attendees.map((attendee) => {
+                        if (!attendee.is_email_public)
+                            delete attendee.email;
+                        return attendee;
+                    });
+
+                    e.hosts = e.hosts.map((host) => {
+                        if (!host.is_email_public)
+                            delete host.email;
+                        return host;
+                    });
+
+                    return e;
+                });
+
+                res.status(200).json(q_res.rows);
+            } else
                 res.status(200).json(q_res.rows);
         }
     });

@@ -1,14 +1,25 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import Context from '../Context/context';
 import { SentimentSatisfied } from "@material-ui/icons";
+import Switch from '@material-ui/core/Switch';
 import ContentEditable from 'react-contenteditable'
 import WhitePillButton from "../Buttons/wpillbutton"
 import EventGrid from "../Events/eventgrid"
 import axios from "axios"
+import { withStyles } from '@material-ui/core/styles';
+import { grey } from '@material-ui/core/colors';
+
 
 // props.profile -- either current user's profile or another user's
 const CardContent = (props) => {
     const context = useContext(Context)
+    const [isEmailPublic, setIsEmailPublic] = useState(context.profile.is_email_public);
+
+    const handleChange = () => {
+        setIsEmailPublic(!isEmailPublic);
+        context.handleUpdateProfile(context.profile.uid, {...context.profile, is_email_public: isEmailPublic});
+    };
+    console.log(props)
     const disabled = !(context.profile && (props.profile.uid === context.profile.uid));
     const gradYearOptions = [
         'Class of 2021',
@@ -33,7 +44,6 @@ const CardContent = (props) => {
 
     useEffect(() => {
         const now = (new Date()).toISOString();
-        console.log(props)
         if (context.profile && context.profile.uid === props.profile.uid && !context.rEvents) {
             axios
                 .get(`/api/users/${context.profile.uid}/events/upcoming`)
@@ -106,6 +116,20 @@ const CardContent = (props) => {
         setEdited(false);
     }
 
+    const CustomSwitch = withStyles({
+        switchBase: {
+          color: grey[300],
+          '&$checked': {
+            color: grey[800],
+          },
+          '&$checked + $track': {
+            backgroundColor: grey[700],
+          },
+        },
+        checked: {},
+        track: {},
+      })(Switch);
+
     return (       
         <>
         <div className="md-shadow sm:px-8 px-6 pb-0 pt-2 rounded-2xl">
@@ -148,7 +172,7 @@ const CardContent = (props) => {
                 <div>
                     <span className="rounded-md">
                         {disabled
-                          ? <>{gradYear}</>
+                          ? <>{gradYear} <div>{props.profile.email}</div> </>
                           : <button id="gradYear" type="button" onClick={toggleDropDown} className="inline-flex justify-center w-full rounded-md bg-white leading-5 hover:text-gray-500 focus:outline-none active:bg-gray-50 active:text-gray-800 transition ease-in-out text-sm duration-150" id="options-menu" aria-haspopup="true" aria-expanded="true" disabled={disabled}>
                                 {gradYear}
                                 <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -166,9 +190,27 @@ const CardContent = (props) => {
                     </div>
                 </div>
             </div>
-            <div className="flex flex-col text-sm">
-                {props.profile.email}
-            </div>
+
+            {!disabled ? 
+                <div className="flex flex-row text-sm items-center">
+                        <div>{props.profile.email}</div>
+                        <div className="mx-2">
+                            <CustomSwitch
+                                checked={!isEmailPublic}
+                                onChange={handleChange}
+                                disableRipple
+                                size="small"
+                                name="isEmailPublic"
+                            />
+                        </div>
+                        {isEmailPublic 
+                        ? <div className="text-xs">Email private</div>
+                        : <div className="text-xs">Email public to Schefs users</div>
+                        }
+                        
+                </div>
+            : null
+            }
 
             {edited
               ? <><button onClick={saveUserInfo} className="flex-col flex px-4 my-2 bg-yellow-200 justify-center items-center bg-transparent focus:outline-none text-xs sm:text-sm text-black hover:bg-black hover:text-white border sm:border-2 border-black rounded-full">SAVE NEW INFO</button></>
@@ -178,19 +220,24 @@ const CardContent = (props) => {
             {events
               ? <>
                   {events.length === 0
-                    ? <div className="text-gray-500 mt-6 text-sm">
+                    ? <div className="text-gray-500 mt-6 mb-4 text-sm">
                           Your upcoming events will be displayed here... so go start reserving tickets already!
                       </div>
                     : null
                   }
-                  <a onClick={closeCard} className="underline text-sm cursor-pointer"> 
-                      Browse upcoming events
-                  </a>
+                  <div className="flex flex-row">
+                    <a onClick={closeCard} className="underline text-sm cursor-pointer"> 
+                        Browse upcoming events
+                    </a>
+                    <a href="mailto:schefs.us@gmail.com" className="ml-4 underline text-sm cursor-pointer"> 
+                        Contact Schefs
+                    </a>
+                  </div>
 
                   {events.length
                     ? <div className="mt-4 text-sm">
                           {disabled
-                              ? <>{props.profile.first_name}'s events: {String(props.profile.is_email_public)}</>
+                              ? <>{props.profile.first_name}'s events:</>
                               : <>My upcoming events:</>
                           }
                           <div id="innerCardContainer" className="overflow-scroll mt-2">

@@ -159,12 +159,12 @@ const ContextState = ({ Component, pageProps, bannerProps }) => {
 
     const handleUpdateProfile = async (uid, updated_fields) => {
         try {
-            await axios.put('/api/users/' + uid, updated_fields);
+            const res = await axios.put('/api/users/' + uid, updated_fields);
             const profile = (await axios.get('/api/users/' + uid)).data;
             profile.isVerified = firebase.auth().currentUser.emailVerified;
             dispatchAuthReducer(ACTIONS.updateProfile(profile));
         } catch (err) {
-            console.log(err);
+            console.log(err.response.data.err);
         }
     }
 

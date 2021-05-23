@@ -368,7 +368,7 @@ const EventEditor = ({ eventInfo }) => {
             router.push('/index')
         } catch (err) {
             if (err.response && err.response.status === 500) {
-                alert("Server error. Contact tech!.")
+                alert("Server error. Contact tech!")
             }
             else{alert("Alternate error (non 500). Contact tech.")}
             return;

@@ -71,17 +71,18 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else {
+            console.log(q_res.rows[0])
             if (q_res.rows.length === 0)
                 res.status(404).json({ err: 'No such user found' });
             else if (parseInt(req.profile.uid) === parseInt(req.params.uid))
                 res.status(200).json(q_res.rows[0]);
             else {
+                if (!q_res.rows[0].is_email_public)
+                   delete q_res.rows[0].email;
                 delete q_res.rows[0].fb_uid;
-                delete q_res.rows[0].email;
                 delete q_res.rows[0].phone;
                 delete q_res.rows[0].is_verified;
                 delete q_res.rows[0].is_admin;
-                res.status(200).json(q_res.rows[0]);
             }
         }
     });
@@ -207,6 +208,7 @@ router.post('/signup', async (req, res) => {
  *    school        <string>
  *    major         <string>
  *    grad_year     <string>
+ *    is_email_public <boolean>
  *
  * Response:
  *  201: successfully updated
@@ -238,9 +240,10 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), (req, r
         req.body.school || null,
         req.body.major || null,
         req.body.grad_year || null,
+        req.body.is_email_public, 
         req.params.uid,
     ];
-    
+
     pool.query(queries.updateUser, values, (q_err, q_res) => {
         if (q_err) {
             if (q_err.code === '23505') // unique_violation

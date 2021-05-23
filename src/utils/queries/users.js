@@ -77,7 +77,8 @@ const postSignup = `
  * $7:  school		<string>
  * $8:  major		<string>
  * $9:  grad_year	<string>
- * $10: uid			<int> required
+ * $10  is_email_public <boolean>
+ * $11: uid			<int> required
  */
 const updateUser = `
 	UPDATE users
@@ -89,8 +90,9 @@ const updateUser = `
 	    bio = COALESCE($6, bio),
 	    school = COALESCE($7, school),
 	    major = COALESCE($8, major),
-	    grad_year = COALESCE($9, grad_year)
-	WHERE uid = $10
+	    grad_year = COALESCE($9, grad_year),
+        is_email_public = COALESCE($10, is_email_public)
+	WHERE uid = $11
 `;	
 
 /*
