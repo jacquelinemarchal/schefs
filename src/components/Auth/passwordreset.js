@@ -43,8 +43,8 @@ const PasswordReset = (props) => {
                         <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="email"></ErrorMessage> 
                         <Field placeholder="Account Email" className={"border-2 border-solid rounded-full focus:outline-none my-2 px-4 py-1 " + error[2]} name="email"></Field>
                         {emailStatus}
-                        <button disabled={!isValid || !dirty} type="submit" className={"flex w-full mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white") }>SEND RESET LINK</button>
-                        <WhitePillButton handleClick={props.function} text="< LOG IN" padding="flex w-full" />
+                        <button disabled={!isValid || !dirty} type="submit" className={"flex w-full mt-4 mb-2 py-0 justify-center items-center bg-transparent focus:outline-none text-black border-2 border-black rounded-full " + (!isValid || !dirty ? "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white") }>SEND RESET LINK</button>
+                        <WhitePillButton handleClick={props.function} text="< LOG IN" padding="flex w-full border-2" />
                     </div>
                 </Form>
                 )}

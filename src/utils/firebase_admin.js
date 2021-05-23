@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 var admin;
 
 if (typeof window == 'undefined') {

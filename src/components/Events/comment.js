@@ -19,11 +19,11 @@ const Comment = (props) => {
                         <p className="text-xl mr-4">
                             {props.name}
                         </p>                        
-                        <p className="text-gray-500">
+                        <p className="items-center text-gray-500 text-sm sm:text-base">
                             {displayTime}
                         </p>
                     </div>
-                    <div className="text-gray-500 text-sm sm:text-base">
+                    <div className="text-gray-500 text-sm sm:text-base text-right sm:text-justify">
                         {props.university}
                     </div>
             </div>

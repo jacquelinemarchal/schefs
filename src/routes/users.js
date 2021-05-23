@@ -71,17 +71,18 @@ router.get('/:uid', verifyFirebaseIdToken, (req, res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else {
+            console.log(q_res.rows[0])
             if (q_res.rows.length === 0)
                 res.status(404).json({ err: 'No such user found' });
             else if (parseInt(req.profile.uid) === parseInt(req.params.uid))
                 res.status(200).json(q_res.rows[0]);
             else {
+                if (!q_res.rows[0].is_email_public)
+                   delete q_res.rows[0].email;
                 delete q_res.rows[0].fb_uid;
-                delete q_res.rows[0].email;
                 delete q_res.rows[0].phone;
                 delete q_res.rows[0].is_verified;
                 delete q_res.rows[0].is_admin;
-                res.status(200).json(q_res.rows[0]);
             }
         }
     });
@@ -207,6 +208,7 @@ router.post('/signup', async (req, res) => {
  *    school        <string>
  *    major         <string>
  *    grad_year     <string>
+ *    is_email_public <boolean>
  *
  * Response:
  *  201: successfully updated
@@ -238,9 +240,10 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), (req, r
         req.body.school || null,
         req.body.major || null,
         req.body.grad_year || null,
+        req.body.is_email_public, 
         req.params.uid,
     ];
-    
+
     pool.query(queries.updateUser, values, (q_err, q_res) => {
         if (q_err) {
             if (q_err.code === '23505') // unique_violation
@@ -279,11 +282,6 @@ router.put('/:uid', verifyFirebaseIdToken, upload.single('img_profile'), (req, r
  *  500: postgres error
  */
 router.get('/:uid/events/live', verifyFirebaseIdToken, (req, res) => {
-    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
-        res.status(403).send();
-        return;
-    }
-
     pool.query(queries.getUserLiveEvents, [ req.params.uid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -324,6 +322,46 @@ router.get('/:uid/events/hosting', verifyFirebaseIdToken, (req, res) => {
     }
 
     pool.query(queries.getUserHostingEvents, [ req.params.uid ], (q_err, q_res) => {
+        if (q_err)
+            res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
+        else
+            res.status(200).json(q_res.rows);
+    });
+});
+
+/*
+ * GET /api/users/{uid}/events/upcoming
+ * Get events that a specified user has submitted, is hosting, or has tickets for.
+ *
+ * Authorization:
+ *  Firebase ID Token
+ *
+ * Request Parameters:
+ *  path:
+ *    uid <int> required
+ *
+ * Response:
+ *  200: success
+ *    <array[object]>
+ *      eid           <int>
+ *      host_name     <string>
+ *      host_school   <string>
+ *      host_bio      <string>
+ *      host_id       <int>
+ *      title         <string>
+ *      img_thumbnail <string>
+ *      time_start    <Date>
+ *      status        <string>
+ *  403: must be self or admin
+ *  500: postgres error
+ */
+router.get('/:uid/events/upcoming', verifyFirebaseIdToken, (req, res) => {
+    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
+        res.status(403).send();
+        return;
+    }
+
+    pool.query(queries.getUserUpcomingEvents, [ req.params.uid ], (q_err, q_res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else
@@ -388,8 +426,23 @@ router.get('/:uid/events/past', verifyFirebaseIdToken, (req, res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else
-            res.status(200).json(q_res.rows.map(o => o.json_build_object));
-    })
+            res.status(200).json(q_res.rows.map(o => {
+                const event = o.json_build_object;
+                event.attendees = event.attendees.map((attendee) => {
+                    if (!attendee.is_email_public)
+                        delete attendee.email;
+                    return attendee;
+                });
+
+                event.hosts = event.hosts.map((host) => {
+                    if (!host.is_email_public)
+                        delete host.email;
+                    return host;
+                });
+
+                return event;
+            }));
+    });
 });
 
 module.exports = router;

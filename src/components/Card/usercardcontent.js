@@ -1,14 +1,27 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import Context from '../Context/context';
-import { SentimentSatisfied } from "@material-ui/icons";
+import Switch from '@material-ui/core/Switch';
 import ContentEditable from 'react-contenteditable'
+
+import { SentimentSatisfied } from "@material-ui/icons";
+import CircularProgress from '@material-ui/core/CircularProgress';
 import WhitePillButton from "../Buttons/wpillbutton"
 import EventGrid from "../Events/eventgrid"
 import axios from "axios"
+import { withStyles } from '@material-ui/core/styles';
+import { grey } from '@material-ui/core/colors';
+
 
 // props.profile -- either current user's profile or another user's
 const CardContent = (props) => {
     const context = useContext(Context)
+    const [isEmailPublic, setIsEmailPublic] = useState(context.profile.is_email_public);
+
+    const handlePublicEmailSwitchChange = () => {
+        setIsEmailPublic(!isEmailPublic);
+        context.handleUpdateProfile(context.profile.uid, {...context.profile, is_email_public: isEmailPublic});
+    };
+
     const disabled = !(context.profile && (props.profile.uid === context.profile.uid));
     const gradYearOptions = [
         'Class of 2021',
@@ -32,14 +45,20 @@ const CardContent = (props) => {
     const [events, setEvents] = useState(null);
 
     useEffect(() => {
+        const now = (new Date()).toISOString();
         if (context.profile && context.profile.uid === props.profile.uid && !context.rEvents) {
             axios
-                .get(`/api/users/${context.profile.uid}/events/live`)
+                .get(`/api/users/${context.profile.uid}/events/upcoming`)
                 .then(res => {
-                    res.data = res.data.map(event => {
-                        if (context.profile.uid === event.host_id)
-                            event.border = true;
-                        return event;
+                    res.data = res.data.map((e) => {
+                        if (context.profile.uid === e.host_id)
+                            e.border = true;
+                        if (e.status !== 'approved') {
+                            e.opacity = '35%';
+                            e.disabled = true;
+                        }
+
+                        return e;
                     });
                     context.handleSetREvents(res.data);
                 })
@@ -50,10 +69,10 @@ const CardContent = (props) => {
             axios
                 .get(`/api/users/${props.profile.uid}/events/live`)
                 .then(res => {
-                    res.data = res.data.map(event => {
-                        if (props.profile.uid === event.host_id)
-                            event.border = true;
-                        return event;
+                    res.data = res.data.map((e) => {
+                        if (props.profile.uid === e.host_id)
+                            e.border = true;
+                        return e;
                     });
                     context.handleSetLEvents(res.data);
                 })
@@ -61,9 +80,9 @@ const CardContent = (props) => {
         }
 
         if (context.profile && context.profile.uid === props.profile.uid && context.rEvents)
-            setEvents([...context.rEvents]);
+            setEvents(context.rEvents.filter((e) => e.time_start > now).sort((e1, e2) => e1.time_start - e2.time_start));
         else if (context.lEvents)
-            setEvents([...context.lEvents]);
+            setEvents(context.lEvents.sort((e1, e2) => e1.time_start - e2.time_start));
 
     }, [props.profile, context.profile, context.lEvents, context.rEvents]);
 
@@ -107,7 +126,7 @@ const CardContent = (props) => {
                 html={userInfo.current.first_name}
                 onChange={(e) => {userInfo.current.first_name=e.target.value; setEdited(true)}} 
                 placeholder={"First Name"}
-                className="text-5xl font-bold leading-none mb-4 focus:outline-none"
+                className="text-5xl font-bold leading-tight focus:outline-none"
             />
             <ContentEditable
                 disabled={disabled}
@@ -141,7 +160,7 @@ const CardContent = (props) => {
                 <div>
                     <span className="rounded-md">
                         {disabled
-                          ? <>{gradYear}</>
+                          ? <>{gradYear} <div>{props.profile.email}</div> </>
                           : <button id="gradYear" type="button" onClick={toggleDropDown} className="inline-flex justify-center w-full rounded-md bg-white leading-5 hover:text-gray-500 focus:outline-none active:bg-gray-50 active:text-gray-800 transition ease-in-out text-sm duration-150" id="options-menu" aria-haspopup="true" aria-expanded="true" disabled={disabled}>
                                 {gradYear}
                                 <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -159,9 +178,28 @@ const CardContent = (props) => {
                     </div>
                 </div>
             </div>
-            <div className="flex flex-col text-sm">
-                {props.profile.email}
-            </div>
+
+            {!disabled ? 
+                <div className="flex flex-row text-sm items-center">
+                        <div>{props.profile.email}</div>
+                        <div className="mx-2">
+                            <Switch
+                                checked={!isEmailPublic}
+                                onChange={handlePublicEmailSwitchChange}
+                                disableRipple
+                                color="default"
+                                size="small"
+                                name="isEmailPublic"
+                            />
+                        </div>
+                        {isEmailPublic 
+                        ? <div className="text-xs">Email private</div>
+                        : <div className="text-xs">Email public to Schefs users</div>
+                        }
+                        
+                </div>
+            : null
+            }
 
             {edited
               ? <><button onClick={saveUserInfo} className="flex-col flex px-4 my-2 bg-yellow-200 justify-center items-center bg-transparent focus:outline-none text-xs sm:text-sm text-black hover:bg-black hover:text-white border sm:border-2 border-black rounded-full">SAVE NEW INFO</button></>
@@ -170,54 +208,64 @@ const CardContent = (props) => {
 
             {events
               ? <>
-                  {events.length === 0
+                  {!disabled && events.length === 0
                     ? <div className="text-gray-500 mt-6 text-sm">
-                          Your upcoming events will be displayed here... so go start reserving tickets already!
+                        Your upcoming events will be displayed here... so go start reserving tickets already!
                       </div>
                     : null
                   }
-                  <a onClick={closeCard} className="underline text-sm cursor-pointer"> 
-                      Browse upcoming events
-                  </a>
+
+                  {!disabled
+                    ? <>
+                        <a onClick={closeCard} className="underline text-sm cursor-pointer"> 
+                          Browse upcoming events
+                        </a>
+                        <a href="mailto:schefs.us@gmail.com" className="ml-4 underline text-sm cursor-pointer"> 
+                          Contact Schefs
+                        </a>
+                      </>
+                    : null
+                  }
 
                   {events.length
                     ? <div className="mt-4 text-sm">
                           {disabled
-                              ? <>{props.profile.first_name}'s upcoming events:</>
+                              ? <>{props.profile.first_name}'s events:</>
                               : <>My upcoming events:</>
                           }
                           <div id="innerCardContainer" className="overflow-scroll mt-2">
-                              <EventGrid isEditable={false} events={events} style="mr-12" gridNum="1"/>
+                            <EventGrid isEditable={false} events={events} style="mr-4 md:mr-12" gridNum="1"/>
                           </div>
                       </div>
                     : null
                   }
                 </>
-              : null
+              : <div className="flex flex-col mt-8">
+                  <CircularProgress thickness={3} />
+                </div>
             }
         </div>
 
         {!disabled
-          ? <div className="w-11/12 absolute bottom-0 mb-2 ml-4 flex justify-between">
+          ? <div className="w-11/12 absolute bottom-0 mb-2 ml-4 flex justify-around sm:justify-between">
                 <WhitePillButton
                     text="MY EVENTS"
                     link="/myevents"
-                    padding="px-4"
-                    size="xs bg-white sm:text-sm"
-                    handleClick={context.handleCloseCard}
+                    padding="px-4 bg-white"
+                    size="sm"
+                    handleClick={() => context.handleCloseCard(true, true)}
                 />
                 <WhitePillButton
                     text="HOST AN EVENT"
                     link="/eventbuilder"
-                    padding="px-4"
-                    size="xs bg-white sm:text-sm"
-                    handleClick={context.handleCloseCard}
+                    padding="bg-white px-4 hidden sm:block"
+                    size="sm"
+                    handleClick={() => context.handleCloseCard(true, true)}
                 /> 
                 <WhitePillButton
                     text="LOG OUT"
-                    link=""
-                    padding="px-4"
-                    size="xs bg-white sm:text-sm"
+                    padding="px-4 bg-white"
+                    size="sm"
                     handleClick={context.handleLogout}
                 />
             </div> 

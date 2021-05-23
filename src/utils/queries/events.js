@@ -7,7 +7,8 @@ const getEventsSummary = `
     SELECT
         e.eid, e.host_name, e.host_school,
         e.host_bio, e.title, e.time_start,
-        t.location AS img_thumbnail
+        t.location AS img_thumbnail,
+        e.status
     FROM events AS e, thumbnails AS t
     WHERE (
         COALESCE($1) = '' OR
@@ -38,37 +39,46 @@ const getEventsDetailed = `
         'requirements', e.requirements,
         'img_thumbnail', t.location,
         'time_start', e.time_start,
+        'status', e.status,
         'hosts', (
-            SELECT JSON_AGG(ROW_TO_JSON(ROW(
-                u.uid,
-                u.first_name,
-                u.last_name,
-                u.img_profile,
-                u.bio,
-                u.school,
-                u.major,
-                u.grad_year
-            )))
-            FROM users AS u
-            LEFT JOIN event_hosts AS eh
-                ON u.uid = eh.user_id
-            WHERE eh.event_id = e.eid
+            SELECT JSON_AGG(ROW_TO_JSON(r))
+            FROM (
+                SELECT 
+                    u.uid,
+                    u.first_name,
+                    u.last_name,
+                    u.img_profile,
+                    u.bio,
+                    u.school,
+                    u.major,
+                    u.grad_year,
+                    u.is_email_public,
+                    u.email
+                FROM users AS u
+                LEFT JOIN event_hosts AS eh
+                    ON u.uid = eh.user_id
+                WHERE eh.event_id = e.eid
+            ) AS r
         ),
         'attendees', (
-            SELECT JSON_AGG(ROW_TO_JSON(ROW(
-                u.uid,
-                u.first_name,
-                u.last_name,
-                u.img_profile,
-                u.bio,
-                u.school,
-                u.major,
-                u.grad_year
-            )))
-            FROM users AS u
-            LEFT JOIN tickets AS tk
-                ON u.uid = tk.user_id
-            WHERE tk.event_id = e.eid
+            SELECT JSON_AGG(ROW_TO_JSON(r))
+            FROM (
+                SELECT
+                    u.uid,
+                    u.first_name,
+                    u.last_name,
+                    u.img_profile,
+                    u.bio,
+                    u.school,
+                    u.major,
+                    u.grad_year,
+                    u.is_email_public,
+                    u.email
+                FROM users AS u
+                LEFT JOIN tickets AS tk
+                    ON u.uid = tk.user_id
+                WHERE tk.event_id = e.eid
+            ) AS r
         )
     )
     FROM events AS e, thumbnails AS t
@@ -99,26 +109,41 @@ const getEvent = `
         'description', e.description,
         'requirements', e.requirements,
         'img_thumbnail', t.location,
+        'zoom_link', e.zoom_link,
+        'zoom_id', e.zoom_id,
+        'gcal_id', e.gcal_id,
         'time_start', e.time_start,
+        'status', e.status,
         'hosts', (
-            SELECT JSON_AGG(ROW_TO_JSON(ROW(
-                u.uid,
-                u.first_name,
-                u.last_name,
-                u.img_profile,
-                u.bio,
-                u.school,
-                u.major,
-                u.grad_year
-            )))
-            FROM users AS u
-            LEFT JOIN event_hosts AS eh
-                ON u.uid = eh.user_id
-            WHERE eh.event_id = e.eid
+            SELECT JSON_AGG(ROW_TO_JSON(r))
+            FROM (
+                SELECT
+                    u.uid,
+                    u.first_name,
+                    u.last_name,
+                    u.img_profile,
+                    u.bio,
+                    u.school,
+                    u.major,
+                    u.grad_year,
+                    u.email
+                FROM users AS u
+                LEFT JOIN event_hosts AS eh
+                    ON u.uid = eh.user_id
+                WHERE eh.event_id = e.eid
+            ) AS r
         )
     ) AS event
     FROM events AS e, thumbnails AS t
     WHERE e.eid = $1 AND t.tid = e.thumbnail_id
+`;
+
+/* 
+ * $1: eid <int> required
+ */
+const getGcalId = `
+    SELECT gcal_id FROM events
+    WHERE eid = $1
 `;
 
 /*
@@ -332,6 +357,7 @@ module.exports = {
     getEventsSummary,
     getEventsDetailed,
     getEvent,
+    getGcalId,
     getReservedTickets,
     getReservedTicketsCount,
     checkTimeAvailable,

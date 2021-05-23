@@ -77,7 +77,8 @@ const postSignup = `
  * $7:  school		<string>
  * $8:  major		<string>
  * $9:  grad_year	<string>
- * $10: uid			<int> required
+ * $10  is_email_public <boolean>
+ * $11: uid			<int> required
  */
 const updateUser = `
 	UPDATE users
@@ -89,15 +90,16 @@ const updateUser = `
 	    bio = COALESCE($6, bio),
 	    school = COALESCE($7, school),
 	    major = COALESCE($8, major),
-	    grad_year = COALESCE($9, grad_year)
-	WHERE uid = $10
+	    grad_year = COALESCE($9, grad_year),
+        is_email_public = COALESCE($10, is_email_public)
+	WHERE uid = $11
 `;	
 
 /*
  * $1: uid <int> required
  */
 const getUserLiveEvents = `
-    SELECT DISTINCT
+    SELECT DISTINCT ON (e.time_start, e.eid)
         e.eid, e.host_name, e.host_school,
         e.host_bio, e.title, e.time_start,
         eh.user_id AS host_id,
@@ -109,19 +111,18 @@ const getUserLiveEvents = `
         thumbnails AS th
     WHERE
         e.thumbnail_id = th.tid
-    AND e.eid = eh.event_id
     AND (
-        (t.event_id = e.eid AND t.user_id = $1 AND eh.user_id != $1)
-     OR (e.status = 'approved' AND eh.user_id = $1)
+        (e.eid = t.event_id AND t.user_id = $1)
+     OR (e.eid = eh.event_id AND e.status = 'approved' AND eh.user_id = $1)
     )
-    ORDER BY e.time_start ASC
+    ORDER BY e.time_start DESC
 `;
 
 /*
  * $1: uid <int> required
  */
 const getUserHostingEvents = `
-    SELECT 
+    SELECT DISTINCT ON (e.time_start, e.eid)
         e.eid, e.host_name, e.host_school,
         e.host_bio, e.title, e.time_start,
         th.location AS img_thumbnail,
@@ -134,6 +135,32 @@ const getUserHostingEvents = `
         e.thumbnail_id = th.tid
     AND e.eid = eh.event_id
     AND eh.user_id = $1
+    ORDER BY e.time_start DESC
+`;
+
+/*
+ * $1: uid <int> required
+ */
+const getUserUpcomingEvents = `
+    SELECT DISTINCT ON (e.time_start, e.eid)
+        e.eid, e.host_name, e.host_school,
+        e.host_bio, e.title, e.time_start,
+        eh.user_id AS host_id,
+        th.location AS img_thumbnail,
+        e.status
+    FROM
+        events AS e,
+        event_hosts AS eh,
+        tickets AS t,
+        thumbnails AS th
+    WHERE
+        e.time_start >= CURRENT_TIMESTAMP
+    AND e.status != 'denied'
+    AND e.thumbnail_id = th.tid
+    AND (
+        (e.eid = t.event_id AND t.user_id = $1)
+     OR (e.eid = eh.event_id AND eh.user_id = $1)
+    )
     ORDER BY e.time_start ASC
 `;
 
@@ -151,36 +178,44 @@ const getUserPastEvents = `
         'img_thumbnail', t.location,
         'time_start', e.time_start,
         'hosts', (
-            SELECT JSON_AGG(ROW_TO_JSON(ROW(
-                u.uid,
-                u.first_name,
-                u.last_name,
-                u.img_profile,
-                u.bio,
-                u.school,
-                u.major,
-                u.grad_year
-            )))
-            FROM users AS u
-            LEFT JOIN event_hosts AS eh
-            ON u.uid = eh.user_id
-            WHERE eh.event_id = e.eid
+            SELECT JSON_AGG(ROW_TO_JSON(r))
+            FROM (
+                SELECT
+                    u.uid,
+                    u.first_name,
+                    u.last_name,
+                    u.img_profile,
+                    u.bio,
+                    u.school,
+                    u.major,
+                    u.grad_year,
+                    u.is_email_public,
+                    u.email
+                FROM users AS u
+                LEFT JOIN event_hosts AS eh
+                ON u.uid = eh.user_id
+                WHERE eh.event_id = e.eid
+            ) AS r
         ),
         'attendees', (
-            SELECT JSON_AGG(ROW_TO_JSON(ROW(
-                u.uid,
-                u.first_name,
-                u.last_name,
-                u.img_profile,
-                u.bio,
-                u.school,
-                u.major,
-                u.grad_year
-            )))
-            FROM users AS u
-            LEFT JOIN tickets AS tk
-            ON u.uid = tk.user_id
-            WHERE tk.event_id = e.eid
+            SELECT JSON_AGG(ROW_TO_JSON(r))
+            FROM (
+                SELECT
+                    u.uid,
+                    u.first_name,
+                    u.last_name,
+                    u.img_profile,
+                    u.bio,
+                    u.school,
+                    u.major,
+                    u.grad_year,
+                    u.is_email_public,
+                    u.email
+                FROM users AS u
+                LEFT JOIN tickets AS tk
+                ON u.uid = tk.user_id
+                WHERE tk.event_id = e.eid
+            ) AS r
         )
     )
     FROM
@@ -210,5 +245,6 @@ module.exports = {
 	updateUser,
     getUserLiveEvents,
     getUserHostingEvents,
+    getUserUpcomingEvents,
     getUserPastEvents,
 };

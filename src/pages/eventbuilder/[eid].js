@@ -4,7 +4,8 @@ import Head from 'next/head';
 import moment from 'moment';
 import 'moment-timezone';
 import pool from '../../utils/db';
-import queries from "../../utils/queries/events"
+import queries from "../../utils/queries/events";
+import { useRouter } from 'next/router';
 
 import { htmlToText } from 'html-to-text';
 import ContentEditable from 'react-contenteditable';
@@ -27,15 +28,13 @@ import * as Yup from 'yup';
 import Context from '../../components/Context/context';
 import WhitePillButton from '../../components/Buttons/wpillbutton';
 import cohost from '../../assets/cohost.png';
+import { LocalConvenienceStoreOutlined } from '@material-ui/icons';
 
-// TODO: escape not working on modals
-// grad year z-index in card
-// runtime error in pages > events > [eid]
 
-const EventBuilder = (props) => {
+const EventEditor = ({ eventInfo }) => {
     // import Context
     const context = useContext(Context);
-
+    const router = useRouter();
     // get timezone
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York";
 
@@ -56,9 +55,11 @@ const EventBuilder = (props) => {
 
     const defaultThumbnail = {
         tid: -1,
-        location: props.eventInfo.img_thumbnail,
+        location: eventInfo.img_thumbnail,
         is_used: true,
-    }
+    };
+
+    const defaultProfilePicture = eventInfo.hosts[0].img_profile;
 
     // default available times to schedule event
     const [dailyTimes, setDailyTimes] = useState(null);
@@ -72,7 +73,7 @@ const EventBuilder = (props) => {
     const [zoom, setZoom] = useState(1)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
-    const [profilePictureURL, setProfilePictureURL] = useState(props.eventInfo.hosts[0].img_profile);
+    const [profilePictureURL, setProfilePictureURL] = useState(process.env.BASE_URL + defaultProfilePicture);
 
     // thumbnail selection modal state
     const [isPhotoDisplayOpen, setIsPhotoDisplayOpen] = useState(false)  
@@ -87,7 +88,7 @@ const EventBuilder = (props) => {
     const [isSchedulerOpen, setIsSchedulerOpen] = useState(false)
 
     // selected date & time for scheduler
-    const defaultDatetime = moment(props.eventInfo.time_start)
+    const defaultDatetime = moment(eventInfo.time_start)
     const [datetimeConfirmed, setDatetimeConfirmed] = useState(true);
     const [selectedDate, setSelectedDate] = useState(defaultDatetime);
     const [selectedTime, setSelectedTime] = useState(defaultDatetime.tz(timezone).format("h:mm A z"));
@@ -97,6 +98,7 @@ const EventBuilder = (props) => {
 
     // show available times when scheduling
     const [showTimes, setShowTimes] = useState(false);
+    const [availableTimeError, setAvailableTimeError] = useState("");
 
     const queryThumbnails = () => {
         axios
@@ -136,7 +138,9 @@ const EventBuilder = (props) => {
 
                 setUnavailableDatetimes({...times});
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                setAvailableTimeError("There was an error displaying the correct available times. Please contact schefs.us@gmail.com")
+            });
     }
  
     // function to close modals
@@ -162,20 +166,20 @@ const EventBuilder = (props) => {
     }, []);
 
     useEffect(() => {
-        console.log(props)
-        setSelectedDate(moment(props.eventInfo.time_start));
-        setSelectedTime(moment(props.eventInfo.time_start).format("h:mm A"));
+       // console.log(props)
+        setSelectedDate(moment(eventInfo.time_start));
+        setSelectedTime(moment(eventInfo.time_start).format("h:mm A"));
         setPreLoad({
             coHostEmail: "",
-            title: `${props.eventInfo.title}`,
-            bio: `${props.eventInfo.host_bio}`,
-            description: `${props.eventInfo.description}`,
-            requirements: `${props.eventInfo.requirements}`,
-            first_name: `${props.eventInfo.hosts[0].first_name}`,
-            last_name: `${props.eventInfo.hosts[0].last_name}`,
-            grad_year: `${props.eventInfo.hosts[0].grad_year}`,
-            school: `${props.eventInfo.host_school}`,
-            major: `${props.eventInfo.hosts[0].major}`,
+            title: `${eventInfo.title}`,
+            bio: `${eventInfo.host_bio}`,
+            description: `${eventInfo.description}`,
+            requirements: `${eventInfo.requirements}`,
+            first_name: `${eventInfo.hosts[0].first_name}`,
+            last_name: `${eventInfo.hosts[0].last_name}`,
+            grad_year: `${eventInfo.hosts[0].grad_year}`,
+            school: `${eventInfo.host_school}`,
+            major: `${eventInfo.hosts[0].major}`,
         })
     }, [editMode]);
     
@@ -203,6 +207,16 @@ const EventBuilder = (props) => {
         if (datestring in unavailableDatetimes && unavailableDatetimes[datestring].length === dailyTimes.length)
             return true;
         return false;
+    }
+    
+    const confirmDatetime = () => {
+        setDatetimeConfirmed(true);
+        setTimeout(() => setIsSchedulerOpen(false), 500);
+    }
+
+    const selectDatetime = (time) => {
+        setDatetimeConfirmed(false);
+        setSelectedTime(time);
     }
     
     const makeCroppedImage = () => {
@@ -234,7 +248,8 @@ const EventBuilder = (props) => {
 
 
     const wordCounter = value => {
-        var strLength = value.split(" ").length-1;
+        const string = value.trim();
+        const strLength = string ? string.split(/\s+/).length : 0;
 
         if (strLength <= 70){
             return(`${strLength} words`)
@@ -263,80 +278,121 @@ const EventBuilder = (props) => {
     }
 
     const handleSubmit = async (values, { setSubmitting }) => {
-        //values not yet in the endpoint= [coHostEmail, lastName, gradYear, major]
-
-        setSubmitting(false);
+        // SAVE button
         setEditMode(false);
 
         const time_start = moment.tz(
             selectedDate.format('YYYY-MM-DD') + ' ' + selectedTime,
             'YYYY-MM-DD h:mm A',
             timezone
-        ).toDate();
-
-        console.log(values);
+        );
         
         const eventData = {
             title: values.title,
             description: values.description,
             requirements: values.requirements,
             host_bio: values.bio,
-            time_start: time_start,
             host_name: values.first_name + ' ' + values.last_name,
             host_school: values.school,
         }
+
         if (selectedThumbnail.tid !== -1){
             eventData.thumbnail_id = selectedThumbnail.tid;
         }
+        if (!time_start.isSame(defaultDatetime)){
+            eventData.time_start = time_start;
+        }
 
         try {
-            await axios.patch(`/api/events/${props.eventInfo.eid}`, eventData);
-            console.log("successfully submitted");
+            await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
+            console.log("successfully saved");
         } catch (err) {
             if (err.response && err.response.status === 409) {
                 if (err.response.data.err === 'Thumbnail already in use') {
-                    alert('Thumbnail already in use, choose a different one');
+                    alert('This thumbnail is already in use, please choose a different one. Contact schefs.us@gmail.com if you think this is a mistake.');
                     queryThumbnails();
                     setSelectedThumbnail(defaultThumbnail);
                 } else if (err.response.data.err === 'Time unavailable') {
-                    alert("Time unavailable");
+                    alert('This time is no longer available, please choose a different one. Contact schefs.us@gmail.com if you think this is a mistake.');
                     queryAvailableTimes();
                     setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A"));
+                    setDatetimeConfirmed(false);
+                }
+                else if (err.response.data.err === 'Required field missing') {
+                    alert('You did not complete every required field in the event builder. Contact schefs.us@gmail.com if you think this is a mistake.');
+                    queryAvailableTimes();
+                    setSelectedTime(null);
                     setDatetimeConfirmed(false);
                 }
             } else
                 alert(err.response.data.err)
             return;
-        }
+        } 
+        
+        // update user info
+        const userData = new FormData();
+        userData.append('first_name', values.first_name);
+        userData.append('last_name', values.last_name);
+        userData.append('bio', values.bio);
+        userData.append('school', values.school);
 
-		const userData = new FormData();
-		userData.append('first_name', values.first_name);
-		userData.append('last_name', values.last_name);
-		userData.append('bio', values.bio);
-		userData.append('school', values.school);
-		userData.append('major', values.major);
-		userData.append('grad_year', values.grad_year);
+        // change profile picture if changed
+        if (profilePictureURL !== eventInfo.hosts[0].img_profile) {
+            const res = await fetch(profilePictureURL);
+            const blob = await res.blob(); 
+            userData.append('img_profile', blob);
+        }
 
         try {
-            console.log(props);
-            const res = await fetch(profilePictureURL);
-            const blob = await res.blob();
-            
-            userData.append('img_profile', blob);
-
-            await axios.put('/api/users/' + props.eventInfo.hosts[0].uid, userData, {
+            await axios.put('/api/users/' + eventInfo.hosts[0].uid, userData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-
-            alert('event successfully submitted');
-            window.location.href = '/admin';
-		} catch (err) {
+        } catch (err) {
             if (err.response && err.response.data)
-                alert(err.response.data.err);
+                alert(err.response.data.err, "Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
             else
-                alert(err);
+                alert(err, "Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
+        }
+
+        finally {
+            setSubmitting(false);
         }
 	}
+
+    const handleApproval = async () => {
+        const eventData = {
+            status: 'approved'
+        }
+        try {
+            await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
+            router.push('/index')
+        } catch (err) {
+            if (err.response && err.response.status === 500) {
+                alert("Server error. Contact tech!")
+            }
+            else{alert("Alternate error (non 500). Contact tech.")}
+            return;
+        }
+    }
+
+    const handleDeny = async () => {
+        const eventData = {
+            status: 'denied'
+        }
+        try {
+            await axios.patch(`/api/events/${eventInfo.eid}`, eventData);
+            console.log("successfully denied");
+            router.push('/admin')
+        } catch (err) {
+            console.log(err.response.data.err)
+            if (err.response && err.response.status === 500) {
+                alert("Server error. Contact tech.")
+            }
+            else
+                {alert("Alternate error (non 500). Contact tech.")}
+            return;
+        }
+    }
 
     const Thumbnail = (props) => {
         const handleSelectThumbnail = (e) => {
@@ -353,8 +409,8 @@ const EventBuilder = (props) => {
     }
 
     const EventBuilderSchema = Yup.object().shape({
-        coHostEmail: Yup.string()
-            .email('This is not a valid email'),
+        /*coHostEmail: Yup.string()
+            .email('This is not a valid email'),*/
         requirements: Yup.string(),
         first_name: Yup.string()
             .required('This field is required'),
@@ -395,35 +451,34 @@ const EventBuilder = (props) => {
                     enableReinitialize={true}
                     validationSchema={EventBuilderSchema}
                 >
-                {({isValid, dirty, isSubmitting, setFieldTouched, handleChange, resetForm}) => (
+                {({isValid, dirty, isSubmitting, setFieldTouched, handleChange, resetForm, submitForm}) => (
                 <Form>
                     <Greyout />           
                     <Head>
-                        <title>Editing: {props.eventInfo.title}</title>
+                        <title>Editing: {eventInfo.title}</title>
                         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
                     </Head>
                     {isPhotoDisplayOpen ? 
-                        <>
-                            <div className="h-screen fixed w-screen" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)}></div>
-                            <div className="fixed overflow-scroll m-8 sm:border-2 top-0 mt-10 shadow rounded-xl bg-white justify-center z-10">
-                                <div className="flex justify-end">
-                                    <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
-                                        <HighlightOff/>
-                                    </button>
-                                </div>
-                                <div className="m-2 pb-6 flex justify-between">
-                                    <p>Don't see a photo you like? Pick one of these images as a placeholder for now and<br></br> email schefs.us@gmail with the name of your event &amp; your new image of choice.</p>
-                                    <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
-                                </div>
-                                <div id="imageContainerEB" className="mx-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
-                                    {thumbnails.length
+                      <>
+                        <div id="imageContainerEB" className="fixed overflow-scroll sm:border-2 top-0 mt-12 left-0 mx-4 shadow rounded-xl bg-white justify-center z-10">
+                            <div className="flex justify-end">
+                                <button type="button" onClick={() => setIsPhotoDisplayOpen(!isPhotoDisplayOpen)} className="focus:outline-none p-2">
+                                    <HighlightOff/>
+                                </button>
+                            </div>
+                            <div className="mx-4 my-2 pb-6 flex justify-between">
+                                <p>Don't see a photo you like? Pick one of these images as a placeholder for now and<br></br> email schefs.us@gmail with the name of your event &amp; your new image of choice.</p>
+                                <p>No two events use the same image.<br></br>Once you choose an image, it’s yours!</p>
+                            </div>
+                            <div className="m-2 gap-2 grid-cols-2 md:gap-4 grid md:grid-cols-4 overflow-y-scroll">
+                                {thumbnails.length
                                     ? thumbnails.map(thumbnail => <Thumbnail key={thumbnail.tid} thumbnail={thumbnail} />)
-                                    : null
-                                    }
-                                </div>
-                            </div> 
-                        </>
-                        : null}
+                                    : <div style={{width: "80rem"}} className="ml-1">Whoops, looks like there's no thumbnails available. Contact schefs.us@gmail.com if you think this is a mistake.</div>
+                                }
+                              </div>
+                          </div> 
+                      </>
+                      : null}
 
                     {isCoHostOpen ? 
                         <>
@@ -448,57 +503,111 @@ const EventBuilder = (props) => {
                         </>
                         : null}
 
-                    {isSchedulerOpen
-                        ? <div className="fixed transform -translate-x-1/2 border sm:border-2 border-black rounded-xl md:mt-10 top-0 bg-white justify-center z-20" style={{left: '50%'}}>
-                            <div className="flex justify-end">
-                                <button type="button" onClick={() => setIsSchedulerOpen(false)} className="focus:outline-none p-2">
-                                    <HighlightOff/>
-                                </button>
-                            </div>
-                            <div className="flex flex-row" style={{maxHeight: '304px'}}>
-                                <div className="flex flex-col px-6">
-                                <div className="overflow-hidden">
-                                    {unavailableDatetimes !== null
-                                    ? <MuiPickersUtilsProvider utils={MomentUtils}>
-                                        <Calendar 
-                                            date={selectedDate}
-                                            onChange={(date, isFinish) => {
-                                                setSelectedDate(date);
-                                                setShowTimes(true);
-                                            }}
-                                            shouldDisableDate={isDateDisabled} 
-                                            maxDate={moment().add(60, 'days')}
-                                            minDate={moment().add(3, 'days')}
-                                        />
-                                        </MuiPickersUtilsProvider>
-                                    : null
-                                    }
-                                </div>
-                                </div>
-                                {dailyTimes
-                                ? <div className="px-6 overflow-scroll" style={{maxWidth: '200px'}}>
-                                    {dailyTimes.map(time => {
-                                        const date = moment(selectedDate).format('YYYY-MM-DD');
-                                        if (date in unavailableDatetimes && unavailableDatetimes[date].includes(time))
-                                            return null;
+                <CSSTransition
+                  in={isSchedulerOpen}
+                  timeout={500}
+                  key="eventbuilder-scheduler"
+                  classNames="eventbuilder-modal"
+                  unmountOnExit
+                >
+                  <div id="calendar" className="overflow-hidden p-2 mb-24 mx-4 mt-4 md:mb-0 md:mx-auto max-w-full fixed border-2 border-black rounded-xl md:mt-12 inset-0 bg-white justify-center z-20">
+                    <div className="flex justify-end">
+                      <button type="button" onClick={() => {setIsSchedulerOpen(false); setSchedulerTouched(true);}} className="focus:outline-none p-2">
+                        <HighlightOff/>
+                      </button>
+                    </div>
+                    <div className="flex flex-col md:flex-row md:h-full max-h-full">
+                      <div className="lg:w-2/3 px-8">
+                        {availableTimeError !== "" ? <div className="text-red-600 sm:text-sm text-base mb-2">{availableTimeError}</div> : null}
+                        <p className="text-base mb-2 md:mb-8 hidden md:block">Choose a time to host your event:</p>
+                        <div className="md:overflow-hidden md:pl-8 mb-4 md:mb-0 -mt-3 md:mt-0"> 
+                          {unavailableDatetimes !== null
+                            ? <MuiPickersUtilsProvider utils={MomentUtils}>
+                                <Calendar 
+                                  date={selectedDate}
+                                  onChange={(date, isFinish) => {
+                                    setDatetimeConfirmed(false);
+                                    setSelectedTime(null);
+                                    setSelectedDate(date);
+                                    setShowTimes(true);
+                                  }}
+                                  shouldDisableDate={isDateDisabled} 
+                                  maxDate={moment().add(60, 'days')}
+                                  minDate={moment().add(3, 'days')}
+                                  allowKeyboardControl={true}
+                                  renderDay={(day, selectedDate, dayInCurrentMonth, dayComponent) => {
+                                    if (day.isSame(selectedDate, 'day')) {
                                         return (
-                                            <WhitePillButton
-                                            handleClick={selectedTime === time ? () => {setIsSchedulerOpen(false); setDatetimeConfirmed(true)} : () => setSelectedTime(time)}
-                                            type="button"
-                                            text={selectedTime === time ? 'CONFIRM' : time}
-                                            padding="my-1 w-full text-center"
-                                            key={time}
-                                            />
+                                            <button
+                                              className="MuiButtonBase-root MuiIconButton-root MuiPickersDay-day MuiPickersDay-daySelected dayButton"
+                                              tabIndex="0"
+                                              type="button"
+                                              style={{
+                                                color: 'black',
+                                                backgroundColor: 'white',
+                                                borderRadius: '40px',
+                                                border: '2px solid black'
+                                              }}
+                                            >
+                                              <span className="MuiIconButton-label">
+                                                <p className="MuiTypography-root MuiTypography-body2 MuiTypography-colorInherit">
+                                                  {day.format('D')} 
+                                                </p>
+                                              </span>
+                                              <span className="MuiTouchRipple-root"></span>
+                                            </button>
                                         );
-                                    })}
-                                    </div>
-                                : null
-                                }
-                            </div>
+                                    }
+                                    else
+                                        return dayComponent;
+                                  }}
+                                />
+                              </MuiPickersUtilsProvider>
+                            : null
+                          }
                         </div>
+                      </div>
+
+                      {dailyTimes
+                        ? <div className="md:w-1/3 px-8 pb-20 overflow-y-scroll">
+                            {dailyTimes.map(time => {
+                              const date = moment(selectedDate).format('YYYY-MM-DD');
+                              if (unavailableDatetimes && date in unavailableDatetimes) //&& unavailableDatetimes[date].has(time)) TODO This fails
+                                  return null;
+                              return (
+                                  <WhitePillButton
+                                    handleClick={selectedTime === time ? confirmDatetime : () => selectDatetime(time)}
+                                    type="button"
+                                    text={
+                                      selectedTime === time
+                                        ? datetimeConfirmed
+                                          ? 'CONFIRMED'
+                                          : 'CONFIRM?'
+                                        : time
+                                    }
+                                    padding={
+                                      'my-1 w-full text-center ' + (
+                                          selectedTime === time
+                                            ? datetimeConfirmed
+                                              ? 'bg-yellow-200'
+                                              : 'bg-gray-300'
+                                            : ''
+                                      )
+                                    }
+                                    key={time}
+                                  />
+                              );
+                            })}
+                          </div>
                         : null
-                    }
-                    <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-2 ml-6 md:ml-12 xl:ml-24" onClick={() => {if (isCoHostOpen)setIsCoHostOpen(false);}}>
+                      }
+                    </div>
+
+                    <div className="absolute bottom-0 h-8 w-full bg-white"></div>
+                  </div>
+                </CSSTransition>
+
+                    <div className="mb-4 sm:gap-4 sm:grid sm:grid-cols-5 mx-1 pl-2 ml-6 md:ml-12 xl:ml-24">
                         <div className="grid col-span-3">
                             <Field 
                                 name="title" 
@@ -515,7 +624,7 @@ const EventBuilder = (props) => {
 
                             <div className="flex flex-row">
                                 <WhitePillButton handleClick={() => {if(editMode) setIsSchedulerOpen(true);}} type="button" text="CHANGE DATE &amp; TIME" padding={"px-6 flex w-3/4 md:w-1/2 xl:w-1/3 mr-4 " + (editMode ?  "": "cursor-not-allowed")} />
-                                {selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')}
+                                <p className="self-center ml-2">{selectedDate.format('dddd, MMMM D, YYYY') + ' @ ' + selectedTime + ' ' + moment.tz(timezone).format('z')}</p> 
                             </div>
   
                             <div className="mr-6 mt-2 mb-10 w-9/12">
@@ -557,18 +666,18 @@ const EventBuilder = (props) => {
                                     <button
                                     disabled={
                                         !isValid ||
-                                        !dirty ||
                                         isSubmitting
                                     }
-                                    type="submit"
-                                    className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid || !dirty ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
+                                    type="button"
+                                    onClick={() => {handleApproval(); submitForm();}}
+                                    className={"flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full " + (!isValid ?  "cursor-not-allowed": "cursor-pointer hover:bg-black hover:text-white ") }
                                     >
                                         APPROVE
                                     </button>
                                     <button
                                         type="button"
                                         className="flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white "
-                                        onClick={() => {setEditMode(true)}}>
+                                        onClick={() => {handleDeny();}}>
                                         DENY
                                     </button>
 
@@ -586,7 +695,15 @@ const EventBuilder = (props) => {
                                         <button
                                             type="button"
                                             className="flex px-6 mt-4 mb-4 py-0 justify-center items-center bg-transparent focus:outline-none text-black border sm:border-2 border-black rounded-full cursor-pointer hover:bg-black hover:text-white"
-                                            onClick={() => {resetForm(); setSelectedDate(defaultDatetime); setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A z")); setEditMode(false); setSelectedThumbnail(defaultThumbnail);}}> 
+                                            onClick={() => {
+                                                resetForm();
+                                                setSelectedDate(defaultDatetime);
+                                                setSelectedTime(defaultDatetime.tz(timezone).format("h:mm A z"));
+                                                setEditMode(false);
+                                                setSelectedThumbnail(defaultThumbnail);
+                                                setProfilePictureURL(defaultProfilePicture);
+                                            }}
+                                        > 
                                             CANCEL
                                         </button>
 
@@ -603,9 +720,9 @@ const EventBuilder = (props) => {
                                     </div>
                                     :
                                     null}
-                                <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-20" style={{ maxWidth: "300px"}}>
+                                <div className="flex mx-auto ml-20 sm:ml-0 justify-around sm:justify-between text-sm my-2 sm:mt-20" style={{ maxWidth: "350px"}}>
                                     <p>Hosted by:</p>
-                                    <p className="cursor-pointer hover:underline hover:text-blue-900" onClick={() => setIsCoHostOpen(!isCoHostOpen)}>Add a co-host</p>
+                                    <p className="hidden cursor-pointer hover:underline hover:text-blue-900" onClick={() => setIsCoHostOpen(!isCoHostOpen)}>Add a co-host</p>
                                 </div>
                                 <div className="mx-auto ml-20 mb-16 sm:ml-0 sm:mb-0 sm:mr-8 shadow-md sm:shadow-none border-solid border-black border sm:border-2 rounded-2xl" style={{ maxWidth: "300px"}}>
                                     <div className="p-4 grid-rows-3">
@@ -648,8 +765,8 @@ const EventBuilder = (props) => {
                                                 <div className="grid grid-cols-3">
                                                     <div className="col-span-1 h-24 w-24 ">
                                                         <input className="hidden" ref={fileInput} type="file" onChange={fileEventHandler} accept={"image/*"} multiple={false} />
-                                                        <div onClick={() => {fileInput.current.click()}}>
-                                                            <img src={profilePictureURL} className="rounded-full p-2 items-center cursor-pointer justify-center"></img>
+                                                        <div onClick={() => editMode ? fileInput.current.click() : null}>
+                                                            <img src={profilePictureURL} className={'rounded-full p-2 items-center justify-center ' + (editMode ? 'cursor-pointer' : 'cursor-not-allowed')}></img>
                                                         </div>
                                                     </div>
                                                     <div className="col-span-2 my-auto">
@@ -681,14 +798,14 @@ const EventBuilder = (props) => {
                                                     <p className="mx-3">•</p>
                                                     <Field 
                                                         placeholder="My grad year..." 
-                                                        disabled={true}//{!editMode}
+                                                        disabled={!editMode}
                                                         className={"leading-snug focus:outline-none overflow-hidden text-center"} 
                                                         name="grad_year" 
                                                     />
                                                 </div>
                                                 <Field 
                                                     placeholder="My major..." 
-                                                    disabled={true}//{!editMode}
+                                                    disabled={!editMode}
                                                     className={"leading-snug focus:outline-none overflow-hidden text-center"} 
                                                     name="major" 
                                                 />
@@ -730,7 +847,7 @@ const EventBuilder = (props) => {
           : !preLoad.first_name && context.profile && context.profile.is_admin
             ? 
             <div className="text-center mt-56">
-                <CircularProgress color="black" />
+                <CircularProgress />
             </div>
             :
             <>
@@ -745,22 +862,25 @@ const EventBuilder = (props) => {
     );
 };
 
-export default EventBuilder;
+export default EventEditor;
 
 export const getServerSideProps = async (context) => {
-    const eventInfo = await new Promise((resolve, reject) => 
-        pool.query(queries.getEvent, [ context.params.eid ], (err, results) => {
-            if (err)
-                reject(err);
-            else if (results.rows.length == 0)
-                reject({ err: 'No such event' });
-            else
-                resolve((results.rows[0].event));
-        })
-    )
-    return {
-        props: {
-            eventInfo,
-        },
+    try {
+        const eventInfo = (await pool.query(queries.getEvent, [ context.params.eid ])).rows[0].event;
+        if (eventInfo.status === 'denied') {
+            return {
+                notFound: true,
+            };
+        }
+        return {
+            props: {
+                eventInfo,
+            },
+        };
+    } catch (err) {
+        console.log(err);
+        return {
+            notFound: true,
+        };
     }
 }

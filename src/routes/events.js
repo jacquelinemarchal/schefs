@@ -1,5 +1,4 @@
 const moment = require('moment-timezone');
-const schedule = require('node-schedule');
 
 const { verifyFirebaseIdToken, verifyIsAdmin } = require('../middleware/auth');
 
@@ -8,6 +7,7 @@ const pool = require('../utils/db');
 const queries = require('../utils/queries/events');
 const thumbnail_queries = require('../utils/queries/thumbnails');
 const emails = require('../utils/emails');
+const reminders = require('../utils/reminders');
 const gcal = require('../utils/gcalendar');
 const zoom = require('../utils/zoom');
 
@@ -134,9 +134,27 @@ router.get('', (req, res) => {
         if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else {
-            if (req.query.type === 'detailed')
-                res.status(200).json(q_res.rows.map(o => o.json_build_object));
-            else
+            if (req.query.type === 'detailed') {
+                console.log(q_res);
+                q_res.rows = q_res.rows.map(o => {
+                    const e = o.json_build_object;
+                    e.attendees = e.attendees.map((attendee) => {
+                        if (!attendee.is_email_public)
+                            delete attendee.email;
+                        return attendee;
+                    });
+
+                    e.hosts = e.hosts.map((host) => {
+                        if (!host.is_email_public)
+                            delete host.email;
+                        return host;
+                    });
+
+                    return e;
+                });
+
+                res.status(200).json(q_res.rows);
+            } else
                 res.status(200).json(q_res.rows);
         }
     });
@@ -189,8 +207,11 @@ router.get('/:eid', (req, res) => {
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else if (!q_res.rows.length)
             res.status(404).json({ err: 'Event does not exist: ' + req.params.eid });
-        else
-            res.status(200).json(q_res.rows[0].json_build_object);
+        else {
+            const e = q_res.rows[0].event;
+            e.hosts = e.hosts.map((host) => ({...host, email: ''}));
+            res.status(200).json(e);
+        }
     });
 });
 
@@ -249,7 +270,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
     // make Google Calendar event
     const time_end = new Date(time_start);
     time_end.setHours(time_end.getHours() + 1);
-    const gcal_id = await gcal.createGcalEvent(
+    const gcal_id = await gcal.create(
         req.body.title,
         host_name,
         req.profile.email,
@@ -292,7 +313,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
         )).rows[0].available;
 
         // check time still available
-        time_end.setHours(time_start.getHours() + 2);
+        time_end.setHours(time_start.getHours() + 1);
 
         const valid_time = (await client.query(
             queries.checkTimeAvailable,
@@ -321,7 +342,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
             );
 
             await client.query('COMMIT');
-            res.status(201).send();
+            res.status(201).json({ eid });
         }
 
     // if not valid, delete the Zoom and GCal events
@@ -334,7 +355,7 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
 
         if (!(await zoom.deleteMeeting(zoom_res.id)))
             console.log('Failed to delete Zoom meeting', zoom_res.id);
-        if (!(await gcal.deleteGcalEvent(gcal_id)))
+        if (!(await gcal.delete(gcal_id)))
             console.log('Failed to delete Gcal event', gcal_id);
     } finally {
         client.release();
@@ -433,7 +454,7 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
         } else {
 
             // get and keep track of event pre-update
-            const orig_event = (await client.query(queries.getEvent, [ req.params.eid ])).rows[0];
+            const orig_event = (await client.query(queries.getEvent, [ req.params.eid ])).rows[0].event;
 
             // update thumbnail in PSQL if it has changed
             if (req.body.thumbnail_id) {
@@ -446,75 +467,14 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
             // update the event proper
             await client.query(queries.updateEvent, values);
 
-            // send email and possibly update Gcal/Zoom if an approval took place
+            // get final event infos
+            const event_time = req.body.time_start || orig_event.time_start;
+            const event_title = req.body.title || orig_event.title;
+
+            // do some things if event was approved
             if (orig_event.status !== 'approved' && req.body.status === 'approved') {
-                
-                // get final event infos
-                const event_time = req.body.time_start || orig_event.time_start;
-                const event_title = req.body.title || orig_event.title;
 
-                // if necessary, update Zoom
-                if (req.body.time_start || req.body.title) {
-                    if (!(await zoom.updateMeeting(orig_event.zoom_id, event_title, event_time))) {
-                        await client.query('ROLLBACK');
-                        client.release();
-                        res.status(500).json({
-                            err: 'Zoom API failed to update meeting ' + orig_event.zoom_id 
-                        });
-                        return;
-                    }
-                }
-
-                // if necessary, update Gcal
-                if (req.body.time_start || req.body.title || req.body.host_name || req.body.description) {
-                    const gcal_event_patch = {}
-                    if (req.body.time_start) {
-                        const time_start = new Date(req.body.time_start);
-                        const time_end = new Date(time_start);
-                        time_end.setHours(time_start.getHours() + 1);
-
-                        gcal_event_patch.start = {
-                            dateTime: time_start.toISOString(),
-                            timeZone: TIMEZONE
-                        };
-
-                        gcal_event_patch.end = {
-                            dateTime: time_end.toISOString(),
-                            timeZone: TIMEZONE
-                        };
-                    }
-
-                    if (req.body.title)
-                        gcal_event_patch.summary = req.body.title;
-
-                    if (req.body.host_name || req.body.description) {
-                        const event_host = req.body.host_name || orig_event.host_name;
-                        const event_desc = req.body.description || orig_event.description;
-                        gcal_event_patch.description = `
-                            <html>
-                              <p>
-                                A Schefs event hosted by ${event_host}.
-                                <br><br>
-                                ${event_desc}
-                                <br><br>
-                                Meeting Link: <a href=${orig_event.zoom_link}>${orig_event.zoom_link}</a><br>
-                                Meeting ID: ${orig_event.zoom_id}
-                              </p>
-                            </html>
-                        `;
-                    }
-                    
-                    if (!(await gcal.updateGcalEvent(orig_event.gcal_id, gcal_event_patch))) {
-                        await client.query('ROLLBACK');
-                        client.release();
-                        res.status(500).json({
-                            err: 'Google Calendar API failed to update the event ' + orig_event.gcal_id
-                        });
-                        return;
-                    }
-                }
-
-                // send approval email
+                // send approval email to hosts
                 for (const host of orig_event.hosts) {
                     emails.sendEventApprovedEmail(
                         host.email,
@@ -522,10 +482,15 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
                         event_title,
                         moment.tz(event_time, 'America/New_York').format('dddd, MMMM D, YYYY'),
                         moment.tz(event_time, 'America/New_York').format('h:mm A z'),
-                        process.env.BASE_URL + '/' + orig_event.eid,
+                        process.env.BASE_URL + 'event/' + orig_event.eid,
                         req.body.zoom_link || orig_event.zoom_link
                     );
                 }
+
+                // add hosts to Gcal event
+                if (!(await gcal.addAttendees(orig_event.gcal_id, orig_event.hosts.map((host) => host.email))))
+                    console.log('Failed to add hosts to Gcal event', orig_event.gcal_id);
+
 
             // or send email and delete Zoom/Gcal if a denial took place
             } else if (orig_event.status !== 'denied' && req.body.status === 'denied') {
@@ -540,10 +505,70 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
                     );
                 }
 
-                if (!(await zoom.deleteMeeting(zoom_res.id)))
-                    console.log('Failed to delete Zoom meeting', zoom_res.id);
-                if (!(await gcal.deleteGcalEvent(gcal_id)))
-                    console.log('Failed to delete Gcal event', gcal_id);
+                if (!(await zoom.deleteMeeting(orig_event.zoom_id)))
+                    console.log('Failed to delete Zoom meeting', orig_event.zoom_id);
+                if (!(await gcal.delete(orig_event.gcal_id)))
+                    console.log('Failed to delete Gcal event', orig_event.gcal_id);
+            }
+
+            // if necessary, update Zoom
+            if (req.body.time_start || req.body.title) {
+                if (!(await zoom.updateMeeting(orig_event.zoom_id, event_title, event_time))) {
+                    await client.query('ROLLBACK');
+                    res.status(500).json({
+                        err: 'Zoom API failed to update meeting ' + orig_event.zoom_id
+                    });
+                    return;
+                }
+            }
+
+            // if necessary, update Gcal event
+            if (req.body.time_start || req.body.title || req.body.host_name || req.body.description) {
+                const gcal_event_patch = {};
+
+                if (req.body.time_start) {
+                    const time_start = new Date(req.body.time_start);
+                    const time_end = new Date(time_start);
+                    time_end.setHours(time_start.getHours() + 1);
+
+                    gcal_event_patch.start = {
+                        dateTime: time_start.toISOString(),
+                        timeZone: TIMEZONE
+                    };
+
+                    gcal_event_patch.end = {
+                        dateTime: time_end.toISOString(),
+                        timeZone: TIMEZONE
+                    };
+                }
+
+                if (req.body.title)
+                    gcal_event_patch.summary = req.body.title;
+
+                if (req.body.host_name || req.body.description) {
+                    const event_host = req.body.host_name || orig_event.host_name;
+                    const event_desc = req.body.description || orig_event.description;
+                    gcal_event_patch.description = `
+                        <html>
+                          <p>
+                            A Schefs event hosted by ${event_host}.
+                            <br><br>
+                            ${event_desc}
+                            <br><br>
+                            Meeting Link: <a href=${orig_event.zoom_link}>${orig_event.zoom_link}</a><br>
+                            Meeting ID: ${orig_event.zoom_id}
+                          </p>
+                        </html>
+                    `;
+                }
+                
+                if (!(await gcal.update(orig_event.gcal_id, gcal_event_patch))) {
+                    await client.query('ROLLBACK');
+                    res.status(500).json({
+                        err: 'Google Calendar API failed to update the event ' + orig_event.gcal_id
+                    });
+                    return;
+                }
             }
 
             // if all went well, commit
@@ -580,29 +605,27 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
  *  500: other postgres error
  */
 router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
-    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
-        res.status(403).send();
-        return;
-    }
-
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
+
+        // check if 14+ people have already reserved a ticket
         const count = await client.query(queries.getReservedTicketsCount, [ req.params.eid ]);
         if (count > 14) {
             await client.query('COMMIT');
             res.status(406).json({ err: 'Event sold out: ' + req.params.eid });
+
+        // if not, reserve the ticket
         } else {
             const values = [
                 req.params.eid,
                 req.profile.uid,
             ];
 
+            // reserve the ticket in PSQL
             await client.query(queries.reserveTicket, values);
 
-            // handle emails
-            
-            // reserve email
+            // send reserve email
             const event = (await pool.query(queries.getEvent, [ req.params.eid ])).rows[0].event;
             emails.sendReserveEmail(
                 req.profile.email,
@@ -610,37 +633,34 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
                 event.title,
                 moment.tz(event.time_start, 'America/New_York').format('dddd, MMMM D, YYYY'),
                 moment.tz(event.time_start, 'America/New_York').format('h:mm A, z'),
-                process.env.BASE_URL + '/events/' + req.params.eid
+                process.env.BASE_URL + 'events/' + req.params.eid
             );
 
-            // schedule 24 hour email 
+            // schedule 24 hour reminder email 
             time_24hr = new Date(event.time_start);
             time_24hr.setDate(time_24hr.getDate() - 1);
-            schedule.scheduleJob(time_24hr, () => emails.send24HourReminderEmail(
-                req.profile.email,
-                req.profile.first_name,
-                event.title
-            ));
+            if (time_24hr > new Date())
+                reminders.schedule(time_24hr, '24h', req.profile.email, req.profile.first_name, event.title);
 
-            // schedule 30 minute email
+            // schedule 30 minute reminder email
             time_30min = new Date(event.time_start);
             time_30min.setMinutes(time_30min.getMinutes() - 30);
-            schedule.scheduleJob(time_30min, () => emails.send30MinuteReminderEmail(
-                req.profile.email,
-                req.profile.first_name,
-                event.title,
-                event.zoom_link
-            ));
+            if (time_30min > new Date())
+                reminders.schedule(time_30min, '30m', req.profile.email, req.profile.first_name, event.title, event.zoom_link);
 
             // schedule post-event email
             time_post = new Date(event.time_start);
             time_post.setHours(time_post.getHours() + 2);
-            schedule.scheduleJob(time_post, () => emails.sendPostEventEmail(
-                req.profile.email,
-                req.profile.first_name,
-                event.title
-            ));
+            if (time_post > new Date())
+                reminders.schedule(time_post, 'post', req.profile.email, req.profile.first_name, event.title);
 
+            // get Gcal event id
+            const gcal_id = (await pool.query(queries.getGcalId, [ req.params.eid ])).rows[0].gcal_id;
+
+            // add user to attendee list on Gcal
+            await gcal.addAttendees(gcal_id, [ req.profile.email ]);
+
+            // if all went well, commit
             await client.query('COMMIT');
             res.status(201).send();
         }
@@ -721,20 +741,25 @@ router.get('/:eid/countTickets', (req, res) => {
 
 
 /*
- * GET /api/events/{eid}/{user}/ticketstatus
+ * GET /api/events/{eid}/{uid}/ticketstatus
  * Get boolean whether or not user has reserved ticket.
  *
  * Request Parameters:
  *  path:
  *    eid <int> required
- *    user_id <int>
+ *    uid <int>
  *
  * Response:
  *  200: successfully retrieved
  *    <boolean> 
  *  500: other postgres error
  */
-router.get('/:eid/:uid/ticketstatus', verifyIsAdmin, (req, res) => {
+router.get('/:eid/:uid/ticketstatus', verifyFirebaseIdToken, (req, res) => {
+    if (parseInt(req.profile.uid) !== parseInt(req.params.uid) && !req.profile.is_admin) {
+        res.status(403).send();
+        return;
+    }
+
     pool.query(queries.checkTicketStatus, [ req.params.eid, req.params.uid ], (q_err, q_res) => {
         if (q_err){
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
@@ -811,7 +836,7 @@ router.get('/:eid/comments', (req, res) => {
 
 /*
  * POST /api/events/{eid}/comment
- * Submit comment to specific event
+ * Submit comment to specific event.
  *
  * Request Parameters:
  *  path:
@@ -819,7 +844,6 @@ router.get('/:eid/comments', (req, res) => {
  *
  * Request Body:
  *  <object>
- *      user_id     <int> required
  *      name        <string> required
  *      body        <string> required
  *      school      <string> required
@@ -830,14 +854,19 @@ router.get('/:eid/comments', (req, res) => {
  */
 
 router.post('/:eid/comment', verifyFirebaseIdToken, (req, res) => {
-    const values = [req.body.user_id, req.body.name, req.body.body, req.body.school, req.params.eid]
+    const values = [
+        req.profile.uid,
+        req.body.name,
+        req.body.body,
+        req.body.school,
+        req.params.eid
+    ];
+
     pool.query(queries.postComment, values, (q_err, q_res) => {
-        if (q_err){
+        if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
-        }
-        else{
+        else
             res.status(201).send()
-        }
     })
 });
 
