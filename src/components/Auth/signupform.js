@@ -93,6 +93,7 @@ const SignUpForm = (props) => {
                           
                     <Field as="select" name="gradYear" className={"my-2 px-3 bg-transparent focus:outline-none text-black border-2 sm:border-2 border-black rounded-full"} style={{padding: "0.38rem"}}>
                       <option value="" disabled>Select your grad year</option>
+                      <option value="Class of 2020" label="Class of 2020" />
                       <option value="Class of 2021" label="Class of 2021" />
                       <option value="Class of 2022" label="Class of 2022" />
                       <option value="Class of 2023" label="Class of 2023" />
