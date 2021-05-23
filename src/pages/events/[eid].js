@@ -96,6 +96,10 @@ console.log(eventInfo)
                 .then(() => {
                     setClientTickets(clientTickets + 1);
                     setReservedTicket(true);
+
+                    // trigger MyEvents and card update
+                    context.handleSetMyEvents(null);
+                    context.handleSetREvents(null);
                 })
                 .catch((err) => {
                     console.log(err.response.data.err);

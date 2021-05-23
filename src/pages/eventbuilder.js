@@ -405,8 +405,9 @@ const EventBuilder = (props) => {
                 alert(err + ". Unable to update your user profile. Please contact schefs.us@gmail.com for further assistance.");
         }
 
-        // trigger MyEvents update
+        // trigger MyEvents and update
         context.handleSetMyEvents(null);
+        context.handleSetREvents(null);
 
         // redirect to PostEventSubmit confirmation
         router.push('/posteventsubmit?eid=' + eid);
@@ -578,7 +579,7 @@ const EventBuilder = (props) => {
                     <div className="flex flex-col md:flex-row md:h-full max-h-full">
                       <div className="lg:w-2/3 px-8">
                         {availableTimeError !== "" ? <div className="text-red-600 sm:text-sm text-base mb-2">{availableTimeError}</div> : null}
-                        <p className="text-base mb-2 md:mb-8 hidden md:block">Choose a time to host your event:</p>
+                        <p className="text-base mb-2 md:mb-6 hidden md:block">Choose a time to host your event:</p>
                         <div className="md:overflow-hidden md:pl-8 mb-4 md:mb-0 -mt-3 md:mt-0"> 
                           {unavailableDatetimes !== null
                             ? <MuiPickersUtilsProvider utils={MomentUtils}>
@@ -625,6 +626,7 @@ const EventBuilder = (props) => {
                             : null
                           }
                         </div>
+                        <p className="text-sm mt-6 mb-3 md:mb-0 text-gray-400">Timezone: {timezone.replace('_', ' ')} ({moment().tz(timezone).format('z')})</p>
                       </div>
 
                       {dailyTimes

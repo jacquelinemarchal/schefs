@@ -1,8 +1,10 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import Context from '../Context/context';
-import { SentimentSatisfied } from "@material-ui/icons";
 import Switch from '@material-ui/core/Switch';
 import ContentEditable from 'react-contenteditable'
+
+import { SentimentSatisfied } from "@material-ui/icons";
+import CircularProgress from '@material-ui/core/CircularProgress';
 import WhitePillButton from "../Buttons/wpillbutton"
 import EventGrid from "../Events/eventgrid"
 import axios from "axios"
@@ -247,7 +249,9 @@ const CardContent = (props) => {
                     : null
                   }
                 </>
-              : null
+              : <div className="flex flex-col mt-8">
+                  <CircularProgress thickness={3} />
+                </div>
             }
         </div>
 

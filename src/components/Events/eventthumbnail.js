@@ -66,8 +66,12 @@ const EventThumbnail = (props) => {
                     size="lg"
                     key={props.eid + ' ' + host.uid}
                     handleClick={() => {
-                        context.handleSetLeftProfile(host);
-                        context.handleOpenCard(true, false);
+                        if (context.profile && host.uid === context.profile.uid)
+                            context.handleOpenCard(false, true);
+                        else {
+                            context.handleSetLeftProfile(host);
+                            context.handleOpenCard(true, false);
+                        }
                     }}
                   />
                 )}
@@ -79,8 +83,12 @@ const EventThumbnail = (props) => {
                     size="lg"
                     key={props.eid + ' ' + attendee.uid}
                     handleClick={() => {
-                        context.handleSetLeftProfile(attendee);
-                        context.handleOpenCard(true, false);
+                        if (context.profile && attendee.uid === context.profile.uid)
+                            context.handleOpenCard(false, true);
+                        else {
+                            context.handleSetLeftProfile(attendee);
+                            context.handleOpenCard(true, false);
+                        }
                     }}
                   />
                 )}
