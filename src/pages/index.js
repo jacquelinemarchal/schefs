@@ -8,6 +8,7 @@ import emergenceLogo from '../assets/eLogo.gif';
 import NavBar from '../components/Banners/navbar';
 import Context from '../components/Context/context';
 import WhitePillButton from '../components/Buttons/wpillbutton.js'
+import Link from 'next/link';
 
 import social from '../assets/socialLogo.png';
 import multi from '../assets/multiplicitiesLogo.png';
@@ -66,7 +67,9 @@ const Home = ({ closeCardF }) => {
 
         <div className="px-6 md:px-12 mx-2" id="emergenceBannerMobile">
             <p className="text-xl sm:text-2xl mb-4 mx-1 sm:mx-0" style={{color: "#1404f4"}}>UPCOMING IN JUNE 2021</p>
-            <img className="h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} />
+            <Link href="/festival">
+                <img className="h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} />
+            </Link>
             <p className="text-xl leading-tight mx-1 sm:mx-0">
                     The third Schefs festival.<br />
                     A week of discussions.<br />
@@ -82,7 +85,9 @@ const Home = ({ closeCardF }) => {
             </div>
             <div className="flex flex-row justify-between mb-16">
                 <div className="pl-2">
-                <img className="md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} alttext="Emergence Logo" />
+                <Link href="/festival">
+                    <img className="md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} alttext="Emergence Logo" />
+                </Link>
                 <p className="text-xl leading-tight">
                     The third Schefs festival.<br />
                     A week of discussions.<br />
