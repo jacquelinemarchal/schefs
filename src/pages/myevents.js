@@ -15,7 +15,6 @@ const MyEvents = ({ closeCardF }) => {
     const [futureEvents, setFutureEvents] = useState(null); // [[eid, host_name, host_school, time_start, title]]
     const [pastEvents, setPastEvents] = useState(null);
 
-    console.log(pastEvents);
     useEffect(async () => {
         const now = (new Date()).toISOString();
 

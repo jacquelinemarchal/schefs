@@ -31,10 +31,8 @@ const TIMEZONE = 'America/New_York';
  */
 router.get('/countTickets', (req, res) => {
     pool.query(queries.getAllReservedTicketsCount, [ req.query.date_from, req.query.date_to ], (q_err, q_res) => {
-        if (q_err){
+        if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
-            console.log(q_err.message);
-        }
         else
             res.status(200).json(q_res.rows[0]);
     });
@@ -57,10 +55,8 @@ router.get('/countTickets', (req, res) => {
  */
 router.get('/countEvents', (req, res) => {
     pool.query(queries.getAllEventsCount, [ req.query.date_from, req.query.date_to, req.query.status ], (q_err, q_res) => {
-        if (q_err){
+        if (q_err)
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
-            console.log(q_err.message);
-        }
         else
             res.status(200).json(q_res.rows[0]);
     });
@@ -135,7 +131,6 @@ router.get('', (req, res) => {
             res.status(500).json({ err: 'PSQL Error: ' + q_err.message });
         else {
             if (req.query.type === 'detailed') {
-                console.log(q_res);
                 q_res.rows = q_res.rows.map(o => {
                     const e = o.json_build_object;
                     e.attendees = e.attendees.map((attendee) => {
