@@ -14,7 +14,7 @@ import downloadHoverLogo from "../../assets/hdownload.png"
 
 const EventPage = ({eventInfo, tickets, comments}) => {
     const context = useContext(Context);
-console.log(eventInfo)
+
     // get timezone
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
 
@@ -246,7 +246,6 @@ export const getServerSideProps = async (context) => {
         const comments = (await pool.query(queries.getComments, [ context.params.eid ])).rows.map(
             (comment) => ({...comment, time_created: comment.time_created.toISOString()})
         );
-        console.log(eventInfo)
 
         if (eventInfo.status !== 'approved') {
             return {
