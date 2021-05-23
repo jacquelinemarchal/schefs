@@ -402,8 +402,7 @@ const About = () => {
               </p>
 
               <p className="text-2xl mb-4">How did this start?</p>
-              <p>
-                A couple of college kids wanted a new way to meet people. We used to run dinners at Columbia dorms. Etc etc ADD MORE
+              <p>Schefs started in January 2020 as a bunch of students at Columbia hosting meals in their dorm rooms open to any Columbia student. “Novel dining experiences”, we called them – for instance, the “Psychodrama Dinner Theater” (shoutout Alex Levene), a live-action play during a multi-course meal. The vision was to use food as a mechanism for meeting new people an an intimate and interesting way. Then covid happened - we were all sent home - and so we started running Schefs events virtually. We were no longer bound by geography, so we opened it up to undergrad students from any school. And from there, Schefs quickly became a space for young people around the world to meet and jam on shared topics of interest, and to most importantly, learn from each other.
               </p>
             </div>
           </div>
