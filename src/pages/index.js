@@ -82,7 +82,7 @@ const Home = ({ closeCardF }) => {
             </div>
             <div className="flex flex-row justify-between mb-16">
                 <div className="pl-2">
-                <img className="md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} altText="Emergence Logo" />
+                <img className="md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} alttext="Emergence Logo" />
                 <p className="text-xl leading-tight">
                     The third Schefs festival.<br />
                     A week of discussions.<br />
