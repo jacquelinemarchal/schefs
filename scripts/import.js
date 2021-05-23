@@ -161,7 +161,7 @@ const userImport = async () => {
                 const prof_file = (await storage.getFiles({ prefix }))[0][0];
                 prof_path = await downloadImage(prof_file);
             } catch (err) {
-                console.log(err);
+                // console.log(err);
             }
 
             // rename gradYear

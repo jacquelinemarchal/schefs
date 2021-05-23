@@ -29,7 +29,7 @@ const EventThumbnail = (props) => {
               <div className="relative">
                 <img
                   src={process.env.BASE_URL + props.img_thumbnail}
-                  className="mb-2 rounded-2xl"
+                  className="mb-2 rounded-2xl w-full h-auto"
                   style={{opacity: props.photoOpacity}}
                 />
 

@@ -17,5 +17,5 @@ pg_dump $PGDATABASE | gzip > "$backup_file"
 gupload $backup_file -q
 
 if [ $? -eq 0 ]; then
-    echo "$(date +%Y-%m-%d %T) - Schefs PSQL backup successful"
+    echo "$(date +'%Y-%m-%d %T') - Schefs PSQL backup successful"
 fi
