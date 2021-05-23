@@ -88,7 +88,7 @@ const Home = ({ closeCardF }) => {
                     A week of discussions.<br />
                     By &amp; for college students worldwide.
                 </p>
-                <WhitePillButton text="LEAD A CONVERSATION FOR THE FESTIVAL" link="/festivallanding" padding="px-6 mt-6" size="xl"></WhitePillButton>
+                <WhitePillButton text="LEAD A CONVERSATION FOR THE FESTIVAL" link="/festival" padding="px-6 mt-6" size="xl"></WhitePillButton>
                 </div>
 
                 <div className="pr-16 text-xl">
