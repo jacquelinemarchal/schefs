@@ -24,6 +24,7 @@ const CardContent = (props) => {
 
     const disabled = !(context.profile && (props.profile.uid === context.profile.uid));
     const gradYearOptions = [
+        'Class of 2020',
         'Class of 2021',
         'Class of 2022',
         'Class of 2023',
