@@ -93,12 +93,12 @@ const SignUpForm = (props) => {
                           
                     <Field as="select" name="gradYear" className={"my-2 px-3 bg-transparent focus:outline-none text-black border-2 sm:border-2 border-black rounded-full"} style={{padding: "0.38rem"}}>
                       <option value="" disabled>Select your grad year</option>
-                      <option value="Class of 2020" label="Class of 2020" />
-                      <option value="Class of 2021" label="Class of 2021" />
-                      <option value="Class of 2022" label="Class of 2022" />
-                      <option value="Class of 2023" label="Class of 2023" />
-                      <option value="Class of 2024" label="Class of 2024" />
-                      <option value="Gap Year" label="Gap Year" />
+                      <option value="Class of 2020" label="Class of 2020">Class of 2020</option>
+                      <option value="Class of 2021" label="Class of 2021">Class of 2021</option>
+                      <option value="Class of 2022" label="Class of 2022">Class of 2022</option>
+                      <option value="Class of 2023" label="Class of 2023">Class of 2023</option>
+                      <option value="Class of 2024" label="Class of 2024">Class of 2024</option>
+                      <option value="Gap Year" label="Gap Year">Gap Year</option>
                     </Field>
                     <ErrorMessage render={msg => <p className="text-red-500 text-sm">{msg}</p>} name="gradYear"></ErrorMessage>
 
