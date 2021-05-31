@@ -17,9 +17,10 @@ const CardContent = (props) => {
     const context = useContext(Context)
     const [isEmailPublic, setIsEmailPublic] = useState(context.profile.is_email_public);
 
+    // async issue, sending !isEmailPublic to both state change and context function
     const handlePublicEmailSwitchChange = () => {
         setIsEmailPublic(!isEmailPublic);
-        context.handleUpdateProfile(context.profile.uid, {...context.profile, is_email_public: isEmailPublic});
+        context.handleUpdateProfile(context.profile.uid, {...context.profile, is_email_public: !isEmailPublic});
     };
 
     const disabled = !(context.profile && (props.profile.uid === context.profile.uid));
@@ -185,7 +186,7 @@ const CardContent = (props) => {
                         <div>{props.profile.email}</div>
                         <div className="mx-2">
                             <Switch
-                                checked={!isEmailPublic}
+                                checked={isEmailPublic}
                                 onChange={handlePublicEmailSwitchChange}
                                 disableRipple
                                 color="default"
@@ -194,8 +195,8 @@ const CardContent = (props) => {
                             />
                         </div>
                         {isEmailPublic 
-                        ? <div className="text-xs">Email private</div>
-                        : <div className="text-xs">Email public to Schefs users</div>
+                        ? <div className="text-xs">Email public to Schefs users</div>
+                        : <div className="text-xs">Email private</div>
                         }
                         
                 </div>

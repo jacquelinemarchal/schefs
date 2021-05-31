@@ -135,7 +135,7 @@ const Home = ({ closeCardF }) => {
                 </div>
                 <div className="flex flex-row justify-between">
                     <a href="#paradigm">
-                    Paradigm 
+                    Paradigm
                     </a>
                     <p className="ml-4">June 20</p>
                 </div>
@@ -175,7 +175,7 @@ const Home = ({ closeCardF }) => {
 
                 <div className="px-8 md:px-12 xl:px-24 mt-24 mb-16 sm:mb-0">
                   <p className="text-2xl mx-2 mb-8 sm:mb-12">Schefs Festivals</p>
-                  <div className="sm:grid sm:grid-cols-2 mb-16 sm:mb-0">
+                  <div className="sm:grid sm:grid-cols-2 mb-16 sm:mb-0" style={{marginBottom: "2.5rem"}}>
                     <div className="col-span-1 flex flex-col justify-center sm:block">
                       <img className="left-0 mt-2 ml-1 h-16 sm:h-20 w-auto" src={social} />
                       <p className="text-center ml-1 sm:text-left left-0 text-2xl my-6">January 04&ndash;10, 2021</p>
@@ -194,7 +194,7 @@ const Home = ({ closeCardF }) => {
                       </div>
                     </div>
                   </div>
-  
+                {/*
                   <div className="sm:grid sm:grid-cols-2 mt-10 mb-8">
                     <div className="col-span-1 flex flex-col justify-center sm:block">
                       <img className="left-0 mt-2 ml-1 h-32 w-auto" src={multi} />
@@ -213,6 +213,7 @@ const Home = ({ closeCardF }) => {
                       </div>
                     </div>
                   </div>
+                */}
                 </div>
               </>
             : null
