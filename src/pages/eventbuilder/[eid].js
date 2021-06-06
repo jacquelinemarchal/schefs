@@ -866,12 +866,20 @@ export default EventEditor;
 
 export const getServerSideProps = async (context) => {
     try {
+        // get event data
         const eventInfo = (await pool.query(queries.getEvent, [ context.params.eid ])).rows[0].event;
+
+        // don't return page if event is denied
         if (eventInfo.status === 'denied') {
             return {
                 notFound: true,
             };
         }
+
+        // format event time string properly based on PSQL's timezone
+        const timezone = (await pool.query('SHOW TIMEZONE')).rows[0].TimeZone;
+        eventInfo.time_start = moment.tz(eventInfo.time_start, timezone).utc().format();
+
         return {
             props: {
                 eventInfo,
