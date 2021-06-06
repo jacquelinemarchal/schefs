@@ -106,6 +106,11 @@ export default PostEventSubmit;
 export const getServerSideProps = async (context) => {
     try {
         const eventInfo = (await pool.query(queries.getEvent, [ context.query.eid ])).rows[0].event;
+
+        // format event time string properly based on PSQL's timezone
+        const timezone = (await pool.query('SHOW TIMEZONE')).rows[0].TimeZone;
+        eventInfo.time_start = moment.tz(eventInfo.time_start, timezone).utc().format();
+
         return {
             props: {
                 eventInfo,

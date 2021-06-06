@@ -12,6 +12,9 @@ import Context from '../components/Context/context';
 
 const MyEvents = ({ closeCardF }) => {
     const context = useContext(Context);
+
+    const [isBottom, setIsBottom] = useState(false);
+    const [displayLength, setDisplayLength] = useState(15);
     const [futureEvents, setFutureEvents] = useState(null); // [[eid, host_name, host_school, time_start, title]]
     const [pastEvents, setPastEvents] = useState(null);
 
@@ -62,10 +65,36 @@ const MyEvents = ({ closeCardF }) => {
         }
         
         if (context.myEvents) {
-            setFutureEvents(context.myEvents.filter((e) => e.time_start > now));
-            setPastEvents(context.myEvents.filter((e) => e.time_start <= now));
+            setFutureEvents(context.myEvents.filter((e) => e.time_start > now).slice(0, displayLength));
+            setPastEvents(context.myEvents.filter((e) => e.time_start <= now).slice(0, displayLength));
         }
-    }, [context.myEvents, context.profile]);
+    }, [context.myEvents, context.profile, displayLength]);
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScrollToBottom, {passive: true});
+        return () => window.removeEventListener('scroll', handleScrollToBottom);
+    }, []);
+
+    useEffect(() => {
+        console.log(isBottom);
+        if (isBottom && context.events && displayLength < context.events.length)
+            setDisplayLength(displayLength + 15);
+    }, [isBottom]);
+
+    const handleScrollToBottom = () => {
+        const scrollTop = (document.documentElement
+            && document.documentElement.scrollTop)
+            || document.body.scrollTop;
+
+        const scrollHeight = (document.documentElement
+            && document.documentElement.scrollHeight)
+            || document.body.scrollHeight;
+
+        if (scrollTop + window.innerHeight + 50 >= scrollHeight)
+            setTimeout(() => setIsBottom(true), 200);
+        else
+            setIsBottom(false);
+    }
 
     const ambassador = {
         left:  "We’re looking for engaged students to spread the word",

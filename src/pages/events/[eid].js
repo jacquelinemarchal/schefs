@@ -17,7 +17,7 @@ const EventPage = ({eventInfo, tickets, comments}) => {
 
     // get timezone
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
-
+    
     const [clientTickets, setClientTickets] = useState(tickets)
     const [clientComments, setClientComments] = useState(comments)
     const [inHover, setHover] = useState(downloadLogo);
@@ -26,7 +26,17 @@ const EventPage = ({eventInfo, tickets, comments}) => {
     const [commentBody, setCommentBody] = useState("")
     const [reservedTicket, setReservedTicket] = useState(null)
 
-    /* Get comments and new tickets for event every 10 seconds*/ 
+    // get user's ticket status if logged in
+    useEffect(() => {
+        if (context.profile){
+            axios.get(`/api/events/${eventInfo.eid}/${context.profile.uid}/ticketstatus`)
+                .then(res => setReservedTicket(res.data))
+                .catch(err => console.log(err));
+        } else
+            setReservedTicket(false);
+    }, [context.profile]);
+
+    // get comments & tickets every 10 seconds
     useEffect(() => {
         const interval = setInterval(() => {
             axios.get(`/api/events/${eventInfo.eid}/countTickets`)
@@ -43,22 +53,13 @@ const EventPage = ({eventInfo, tickets, comments}) => {
         return () => clearInterval(interval);
       }, []); 
       
-    useEffect(() => {
-        if (context.profile){
-            axios.get(`/api/events/${eventInfo.eid}/${context.profile.uid}/ticketstatus`)
-                .then(res => setReservedTicket(res.data))
-                .catch(err => console.log(err));
-        } else
-            setReservedTicket(false);
-    }, [context.profile]);
-
     const copyLink = (e) => {{
         navigator.clipboard.writeText(`${process.env.BASE_URL}events/${eventInfo.eid}`)}
         setCopyStatus("Copied!");
         setTimeout(() => {
             setCopyStatus("");
         }, 2000); 
-      };
+    };
     
     const handleCommentSubmit = (e) => {
         e.preventDefault();
@@ -246,17 +247,24 @@ export default EventPage;
 
 export const getServerSideProps = async (context) => {
     try {
+        // get data from PSQL
         const eventInfo = (await pool.query(queries.getEvent, [ context.params.eid ])).rows[0].event;
         const tickets = parseInt((await pool.query(queries.getReservedTicketsCount, [ context.params.eid ])).rows[0].count);
         const comments = (await pool.query(queries.getComments, [ context.params.eid ])).rows.map(
             (comment) => ({...comment, time_created: comment.time_created.toISOString()})
         );
 
+        // don't return page if event isn't approved
         if (eventInfo.status !== 'approved') {
             return {
                 notFound: true,
             };
         }
+
+        // format event time string properly based on PSQL's timezone
+        const timezone = (await pool.query('SHOW TIMEZONE')).rows[0].TimeZone;
+        eventInfo.time_start = moment.tz(eventInfo.time_start, timezone).utc().format();
+
         return {
             props: {
                 eventInfo,
