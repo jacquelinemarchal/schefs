@@ -15,6 +15,9 @@ import multi from '../assets/multiplicitiesLogo.png';
 
 const Home = ({ closeCardF }) => {
     const context = useContext(Context);
+
+    const [isBottom, setIsBottom] = useState(false);
+    const [displayLength, setDisplayLength] = useState(15);
     const [futureEvents, setFutureEvents] = useState(null); 
     const [pastEvents, setPastEvents] = useState(null);
 
@@ -36,8 +39,8 @@ const Home = ({ closeCardF }) => {
                 const events = (await axios.get('/api/events', query)).data;
                 context.setHomeEvents(events);
 
-                setFutureEvents(events.filter((e) => e.time_start > now));
-                setPastEvents(events.filter((e) => e.time_start <= now).reverse());
+                setFutureEvents(events.filter((e) => e.time_start > now).slice(0, displayLength));
+                setPastEvents(events.filter((e) => e.time_start <= now).reverse().slice(0, displayLength));
             } catch (err) {
                 if (err.response && err.response.data && err.response.data.err)
                     console.log(err.response.data.err);
@@ -47,11 +50,37 @@ const Home = ({ closeCardF }) => {
         }
         
         if (context.events) {
-            setFutureEvents(context.events.filter((e) => e.time_start > now));
-            setPastEvents(context.events.filter((e) => e.time_start <= now).reverse());
+            setFutureEvents(context.events.filter((e) => e.time_start > now).slice(0, displayLength));
+            setPastEvents(context.events.filter((e) => e.time_start <= now).reverse().slice(0, displayLength));
         }
 
-    }, [context.events]);
+    }, [context.events, displayLength]);
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScrollToBottom, {passive: true});
+        return () => window.removeEventListener('scroll', handleScrollToBottom);
+    }, []);
+
+    useEffect(() => {
+        console.log(isBottom);
+        if (isBottom && context.events && displayLength < context.events.length)
+            setDisplayLength(displayLength + 15);
+    }, [isBottom]);
+
+    const handleScrollToBottom = () => {
+        const scrollTop = (document.documentElement
+            && document.documentElement.scrollTop)
+            || document.body.scrollTop;
+
+        const scrollHeight = (document.documentElement
+            && document.documentElement.scrollHeight)
+            || document.body.scrollHeight;
+
+        if (scrollTop + window.innerHeight + 50 >= scrollHeight)
+            setTimeout(() => setIsBottom(true), 200);
+        else
+            setIsBottom(false);
+    }
 
     const ambassador = {
         left:  "We’re looking for engaged students to spread the word",
