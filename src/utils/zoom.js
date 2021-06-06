@@ -37,7 +37,7 @@ exports.getLiveMeetings = async (page_size=300) => {
 
 exports.createMeeting = async (title, time_start) => {
 
-    const start_time = moment(time_start).format();
+    const start_time = moment(time_start).utc().format();
 
     const data = {
         topic: title,
@@ -66,7 +66,7 @@ exports.updateMeeting = async (meeting_id, title, time_start, duration=null) => 
     if (!meeting_id)
         throw new Error('Must pass valid meeting_id');
 
-    const start_time = moment(time_start).format();
+    const start_time = moment(time_start).utc().format();
 
     const data = {}
     if (title)
