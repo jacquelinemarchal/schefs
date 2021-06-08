@@ -463,8 +463,13 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
             await client.query(queries.updateEvent, values);
 
             // get final event infos
-            const event_time = req.body.time_start || orig_event.time_start;
+            let event_time = req.body.time_start || orig_event.time_start;
             const event_title = req.body.title || orig_event.title;
+
+            if (!req.body.time_start && typeof(event_time) === 'string') {
+                const server_timezone = (await client.query('SHOW TIMEZONE')).rows[0].TimeZone;
+                event_time = moment.tz(event_time, server_timezone).utc().format();
+            }
 
             // do some things if event was approved
             if (orig_event.status !== 'approved' && req.body.status === 'approved') {
@@ -477,7 +482,7 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
                         event_title,
                         moment.tz(event_time, 'America/New_York').format('dddd, MMMM D, YYYY'),
                         moment.tz(event_time, 'America/New_York').format('h:mm A z'),
-                        process.env.BASE_URL + 'event/' + orig_event.eid,
+                        process.env.BASE_URL + 'events/' + orig_event.eid,
                         req.body.zoom_link || orig_event.zoom_link
                     );
                 }
@@ -622,6 +627,11 @@ router.post('/:eid/tickets', verifyFirebaseIdToken, async (req, res) => {
 
             // send reserve email
             const event = (await pool.query(queries.getEvent, [ req.params.eid ])).rows[0].event;
+            if (typeof(event.time_start) === 'string') {
+                const server_timezone = (await pool.query('SHOW TIMEZONE')).rows[0].TimeZone;
+                event.time_start = moment.tz(event.time_start, server_timezone).utc().format();
+            }
+            
             emails.sendReserveEmail(
                 req.profile.email,
                 req.profile.first_name,
