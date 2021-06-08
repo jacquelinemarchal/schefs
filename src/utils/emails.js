@@ -155,7 +155,7 @@ exports.sendEventApprovedEmail = async (email, name, event_name, event_date, eve
                 Hi ${name},
             </p>
             <p>
-                Wohoooo! Your event, ${event_name}, has been approved and 
+                Wohoooo! Your event, <b>${event_name}</b>, has been approved and 
                 is NOW LIVE on our website. Share your link and invite whoever
                 you want. Anyone with a Schefs account will be able to sign up
                 to attend!
