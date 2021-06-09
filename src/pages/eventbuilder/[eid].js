@@ -570,7 +570,7 @@ const EventEditor = ({ eventInfo }) => {
                         ? <div className="md:w-1/3 px-8 pb-20 overflow-y-scroll">
                             {dailyTimes.map(time => {
                               const date = moment(selectedDate).format('YYYY-MM-DD');
-                              if (unavailableDatetimes && date in unavailableDatetimes) //&& unavailableDatetimes[date].has(time)) TODO This fails
+                              if (unavailableDatetimes && date in unavailableDatetimes && unavailableDatetimes[date].has(time))
                                   return null;
                               return (
                                   <WhitePillButton
