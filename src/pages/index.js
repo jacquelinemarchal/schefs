@@ -38,7 +38,7 @@ const Home = ({ closeCardF }) => {
                 context.setHomeEvents(events);
 
                 setEmergenceEvents(events.filter((e) => e.time_start > "2021-06-13" && e.time_start < "2021-06-21"));
-                setFutureEvents(events.filter((e) => e.time_start > now));
+                setFutureEvents(events.filter((e) => e.time_start > "2021-06-20"));  // TODO: CHANGE TO now after festival
                 setPastEvents(events.filter((e) => e.time_start <= now).reverse());
             } catch (err) {
                 if (err.response && err.response.data && err.response.data.err)
