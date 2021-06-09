@@ -202,8 +202,6 @@ const EventEditor = ({ eventInfo }) => {
     // check if date in scheduler should be disabled
     const isDateDisabled = (date) => {
         const datestring = date.format('YYYY-MM-DD');
-        if (date.day() != 0 && date.day() != 5 && date.day() != 6)
-            return true;
         if (datestring in unavailableDatetimes && unavailableDatetimes[datestring].length === dailyTimes.length)
             return true;
         return false;
