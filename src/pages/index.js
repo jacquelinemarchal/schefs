@@ -154,7 +154,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Remote</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-14' && e.time_start < '2021-06-15'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-13 20:00:00' && e.time_start < '2021-06-15 04:00:00'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
@@ -167,7 +167,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Planet</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-15' && e.time_start < '2021-06-16'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-14 20:00:00' && e.time_start < '2021-06-16 04:00:00'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
