@@ -38,7 +38,7 @@ const Home = ({ closeCardF }) => {
                 context.setHomeEvents(events);
 
                 setEmergenceEvents(events.filter((e) => e.time_start > "2021-06-13" && e.time_start < "2021-06-21"));
-                setFutureEvents(events.filter((e) => e.time_start > "2021-06-20"));  // TODO: CHANGE TO now after festival
+                setFutureEvents(events.filter((e) => e.time_start > "2021-06-21"));  // TODO: CHANGE TO now after festival
                 setPastEvents(events.filter((e) => e.time_start <= now).reverse());
             } catch (err) {
                 if (err.response && err.response.data && err.response.data.err)
@@ -49,7 +49,7 @@ const Home = ({ closeCardF }) => {
         }
         
         if (context.events) {
-            setFutureEvents(context.events.filter((e) => e.time_start > now));
+           // setFutureEvents(context.events.filter((e) => e.time_start > now)); TODO: uncomment
             setPastEvents(context.events.filter((e) => e.time_start <= now).reverse());
             setEmergenceEvents(context.events.filter((e) => e.time_start > "2021-06-13" && e.time_start < "2021-06-21"));
         }
@@ -154,7 +154,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Remote</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-13 20:00:00' && e.time_start < '2021-06-15 04:00:00'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-14' && e.time_start < '2021-06-15'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
@@ -167,7 +167,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Planet</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-14 20:00:00' && e.time_start < '2021-06-16 04:00:00'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-15' && e.time_start < '2021-06-16'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
