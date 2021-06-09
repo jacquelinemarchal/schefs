@@ -129,11 +129,14 @@ const EventEditor = ({ eventInfo }) => {
                 const times = {}
                 for (const event of events) {
                     const datetime = moment(event.time_start).tz(timezone);
+                    const datetime1 = moment(event.time_start).add(1, 'hours').tz(timezone);
+
                     const date = datetime.format('YYYY-MM-DD');
-                    if (date in times)
+                    if (date in times) {
                         times[date].push(datetime.format('h:mm A'));
-                    else
-                        times[date] = [datetime.format('h:mm A')];
+                        times[date].add(datetime1.format('h:mm A'));
+                    } else
+                        times[date] = new Set([datetime.format('h:mm A'), datetime1.format('h:mm A')]);
                 }
 
                 setUnavailableDatetimes({...times});
