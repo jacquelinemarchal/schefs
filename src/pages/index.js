@@ -15,9 +15,7 @@ import multi from '../assets/multiplicitiesLogo.png';
 
 const Home = ({ closeCardF }) => {
     const context = useContext(Context);
-
-    const [isBottom, setIsBottom] = useState(false);
-    const [displayLength, setDisplayLength] = useState(15);
+    const [emergenceEvents, setEmergenceEvents] = useState(null); 
     const [futureEvents, setFutureEvents] = useState(null); 
     const [pastEvents, setPastEvents] = useState(null);
 
@@ -39,8 +37,9 @@ const Home = ({ closeCardF }) => {
                 const events = (await axios.get('/api/events', query)).data;
                 context.setHomeEvents(events);
 
-                setFutureEvents(events.filter((e) => e.time_start > now).slice(0, displayLength));
-                setPastEvents(events.filter((e) => e.time_start <= now).reverse().slice(0, displayLength));
+                setEmergenceEvents(events.filter((e) => e.time_start > "2021-06-13" && e.time_start < "2021-06-21"));
+                setFutureEvents(events.filter((e) => e.time_start > now));
+                setPastEvents(events.filter((e) => e.time_start <= now).reverse());
             } catch (err) {
                 if (err.response && err.response.data && err.response.data.err)
                     console.log(err.response.data.err);
@@ -50,37 +49,12 @@ const Home = ({ closeCardF }) => {
         }
         
         if (context.events) {
-            setFutureEvents(context.events.filter((e) => e.time_start > now).slice(0, displayLength));
-            setPastEvents(context.events.filter((e) => e.time_start <= now).reverse().slice(0, displayLength));
+            setFutureEvents(context.events.filter((e) => e.time_start > now));
+            setPastEvents(context.events.filter((e) => e.time_start <= now).reverse());
+            setEmergenceEvents(context.events.filter((e) => e.time_start > "2021-06-13" && e.time_start < "2021-06-21"));
         }
 
-    }, [context.events, displayLength]);
-
-    useEffect(() => {
-        window.addEventListener('scroll', handleScrollToBottom, {passive: true});
-        return () => window.removeEventListener('scroll', handleScrollToBottom);
-    }, []);
-
-    useEffect(() => {
-        console.log(isBottom);
-        if (isBottom && context.events && displayLength < context.events.length)
-            setDisplayLength(displayLength + 15);
-    }, [isBottom]);
-
-    const handleScrollToBottom = () => {
-        const scrollTop = (document.documentElement
-            && document.documentElement.scrollTop)
-            || document.body.scrollTop;
-
-        const scrollHeight = (document.documentElement
-            && document.documentElement.scrollHeight)
-            || document.body.scrollHeight;
-
-        if (scrollTop + window.innerHeight + 50 >= scrollHeight)
-            setTimeout(() => setIsBottom(true), 200);
-        else
-            setIsBottom(false);
-    }
+    }, [context.events]);
 
     const ambassador = {
         left:  "We’re looking for engaged students to spread the word",
@@ -164,13 +138,110 @@ const Home = ({ closeCardF }) => {
                 </div>
                 <div className="flex flex-row justify-between">
                     <a href="#paradigm">
-                    Paradigm
+                    Paradigm 
                     </a>
                     <p className="ml-4">June 20</p>
                 </div>
                 </div>
             </div>
           </div>
+
+          {emergenceEvents
+              ? <div className="px-6 md:px-12 xl:px-24">
+                  <div className="mb-16 relative">
+                    <a name="distancing" className="absolute" style={{top: '-8rem'}}></a>
+                    <p className="text-xl leading-tight px-2">Monday, June 14th</p>
+                    <p className="text-3xl px-2 mb-8">EMERGENCE: Remote</p>
+                    <EventGrid
+                      isEditable={false}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-14' && e.time_start < '2021-06-15'))}
+                      style="px-2"
+                      gridNum="3"
+                      closeCardF={closeCardF}
+                      showAttendees={false}
+                    />
+                  </div>
+                  <div className="mb-16 relative">
+                    <a name="networks" className="absolute" style={{top: '-8rem'}}></a>
+                    <p className="text-xl leading-tight px-2">Tuesday, June 15th</p>
+                    <p className="text-3xl px-2 mb-8">EMERGENCE: Planet</p>
+                    <EventGrid
+                      isEditable={false}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-15' && e.time_start < '2021-06-16'))}
+                      style="px-2"
+                      gridNum="3"
+                      closeCardF={closeCardF}
+                      showAttendees={false}
+                    />
+                  </div>
+                  <div className="mb-16 relative">
+                    <a name="justice" className="absolute" style={{top: '-8rem'}}></a>
+                    <p className="text-xl leading-tight px-2">Wednesday, June 16th</p>
+                    <p className="text-3xl px-2 mb-8">EMERGENCE: Passport</p>
+                    <EventGrid
+                      isEditable={false}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-16' && e.time_start < '2021-06-17'))}
+                      style="px-2"
+                      gridNum="3"
+                      closeCardF={closeCardF}
+                      showAttendees={false}
+                    />
+                  </div>
+                  <div className="mb-16 relative">
+                    <a name="circles" className="absolute" style={{top: '-8rem'}}></a>
+                    <p className="text-xl leading-tight px-2">Thursday, June 17th</p>
+                    <p className="text-3xl px-2 mb-8">EMERGENCE: Structure</p>
+                    <EventGrid
+                      isEditable={false}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-17' && e.time_start < '2021-06-18'))}
+                      style="px-2"
+                      gridNum="3"
+                      closeCardF={closeCardF}
+                      showAttendees={false}
+                    />
+                  </div>
+                  <div className="mb-16 relative">
+                    <a name="isms" className="absolute" style={{top: '-8rem'}}></a>
+                    <p className="text-xl leading-tight px-2">Friday, June 18th</p>
+                    <p className="text-3xl px-2 mb-8">EMERGENCE: Socialize</p>
+                    <EventGrid
+                      isEditable={false}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-18' && e.time_start < '2021-06-19'))}
+                      style="px-2"
+                      gridNum="3"
+                      closeCardF={closeCardF}
+                      showAttendees={false}
+                    />
+                  </div>
+                  <div className="mb-16 relative">
+                    <a name="constructs" className="absolute" style={{top: '-8rem'}}></a>
+                    <p className="text-xl leading-tight px-2">Saturday, June 19th</p>
+                    <p className="text-3xl px-2 mb-8">EMERGENCE: Intimacy</p>
+                    <EventGrid
+                      isEditable={false}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-19' && e.time_start < '2021-06-20'))}
+                      style="px-2"
+                      gridNum="3"
+                      closeCardF={closeCardF}
+                      showAttendees={false}
+                    />
+                  </div>
+                  <div className="mb-16 relative">
+                    <a name="responsibility" className="absolute" style={{top: '-8rem'}}></a>
+                    <p className="text-xl leading-tight px-2">Sunday, June 20th</p>
+                    <p className="text-3xl px-2 mb-8">EMERGENCE: Paradigm</p>
+                    <EventGrid
+                      isEditable={false}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-20' && e.time_start < '2021-06-21'))}
+                      style="px-2"
+                      gridNum="3"
+                      closeCardF={closeCardF}
+                      showAttendees={false}
+                    />
+                  </div>
+                </div>
+              : null
+            }
 
           {futureEvents && pastEvents
             ? <>
@@ -204,7 +275,7 @@ const Home = ({ closeCardF }) => {
 
                 <div className="px-8 md:px-12 xl:px-24 mt-24 mb-16 sm:mb-0">
                   <p className="text-2xl mx-2 mb-8 sm:mb-12">Schefs Festivals</p>
-                  <div className="sm:grid sm:grid-cols-2 mb-16 sm:mb-0" style={{marginBottom: "2.5rem"}}>
+                  <div className="sm:grid sm:grid-cols-2 mb-16 sm:mb-0">
                     <div className="col-span-1 flex flex-col justify-center sm:block">
                       <img className="left-0 mt-2 ml-1 h-16 sm:h-20 w-auto" src={social} />
                       <p className="text-center ml-1 sm:text-left left-0 text-2xl my-6">January 04&ndash;10, 2021</p>
@@ -223,7 +294,7 @@ const Home = ({ closeCardF }) => {
                       </div>
                     </div>
                   </div>
-                {/*
+  
                   <div className="sm:grid sm:grid-cols-2 mt-10 mb-8">
                     <div className="col-span-1 flex flex-col justify-center sm:block">
                       <img className="left-0 mt-2 ml-1 h-32 w-auto" src={multi} />
@@ -242,7 +313,6 @@ const Home = ({ closeCardF }) => {
                       </div>
                     </div>
                   </div>
-                */}
                 </div>
               </>
             : null
