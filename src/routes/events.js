@@ -317,9 +317,19 @@ router.post('', verifyFirebaseIdToken, async (req, res) => {
 
         // if valid, add this event
         if (!valid_thumb) {
+            if (!(await zoom.deleteMeeting(zoom_res.id)))
+                console.log('Failed to delete Zoom meeting', zoom_res.id);
+            if (!(await gcal.delete(gcal_id)))
+                console.log('Failed to delete Gcal event', gcal_id);
+
             await client.query('COMMIT');
             res.status(409).json({ err: 'Thumbnail already in use' });
         } else if (!valid_time) {
+            if (!(await zoom.deleteMeeting(zoom_res.id)))
+                console.log('Failed to delete Zoom meeting', zoom_res.id);
+            if (!(await gcal.delete(gcal_id)))
+                console.log('Failed to delete Gcal event', gcal_id);
+
             await client.query('COMMIT');
             res.status(409).json({ err: 'Time unavailable' });
         } else {
@@ -471,29 +481,10 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
                 event_time = moment.tz(event_time, server_timezone).utc().format();
             }
 
-            // do some things if event was approved
-            if (orig_event.status !== 'approved' && req.body.status === 'approved') {
-
-                // send approval email to hosts
-                for (const host of orig_event.hosts) {
-                    emails.sendEventApprovedEmail(
-                        host.email,
-                        host.first_name,
-                        event_title,
-                        moment.tz(event_time, 'America/New_York').format('dddd, MMMM D, YYYY'),
-                        moment.tz(event_time, 'America/New_York').format('h:mm A z'),
-                        process.env.BASE_URL + 'events/' + orig_event.eid,
-                        req.body.zoom_link || orig_event.zoom_link
-                    );
-                }
-
-                // add hosts to Gcal event
-                if (!(await gcal.addAttendees(orig_event.gcal_id, orig_event.hosts.map((host) => host.email))))
-                    console.log('Failed to add hosts to Gcal event', orig_event.gcal_id);
 
 
-            // or send email and delete Zoom/Gcal if a denial took place
-            } else if (orig_event.status !== 'denied' && req.body.status === 'denied') {
+            // send email and delete event, Zoom, and Gcal if a denial took place
+            if (orig_event.status !== 'denied' && req.body.status === 'denied') {
                 for (const host of orig_event.hosts) {
                     emails.sendEventDeniedEmail(
                         host.email,
@@ -509,65 +500,90 @@ router.patch('/:eid', verifyIsAdmin, async (req, res) => {
                     console.log('Failed to delete Zoom meeting', orig_event.zoom_id);
                 if (!(await gcal.delete(orig_event.gcal_id)))
                     console.log('Failed to delete Gcal event', orig_event.gcal_id);
-            }
 
-            // if necessary, update Zoom
-            if (req.body.time_start || req.body.title) {
-                if (!(await zoom.updateMeeting(orig_event.zoom_id, event_title, event_time))) {
-                    await client.query('ROLLBACK');
-                    res.status(500).json({
-                        err: 'Zoom API failed to update meeting ' + orig_event.zoom_id
-                    });
-                    return;
-                }
-            }
+            } else {
 
-            // if necessary, update Gcal event
-            if (req.body.time_start || req.body.title || req.body.host_name || req.body.description) {
-                const gcal_event_patch = {};
+                // send email and add hosts to Gcal if approval took place
+                if (orig_event.status !== 'approved' && req.body.status === 'approved') {
 
-                if (req.body.time_start) {
-                    const time_start = new Date(req.body.time_start);
-                    const time_end = new Date(time_start);
-                    time_end.setHours(time_start.getHours() + 1);
+                    // send approval email to hosts
+                    for (const host of orig_event.hosts) {
+                        emails.sendEventApprovedEmail(
+                            host.email,
+                            host.first_name,
+                            event_title,
+                            moment.tz(event_time, 'America/New_York').format('dddd, MMMM D, YYYY'),
+                            moment.tz(event_time, 'America/New_York').format('h:mm A z'),
+                            process.env.BASE_URL + 'events/' + orig_event.eid,
+                            req.body.zoom_link || orig_event.zoom_link
+                        );
+                    }
 
-                    gcal_event_patch.start = {
-                        dateTime: time_start.toISOString(),
-                        timeZone: TIMEZONE
-                    };
-
-                    gcal_event_patch.end = {
-                        dateTime: time_end.toISOString(),
-                        timeZone: TIMEZONE
-                    };
+                    // add hosts to Gcal event
+                    if (!(await gcal.addAttendees(orig_event.gcal_id, orig_event.hosts.map((host) => host.email))))
+                        console.log('Failed to add hosts to Gcal event', orig_event.gcal_id);
                 }
 
-                if (req.body.title)
-                    gcal_event_patch.summary = req.body.title;
-
-                if (req.body.host_name || req.body.description) {
-                    const event_host = req.body.host_name || orig_event.host_name;
-                    const event_desc = req.body.description || orig_event.description;
-                    gcal_event_patch.description = `
-                        <html>
-                          <p>
-                            A Schefs event hosted by ${event_host}.
-                            <br><br>
-                            ${event_desc}
-                            <br><br>
-                            Meeting Link: <a href=${orig_event.zoom_link}>${orig_event.zoom_link}</a><br>
-                            Meeting ID: ${orig_event.zoom_id}
-                          </p>
-                        </html>
-                    `;
-                }
+                // whether or not approval occurred, as long as denial didn't happen, do Zoom/Gcal updates
                 
-                if (!(await gcal.update(orig_event.gcal_id, gcal_event_patch))) {
-                    await client.query('ROLLBACK');
-                    res.status(500).json({
-                        err: 'Google Calendar API failed to update the event ' + orig_event.gcal_id
-                    });
-                    return;
+                // if necessary, update Zoom
+                if (req.body.time_start || req.body.title) {
+                    if (!(await zoom.updateMeeting(orig_event.zoom_id, event_title, event_time))) {
+                        await client.query('ROLLBACK');
+                        res.status(500).json({
+                            err: 'Zoom API failed to update meeting ' + orig_event.zoom_id
+                        });
+                        return;
+                    }
+                }
+
+                // if necessary, update Gcal event
+                if (req.body.time_start || req.body.title || req.body.host_name || req.body.description) {
+                    const gcal_event_patch = {};
+
+                    if (req.body.time_start) {
+                        const time_start = new Date(req.body.time_start);
+                        const time_end = new Date(time_start);
+                        time_end.setHours(time_start.getHours() + 1);
+
+                        gcal_event_patch.start = {
+                            dateTime: time_start.toISOString(),
+                            timeZone: TIMEZONE
+                        };
+
+                        gcal_event_patch.end = {
+                            dateTime: time_end.toISOString(),
+                            timeZone: TIMEZONE
+                        };
+                    }
+
+                    if (req.body.title)
+                        gcal_event_patch.summary = req.body.title;
+
+                    if (req.body.host_name || req.body.description) {
+                        const event_host = req.body.host_name || orig_event.host_name;
+                        const event_desc = req.body.description || orig_event.description;
+                        gcal_event_patch.description = `
+                            <html>
+                              <p>
+                                A Schefs event hosted by ${event_host}.
+                                <br><br>
+                                ${event_desc}
+                                <br><br>
+                                Meeting Link: <a href=${orig_event.zoom_link}>${orig_event.zoom_link}</a><br>
+                                Meeting ID: ${orig_event.zoom_id}
+                              </p>
+                            </html>
+                        `;
+                    }
+                    
+                    if (!(await gcal.update(orig_event.gcal_id, gcal_event_patch))) {
+                        await client.query('ROLLBACK');
+                        res.status(500).json({
+                            err: 'Google Calendar API failed to update the event ' + orig_event.gcal_id
+                        });
+                        return;
+                    }
                 }
             }
 

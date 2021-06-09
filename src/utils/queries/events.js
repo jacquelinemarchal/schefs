@@ -249,6 +249,7 @@ const checkTimeAvailable = `
     FROM events
     WHERE time_start >= $1
     AND time_start <= $2
+    AND status != 'denied'
 `
 
 /*
