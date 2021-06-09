@@ -128,15 +128,22 @@ const EventEditor = ({ eventInfo }) => {
                 // save in object {date string: time string} format
                 const times = {}
                 for (const event of events) {
+
                     const datetime = moment(event.time_start).tz(timezone);
-                    const datetime1 = moment(event.time_start).add(1, 'hours').tz(timezone);
+                    const datetime_prev = moment(event.time_start).subtract(1, 'hours').tz(timezone);
+                    const datetime_next = moment(event.time_start).add(1, 'hours').tz(timezone);
 
                     const date = datetime.format('YYYY-MM-DD');
                     if (date in times) {
                         times[date].add(datetime.format('h:mm A'));
-                        times[date].add(datetime1.format('h:mm A'));
+                        times[date].add(datetime_prev.format('h:mm A'));
+                        times[date].add(datetime_next.format('h:mm A'));
                     } else
-                        times[date] = new Set([datetime.format('h:mm A'), datetime1.format('h:mm A')]);
+                        times[date] = new Set([
+                            datetime.format('h:mm A'),
+                            datetime_prev.format('h:mm A'),
+                            datetime_next.format('h:mm A')
+                        ]);
                 }
 
                 setUnavailableDatetimes({...times});
