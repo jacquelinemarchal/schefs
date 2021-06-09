@@ -133,7 +133,7 @@ const EventEditor = ({ eventInfo }) => {
 
                     const date = datetime.format('YYYY-MM-DD');
                     if (date in times) {
-                        times[date].push(datetime.format('h:mm A'));
+                        times[date].add(datetime.format('h:mm A'));
                         times[date].add(datetime1.format('h:mm A'));
                     } else
                         times[date] = new Set([datetime.format('h:mm A'), datetime1.format('h:mm A')]);
