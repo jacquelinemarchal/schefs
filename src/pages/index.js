@@ -53,7 +53,7 @@ const Home = ({ closeCardF }) => {
             setPastEvents(context.events.filter((e) => e.time_start <= now).reverse());
             setEmergenceEvents(context.events.filter((e) => e.time_start > "2021-06-13" && e.time_start < "2021-06-21"));
         }
-
+        
     }, [context.events]);
 
     const ambassador = {
@@ -154,7 +154,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Remote</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-14' && e.time_start < '2021-06-15'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-13T21:00:00.000Z' && e.time_start < '2021-06-15T04:00:00.000Z'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
@@ -167,7 +167,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Planet</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-15' && e.time_start < '2021-06-16'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-15T04:00:00.000Z' && e.time_start < '2021-06-16T04:00:00.000Z'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
@@ -180,7 +180,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Passport</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-16' && e.time_start < '2021-06-17'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-16T04:00:00.000Z' && e.time_start < '2021-06-17T04:00:00.000Z'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
@@ -193,7 +193,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Structure</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-17' && e.time_start < '2021-06-18'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-17T04:00:00.000Z' && e.time_start < '2021-06-18T04:00:00.000Z'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
@@ -206,7 +206,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Socialize</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-18' && e.time_start < '2021-06-19'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-18T04:00:00.000Z' && e.time_start < '2021-06-19T04:00:00.000Z'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
@@ -219,7 +219,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Intimacy</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-19' && e.time_start < '2021-06-20'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-19T04:00:00.000Z' && e.time_start < '2021-06-20T04:00:00.000Z'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
@@ -232,7 +232,7 @@ const Home = ({ closeCardF }) => {
                     <p className="text-3xl px-2 mb-8">EMERGENCE: Paradigm</p>
                     <EventGrid
                       isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-20' && e.time_start < '2021-06-21'))}
+                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-20T04:00:00.000Z' && e.time_start < '2021-06-21T04:00:00.000Z'))}
                       style="px-2"
                       gridNum="3"
                       closeCardF={closeCardF}
