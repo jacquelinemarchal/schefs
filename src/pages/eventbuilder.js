@@ -261,6 +261,8 @@ const EventBuilder = (props) => {
             if (router.query.date !== datestring)
                 return true;
         } else {
+            if (datestring <= '2021-06-21')
+                return true;
             if (date.day() != 0 && date.day() != 5 && date.day() != 6)
                 return true;
             if (datestring in unavailableDatetimes && unavailableDatetimes[datestring].length === dailyTimes.length)
