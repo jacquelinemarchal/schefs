@@ -28,7 +28,7 @@ const NavBar = (props) => {
                       <img className="mx-1 sm:mx-0" src={logo} style={{height: '1.75rem'}} />
                     </a>
                   </Link>
-                  <Link href="/festival">
+                  <Link href="/eventbuilder">
                     <a className="text-base hover:text-gray-600 duration-300 ml-4 md:ml-8">
                       Host
                     </a>
