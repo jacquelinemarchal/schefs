@@ -81,7 +81,7 @@ const Home = ({ closeCardF }) => {
 
         <div className="px-6 md:px-12 xl:px-24" id="emergenceBannerWeb">
             <div className="flex justify-between">
-                <p className="text-2xl mb-4 ml-2" style={{color: "#1404f4"}}>UPCOMING IN JUNE 2021</p>
+                <p className="text-2xl mb-4 ml-2" style={{color: "#1404f4"}}>UPCOMING NEXT WEEK</p>
                 <p className="text-2xl mb-4 pr-16 " style={{color: "#1404f4"}}>7 DAYS, 7 THEMES</p>
             </div>
             <div className="flex flex-row justify-between mb-16">
