@@ -70,9 +70,7 @@ const Home = ({ closeCardF }) => {
 
         <div className="px-6 md:px-12 mx-2" id="emergenceBannerMobile">
             <p className="text-xl sm:text-2xl mb-4 mx-1 sm:mx-0" style={{color: "#1404f4"}}>UPCOMING IN JUNE 2021</p>
-            <Link href="/festival">
-                <img className="cursor-pointer h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} />
-            </Link>
+            <img className="cursor-pointer h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} />
             <p className="text-xl leading-tight mx-1 sm:mx-0">
                     The third Schefs festival.<br />
                     A week of discussions.<br />
@@ -83,20 +81,17 @@ const Home = ({ closeCardF }) => {
 
         <div className="px-6 md:px-12 xl:px-24" id="emergenceBannerWeb">
             <div className="flex justify-between">
-                <p className="text-2xl mb-4 ml-2" style={{color: "#1404f4"}}>UPCOMING IN JUNE 2021</p>
+                <p className="text-2xl mb-4 ml-2" style={{color: "#1404f4"}}>UPCOMING NEXT WEEK</p>
                 <p className="text-2xl mb-4 pr-16 " style={{color: "#1404f4"}}>7 DAYS, 7 THEMES</p>
             </div>
             <div className="flex flex-row justify-between mb-16">
                 <div className="pl-2">
-                <Link href="/festival">
-                    <img className="cursor-pointer md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} alttext="Emergence Logo" />
-                </Link>
+                <img className="cursor-pointer md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} alttext="Emergence Logo" />
                 <p className="text-xl leading-tight">
                     The third Schefs festival.<br />
                     A week of discussions.<br />
                     By &amp; for college students worldwide.
                 </p>
-                <WhitePillButton text="LEAD A CONVERSATION FOR THE FESTIVAL" link="/festival" padding="px-6 mt-6" size="xl"></WhitePillButton>
                 </div>
 
                 <div className="pr-16 text-xl">
