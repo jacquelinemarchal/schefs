@@ -205,12 +205,30 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                     </div>
                     <div className="sm:hidden inline-block">
                         <footer className="left-0 px-8 fixed w-full flex justify-between bottom-0 bg-white h-16">
-                            <div className="text-gray-500 self-center">
-                                {7-clientTickets} / 7 spots available
-                            </div>
-                            <div className="self-center">
-                                <WhitePillButton padding="px-4 flex" type="button" text="RESERVE" size="xl" />
-                            </div>
+                          <div className="text-gray-500 self-center">
+                            {new Date(eventInfo.time_start) > new Date()
+                              ? clientTickets > 5
+                                ? <>6 / 7 spots available</>
+                                : <>{7-clientTickets} / 7 spots available</>
+                              : null
+                            }
+                          </div>
+                          <div className="self-center">
+                            {new Date(eventInfo.time_start) > new Date()
+                              ? clientTickets > 14
+                                ? <button className={"flex justify-center items-center focus:outline-none text-xl text-gray-500 border sm:border-2 border-gray-500 px-4 cursor-default rounded-full"}>SOLD OUT</button>  
+                                : reservedTicket
+                                  ? <button className={"flex justify-center items-center bg-yellow-300 focus:outline-none text-xl text-black border sm:border-2 border-black px-4 cursor-not-allowed rounded-full"}>RESERVED</button> 
+                                  : <WhitePillButton type="button" size="xl" padding="px-4 flex" text="RESERVE" handleClick={reserveTicket}/>
+                              : <button
+                                  type="button"
+                                  disabled={true}
+                                  className={"justify-center cursor-not-allowed items-center text-left bg-transparent focus:outline-none text-xl text-black border-2 border-black px-4 flex rounded-full"}
+                                >
+                                  EVENT HAS PASSED
+                                </button>  
+                            }
+                          </div>
                         </footer>
                     </div>
 
