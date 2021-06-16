@@ -197,7 +197,7 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                         <div className="text-gray-500 mt-2">
                           {new Date(eventInfo.time_start) > new Date()
                             ? clientTickets > 5 
-                                ? <>6 / 7 spots available</>
+                                ? <>2 / 7 spots available</>
                                 : <>{7-clientTickets} / 7 spots available</>
                             : null
                           }
@@ -208,7 +208,7 @@ const EventPage = ({eventInfo, tickets, comments}) => {
                           <div className="text-gray-500 self-center">
                             {new Date(eventInfo.time_start) > new Date()
                               ? clientTickets > 5
-                                ? <>6 / 7 spots available</>
+                                ? <>2 / 7 spots available</>
                                 : <>{7-clientTickets} / 7 spots available</>
                               : null
                             }
