@@ -15,7 +15,6 @@ import multi from '../assets/multiplicitiesLogo.png';
 
 const Home = ({ closeCardF }) => {
     const context = useContext(Context);
-    const [emergenceEvents, setEmergenceEvents] = useState(null); 
     const [futureEvents, setFutureEvents] = useState(null); 
     const [pastEvents, setPastEvents] = useState(null);
 
@@ -36,9 +35,7 @@ const Home = ({ closeCardF }) => {
             try {
                 const events = (await axios.get('/api/events', query)).data;
                 context.setHomeEvents(events);
-
-                setEmergenceEvents(events.filter((e) => e.time_start > "2021-06-13" && e.time_start < "2021-06-21"));
-                setFutureEvents(events.filter((e) => e.time_start > "2021-06-21"));  // TODO: CHANGE TO now after festival
+                setFutureEvents(events.filter((e) => e.time_start > now));  
                 setPastEvents(events.filter((e) => e.time_start <= now).reverse());
             } catch (err) {
                 if (err.response && err.response.data && err.response.data.err)
@@ -49,9 +46,8 @@ const Home = ({ closeCardF }) => {
         }
         
         if (context.events) {
-           // setFutureEvents(context.events.filter((e) => e.time_start > now)); TODO: uncomment
+            setFutureEvents(context.events.filter((e) => e.time_start > now)); 
             setPastEvents(context.events.filter((e) => e.time_start <= now).reverse());
-            setEmergenceEvents(context.events.filter((e) => e.time_start > "2021-06-13" && e.time_start < "2021-06-21"));
         }
         
     }, [context.events]);
@@ -67,176 +63,6 @@ const Home = ({ closeCardF }) => {
         <Head>
         <title>Schefs - Learn From Each Other</title>
         </Head>
-
-        <div className="px-6 md:px-12 mx-2" id="emergenceBannerMobile">
-            <p className="text-xl sm:text-2xl mb-4 mx-1 sm:mx-0" style={{color: "#1404f4"}}>UPCOMING IN JUNE 2021</p>
-            <img className="cursor-pointer h-8 sm:h-12 w-auto mx-1 sm:mx-0 mb-6" src={emergenceLogo} />
-            <p className="text-xl leading-tight mx-1 sm:mx-0">
-                    The third Schefs festival.<br />
-                    A week of discussions.<br />
-                    By &amp; for college students worldwide.
-            </p>
-            <p className="text-xl leading-tight mx-1 sm:mx-0 my-4">June 14 - 20</p>
-        </div>
-
-        <div className="px-6 md:px-12 xl:px-24" id="emergenceBannerWeb">
-            <div className="flex justify-between">
-                <p className="text-2xl mb-4 ml-2" style={{color: "#1404f4"}}>UPCOMING NEXT WEEK</p>
-                <p className="text-2xl mb-4 pr-16 " style={{color: "#1404f4"}}>7 DAYS, 7 THEMES</p>
-            </div>
-            <div className="flex flex-row justify-between mb-16">
-                <div className="pl-2">
-                <img className="cursor-pointer md:h-12 lg:h-16 w-auto mb-6 " src={emergenceLogo} alttext="Emergence Logo" />
-                <p className="text-xl leading-tight">
-                    The third Schefs festival.<br />
-                    A week of discussions.<br />
-                    By &amp; for college students worldwide.
-                </p>
-                </div>
-
-                <div className="pr-16 text-xl">
-                <div className="flex flex-row justify-between">
-                    <a href="#remote">
-                    Remote
-                    </a>
-                    <p className="ml-4">June 14</p>
-                </div>
-                <div className="flex flex-row justify-between">
-                    <a href="#planet">
-                    Planet
-                    </a>
-                    <p className="ml-4">June 15</p>
-                </div>
-                <div className="flex flex-row justify-between">
-                    <a href="#passport">
-                    Passport
-                    </a>
-                    <p className="ml-4">June 16</p>
-                </div>
-                <div className="flex flex-row justify-between">
-                    <a href="#structure">
-                    Structure 
-                    </a>
-                    <p className="ml-4">June 17</p>
-                </div>
-                <div className="flex flex-row justify-between">
-                    <a href="#socialize">
-                    Socialize
-                    </a>
-                    <p className="ml-4">June 18</p>
-                </div>
-                <div className="flex flex-row justify-between">
-                    <a href="#intimacy">
-                    Intimacy
-                    </a>
-                    <p className="ml-4">June 19</p>
-                </div>
-                <div className="flex flex-row justify-between">
-                    <a href="#paradigm">
-                    Paradigm 
-                    </a>
-                    <p className="ml-4">June 20</p>
-                </div>
-                </div>
-            </div>
-          </div>
-
-          {emergenceEvents
-              ? <div className="px-6 md:px-12 xl:px-24">
-                  <div className="mb-16 relative">
-                    <a name="distancing" className="absolute" style={{top: '-8rem'}}></a>
-                    <p className="text-xl leading-tight px-2">Monday, June 14th</p>
-                    <p className="text-3xl px-2 mb-8">EMERGENCE: Remote</p>
-                    <EventGrid
-                      isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-13T21:00:00.000Z' && e.time_start < '2021-06-15T04:00:00.000Z'))}
-                      style="px-2"
-                      gridNum="3"
-                      closeCardF={closeCardF}
-                      showAttendees={false}
-                    />
-                  </div>
-                  <div className="mb-16 relative">
-                    <a name="networks" className="absolute" style={{top: '-8rem'}}></a>
-                    <p className="text-xl leading-tight px-2">Tuesday, June 15th</p>
-                    <p className="text-3xl px-2 mb-8">EMERGENCE: Planet</p>
-                    <EventGrid
-                      isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-15T04:00:00.000Z' && e.time_start < '2021-06-16T04:00:00.000Z'))}
-                      style="px-2"
-                      gridNum="3"
-                      closeCardF={closeCardF}
-                      showAttendees={false}
-                    />
-                  </div>
-                  <div className="mb-16 relative">
-                    <a name="justice" className="absolute" style={{top: '-8rem'}}></a>
-                    <p className="text-xl leading-tight px-2">Wednesday, June 16th</p>
-                    <p className="text-3xl px-2 mb-8">EMERGENCE: Passport</p>
-                    <EventGrid
-                      isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-16T04:00:00.000Z' && e.time_start < '2021-06-17T04:00:00.000Z'))}
-                      style="px-2"
-                      gridNum="3"
-                      closeCardF={closeCardF}
-                      showAttendees={false}
-                    />
-                  </div>
-                  <div className="mb-16 relative">
-                    <a name="circles" className="absolute" style={{top: '-8rem'}}></a>
-                    <p className="text-xl leading-tight px-2">Thursday, June 17th</p>
-                    <p className="text-3xl px-2 mb-8">EMERGENCE: Structure</p>
-                    <EventGrid
-                      isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-17T04:00:00.000Z' && e.time_start < '2021-06-18T04:00:00.000Z'))}
-                      style="px-2"
-                      gridNum="3"
-                      closeCardF={closeCardF}
-                      showAttendees={false}
-                    />
-                  </div>
-                  <div className="mb-16 relative">
-                    <a name="isms" className="absolute" style={{top: '-8rem'}}></a>
-                    <p className="text-xl leading-tight px-2">Friday, June 18th</p>
-                    <p className="text-3xl px-2 mb-8">EMERGENCE: Socialize</p>
-                    <EventGrid
-                      isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-18T04:00:00.000Z' && e.time_start < '2021-06-19T04:00:00.000Z'))}
-                      style="px-2"
-                      gridNum="3"
-                      closeCardF={closeCardF}
-                      showAttendees={false}
-                    />
-                  </div>
-                  <div className="mb-16 relative">
-                    <a name="constructs" className="absolute" style={{top: '-8rem'}}></a>
-                    <p className="text-xl leading-tight px-2">Saturday, June 19th</p>
-                    <p className="text-3xl px-2 mb-8">EMERGENCE: Intimacy</p>
-                    <EventGrid
-                      isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-19T04:00:00.000Z' && e.time_start < '2021-06-20T04:00:00.000Z'))}
-                      style="px-2"
-                      gridNum="3"
-                      closeCardF={closeCardF}
-                      showAttendees={false}
-                    />
-                  </div>
-                  <div className="mb-16 relative">
-                    <a name="responsibility" className="absolute" style={{top: '-8rem'}}></a>
-                    <p className="text-xl leading-tight px-2">Sunday, June 20th</p>
-                    <p className="text-3xl px-2 mb-8">EMERGENCE: Paradigm</p>
-                    <EventGrid
-                      isEditable={false}
-                      events={emergenceEvents.filter((e) => (e.time_start >= '2021-06-20T04:00:00.000Z' && e.time_start < '2021-06-21T04:00:00.000Z'))}
-                      style="px-2"
-                      gridNum="3"
-                      closeCardF={closeCardF}
-                      showAttendees={false}
-                    />
-                  </div>
-                </div>
-              : null
-            }
 
           {futureEvents && pastEvents
             ? <>
