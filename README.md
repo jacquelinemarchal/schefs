@@ -10,7 +10,7 @@ Chris build the myevents.js page, which displays a user's events - past and upco
 
 Backend:
 Chris developed a RESTful API using express and node js. src > routes contains the five main API routes: events, index, openmind, thumbnail, and users. There is complete documentation in these files. 
-Chris also developed a custom scheduler which utilizes the Schefs gcalendar and zoom to schedule events. He used material UI in eventbuilder.js to generate the front end of the scheduler, and handles the actual scheduling using endpoints (Which?? im p sure this is right @chris).
+Chris also developed a custom scheduler which utilizes the Schefs gcalendar and zoom to schedule events. He used material UI in eventbuilder.js to generate the front end of the scheduler, and handles the actual scheduling using endpoints.
 
 The website is hosted on a digital ocean server using nginx and a goDaddy domain. 
 
