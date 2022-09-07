@@ -1,11 +1,13 @@
-# Schefs v2
-A next.js web app built with node, postgres, tailwind, express. <br>
+# Schefs
+#### We created Schefs with the belief that everybody has something to share, something to learn, and a stake in every conversation. 
 
-We created Schefs with the belief that everybody has something to share, something to learn, and a stake in every conversation. The Schefs web app enables a worldwide network of college-age students to host and attend events on a broad range of topics, from environmental justice to gloablization and the future of technology. Through our synchronous discussions, Schefs redefines engagement online as active, participatory and interest-driven
+The Schefs web app enables a worldwide network of college-age students to host and attend events on a broad range of topics, spanning environmental justice, gloablization, the pandemic, and the future of technology. Through our synchronous discussions, Schefs redefines engagement online as active, participatory and interest-driven.
 
-I (Jackie) spearheaded the development of the Schefs web app and worked as the CTO from March of 2020 until February of 2021. I built this app alongside engineer Chris Wang, who led development of the custom API. During development, I was learning each and every technology utilized in this app independently, with occasional mentorship from career web programmers in my personal network. Due to the on-the-job nature of my learning, there are components which no longer represent my personal coding style, or what I would consider high quality shippable code. I grew tremendously as a programmer through the making of Schefs, and am proud of the 500+ student network we supported during COVID-19. 
+I (Jackie) spearheaded the development of the Schefs web app and worked as the CTO from March of 2020 until February of 2021. I built this app alongside engineer Chris Wang, who led development of the custom API. During development, I was learning each and every technology utilized in this app independently, with occasional mentorship from career web programmers in my personal network. On the topic of the tech stack, it's worth nothing that Schefs is a next.js web app built with node, postgres, tailwind, and express. 
 
-Below I have outlined some more specific implementation details of how we created Schefs. 
+Due to the on-the-job nature of my learning, there are a few notably unwieldy components which no longer represent my personal coding style, or what I would consider high quality shippable code. I grew tremendously as a programmer through the making of Schefs, and am proud of the 500+ student network we supported during COVID-19. 
+
+#### Below I have outlined specific implementation details of how we created Schefs. 
 
 Frontend: 
 Jackie built the majority of the front end of the site using tailwind CSS and next js. Next js function getServerSideProps is used in the dynamic eid pages, which generate the pages for every event. Given an eid, the event information page will be located at www.schefs.us/events/[eid]. The only other dynamic route is for the eventbuilder, so that admin users can edit pending events. Jackie coded the authentication flow, Open Mind Archive, user's card display, and the mega-form that is the Event Builder. 
