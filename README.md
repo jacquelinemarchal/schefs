@@ -1,4 +1,4 @@
-# Schefs
+# [Schefs](https://schefs.us/)
 #### We created Schefs with the belief that everybody has something to share, something to learn, and a stake in every conversation. 
 
 The Schefs web app enables a worldwide network of college-age students to host and attend events on a broad range of topics, spanning environmental justice, gloablization, the pandemic, and the future of technology. Through our synchronous discussions, Schefs redefines engagement online as active, participatory and interest-driven.
